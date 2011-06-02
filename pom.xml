@@ -158,12 +158,18 @@
 	    <artifactId>smartsprites</artifactId>
 	    <version>0.2.8</version>
 	    <scope>provided</scope>
+	    <exclusions>
+	    	<exclusion>
+	    		<groupId>com.google.collections</groupId>
+  				<artifactId>google-collections</artifactId>
+			</exclusion>
+	    </exclusions>
 	</dependency>
 	<!-- Google closure dependency  -->
 	<dependency>
 		<groupId>com.google.javascript</groupId>
   		<artifactId>closure-compiler</artifactId>
-		<version>r706</version>
+		<version>r1043</version>
 		<scope>provided</scope>
 	</dependency>
 	

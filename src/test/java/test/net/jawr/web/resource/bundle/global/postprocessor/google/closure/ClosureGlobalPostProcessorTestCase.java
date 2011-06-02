@@ -207,7 +207,6 @@ public class ClosureGlobalPostProcessorTestCase {
 		compareResult("variantBundle@@");
 		compareResult("variantBundle@@fr");
 		compareResult("variantBundle@ssl@");
-		compareResult("variantBundle@ssl@");
 		compareResult("variantBundle@ssl@fr");
 				
 	}

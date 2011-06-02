@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,9 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.io.CharStreams;
 import com.google.javascript.jscomp.CommandLineRunner;
-import com.google.javascript.jscomp.JSModule;
 import com.google.javascript.jscomp.JSSourceFile;
-import com.google.javascript.jscomp.JawrCommandLineRunner;
 
 
 /**
@@ -336,7 +333,7 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
 		return (ResourceBundlesHandler) ctx.getJawrConfig().getContext().getAttribute(JawrConstant.JS_CONTEXT_ATTRIBUTE);
 	}
 	
-	private class JawrClosureCommandLineRunner extends JawrCommandLineRunner {
+	private class JawrClosureCommandLineRunner extends CommandLineRunner {
 
 		private GlobalProcessingContext ctx;
 
@@ -372,6 +369,7 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
 		@Override
 		protected List<JSSourceFile> createInputs(List<String> files,
 				boolean allowStdIn) throws IOException {
+			
 			List<JSSourceFile> inputs = new ArrayList<JSSourceFile>(
 					files.size());
 
@@ -412,10 +410,10 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
 		/**
 		 * Converts a file name into a Writer. Returns null if the file name is
 		 * null.
+		 * @throws IOException 
 		 */
 		@Override
-		protected OutputStream fileNameToOutputStream(String fileName)
-			throws IOException {
+		protected OutputStream filenameToOutputStream(String fileName) throws IOException {
 			
 			if (fileName == null) {
 				return null;
