@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 Jordi Hernández Sellés
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -22,44 +22,59 @@ import java.util.regex.Pattern;
 import net.jawr.web.resource.bundle.factory.util.RegexUtil;
 
 /**
- * Minifies CSS files by removing expendable whitespace and comments. 
+ * Minifies CSS files by removing expendable whitespace and comments.
  * 
  * @author Jordi Hernández Sellés
- *
+ * @author ibrahim Chaehoi
  */
 public class CSSMinifier {
 
 	// This regex captures comments
-	private static final String COMMENT_REGEX ="(/\\*[^*]*\\*+([^/][^*]*\\*+)*/)"; 
-	
+	private static final String COMMENT_REGEX = "(/\\*[^*]*\\*+([^/][^*]*\\*+)*/)";
+
 	// Captures CSS strings
-	//private static final String QUOTED_CONTENT_REGEX = "('(\\\\'|[^'])*?')|(\"(\\\\\"|[^\"])*?\")";
+	// private static final String QUOTED_CONTENT_REGEX =
+	// "('(\\\\'|[^'])*?')|(\"(\\\\\"|[^\"])*?\")";
 	private static final String QUOTED_CONTENT_REGEX = "(([\"'])(?!data:|(\\s*\\)))(?:\\\\?+.)*?\\2)";
-	
+
 	// A placeholder string to replace and restore CSS strings
 	private static final String STRING_PLACEHOLDER = "______'JAWR_STRING'______";
-	
-	// Captured CSS rules (requires replacing CSS strings with a placeholder, or quoted braces will fool it.  
+
+	// Captured CSS rules (requires replacing CSS strings with a placeholder, or
+	// quoted braces will fool it.
 	private static final String RULES_REGEX = "([^\\{\\}]*)(\\{[^\\{\\}]*})";
 
 	// Captures newlines and tabs
 	private static final String NEW_LINE_TABS_REGEX = "\\r|\\n|\\t|\\f";
-	
-	// This regex captures, in order: 
-	//(\\s*\\{\\s*)|(\\s*\\}\\s*)|(\\s*\\(\\s*)|(\\s*;\\s*)|(\\s*\\))
-	// 			brackets, parentheses,colons and semicolons and any spaces around them (except spaces AFTER a parentheses closing symbol), 
-	//and ( +) occurrences of one or more spaces. 
-	private static final String SPACES_REGEX = "(\\s*\\{\\s*)|(\\s*\\}\\s*)|(\\s*\\(\\s*)|(\\s*;\\s*)|(\\s*:\\s*)|(\\s*\\))|( +)";
-	
-	private static final Pattern COMMENTS_PATTERN = Pattern.compile(COMMENT_REGEX, Pattern.DOTALL);
-	private static final Pattern SPACES_PATTERN = Pattern.compile(SPACES_REGEX, Pattern.DOTALL);
-	
-	private static final Pattern QUOTED_CONTENT_PATTERN = Pattern.compile(QUOTED_CONTENT_REGEX, Pattern.DOTALL);
-	private static final Pattern RULES_PATTERN = Pattern.compile(RULES_REGEX, Pattern.DOTALL);
-	private static final Pattern NEW_LINES_TAB_PATTERN = Pattern.compile(NEW_LINE_TABS_REGEX, Pattern.DOTALL);
-	private static final Pattern STRING_PLACE_HOLDE_PATTERN = Pattern.compile(STRING_PLACEHOLDER, Pattern.DOTALL);
-	
-	
+
+	// This regex captures, in order:
+	// (\\s*\\{\\s*)|(\\s*\\}\\s*)|(\\s*\\(\\s*)|(\\s*;\\s*)|(\\s*\\))
+	// brackets, parentheses,colons and semicolons and any spaces around them
+	// (except spaces AFTER a parentheses closing
+	// symbol),
+	// and ( +) occurrences of one or more spaces.
+	/**
+	 * There is a special case when the space should not be removed when
+	 * preceeded by and keyword. Ex: <code>
+	 * 
+	 * @media only screen and (max-width:767px){ } </code>
+	 */
+	private static final String SPACES_REGEX = "(?ims)(\\s*\\{\\s*)|(\\s*\\}\\s*)|((?<!\\sand)\\s*\\(\\s*)|(\\s*;\\s*)|(\\s*:\\s*)|(\\s*\\))|( +)";
+
+	private static final Pattern COMMENTS_PATTERN = Pattern.compile(
+			COMMENT_REGEX, Pattern.DOTALL);
+	private static final Pattern SPACES_PATTERN = Pattern.compile(SPACES_REGEX,
+			Pattern.DOTALL);
+
+	private static final Pattern QUOTED_CONTENT_PATTERN = Pattern.compile(
+			QUOTED_CONTENT_REGEX, Pattern.DOTALL);
+	private static final Pattern RULES_PATTERN = Pattern.compile(RULES_REGEX,
+			Pattern.DOTALL);
+	private static final Pattern NEW_LINES_TAB_PATTERN = Pattern.compile(
+			NEW_LINE_TABS_REGEX, Pattern.DOTALL);
+	private static final Pattern STRING_PLACE_HOLDE_PATTERN = Pattern.compile(
+			STRING_PLACEHOLDER, Pattern.DOTALL);
+
 	private static final String SPACE = " ";
 	private static final String BRACKET_OPEN = "{";
 	private static final String BRACKET_CLOSE = "}";
@@ -68,89 +83,99 @@ public class CSSMinifier {
 
 	private static final String COLON = ":";
 	private static final String SEMICOLON = ";";
-	
+
 	/**
-	 * Template class to abstract the pattern of iterating over a Matcher and performing 
-	 * string replacement. 
+	 * Template class to abstract the pattern of iterating over a Matcher and
+	 * performing string replacement.
 	 */
 	public abstract class MatcherProcessorCallback {
-		String processWithMatcher(Matcher matcher){
-			StringBuffer sb = new StringBuffer();
-			while(matcher.find()){
-				matcher.appendReplacement(sb, matchCallback(matcher));
+		String processWithMatcher(final Matcher matcher) {
+			final StringBuffer sb = new StringBuffer();
+			while (matcher.find()) {
+				matcher.appendReplacement(sb,
+						matchCallback(matcher));
 			}
 			matcher.appendTail(sb);
 			return sb.toString();
 		}
+
 		abstract String matchCallback(Matcher matcher);
 	}
-	
+
 	/**
-	 * @param data CSS to minify
-	 * @return StringBuffer Minified CSS. 
+	 * @param data
+	 *            CSS to minify
+	 * @return StringBuffer Minified CSS.
 	 */
-	public StringBuffer minifyCSS(StringBuffer data) {
+	public StringBuffer minifyCSS(final StringBuffer data) {
 		// Remove comments and carriage returns
-		String compressed = COMMENTS_PATTERN.matcher(data.toString()).replaceAll("");
+		String compressed = COMMENTS_PATTERN.matcher(data.toString())
+				.replaceAll("");
 
 		// Temporarily replace the strings with a placeholder
-		final List<String> strings = new ArrayList<String>();		
-		Matcher stringMatcher = QUOTED_CONTENT_PATTERN.matcher(compressed);
-		
-		compressed = new MatcherProcessorCallback(){
-			String matchCallback(Matcher matcher) {
-				String match = matcher.group();
+		final List<String> strings = new ArrayList<String>();
+		final Matcher stringMatcher = QUOTED_CONTENT_PATTERN
+				.matcher(compressed);
+
+		compressed = new MatcherProcessorCallback() {
+			String matchCallback(final Matcher matcher) {
+				final String match = matcher.group();
 				strings.add(match);
-				return STRING_PLACEHOLDER;				
-			}}.processWithMatcher(stringMatcher);
-		
+				return STRING_PLACEHOLDER;
+			}
+		}.processWithMatcher(stringMatcher);
+
 		// Grab all rules and replace whitespace in selectors
-		Matcher rulesmatcher = RULES_PATTERN.matcher(compressed);
-		compressed = new MatcherProcessorCallback(){
-			String matchCallback(Matcher matcher) {
-				String match = matcher.group(1);
-				String spaced = NEW_LINES_TAB_PATTERN.matcher(match.toString()).replaceAll(SPACE).trim();
-				return spaced + matcher.group(2);	
-			}}.processWithMatcher(rulesmatcher);
-		
+		final Matcher rulesmatcher = RULES_PATTERN.matcher(compressed);
+		compressed = new MatcherProcessorCallback() {
+			String matchCallback(final Matcher matcher) {
+				final String match = matcher.group(1);
+				final String spaced = NEW_LINES_TAB_PATTERN
+						.matcher(match.toString()).replaceAll(SPACE).trim();
+				return spaced + matcher.group(2);
+			}
+		}.processWithMatcher(rulesmatcher);
+
 		// Replace all linefeeds and tabs
 		compressed = NEW_LINES_TAB_PATTERN.matcher(compressed).replaceAll(" ");
-		
-		// Match all empty space we can minify 
-		Matcher matcher = SPACES_PATTERN.matcher(compressed);
-		compressed = new MatcherProcessorCallback(){
-			String matchCallback(Matcher matcher) {
+
+		// Match all empty space we can minify
+		final Matcher matcher = SPACES_PATTERN.matcher(compressed);
+		compressed = new MatcherProcessorCallback() {
+			String matchCallback(final Matcher matcher) {
 				String replacement = SPACE;
-				String match = matcher.group();
-		
-				if(match.indexOf(BRACKET_OPEN) != -1)
+				final String match = matcher.group();
+
+				if (match.indexOf(BRACKET_OPEN) != -1)
 					replacement = BRACKET_OPEN;
-				else if(match.indexOf(BRACKET_CLOSE) != -1)
+				else if (match.indexOf(BRACKET_CLOSE) != -1)
 					replacement = BRACKET_CLOSE;
-				else if(match.indexOf(PAREN_OPEN) != -1)
+				else if (match.indexOf(PAREN_OPEN) != -1)
 					replacement = PAREN_OPEN;
-				else if(match.indexOf(COLON) != -1)
+				else if (match.indexOf(COLON) != -1)
 					replacement = COLON;
-				else if(match.indexOf(SEMICOLON) != -1)
+				else if (match.indexOf(SEMICOLON) != -1)
 					replacement = SEMICOLON;
-				else if(match.indexOf(PAREN_CLOSE) != -1)
+				else if (match.indexOf(PAREN_CLOSE) != -1)
 					replacement = PAREN_CLOSE;
-		
+
 				return replacement;
-			}}.processWithMatcher(matcher);
+			}
+		}.processWithMatcher(matcher);
 
 		// Restore all Strings
-		Matcher restoreMatcher = STRING_PLACE_HOLDE_PATTERN.matcher(compressed);		
+		final Matcher restoreMatcher = STRING_PLACE_HOLDE_PATTERN
+				.matcher(compressed);
 		final Iterator<String> it = strings.iterator();
-		compressed = new MatcherProcessorCallback(){
-			String matchCallback(Matcher matcher) {
-				
-				String replacement = (String)it.next();
-				return RegexUtil.adaptReplacementToMatcher(replacement);	
-			}}.processWithMatcher(restoreMatcher);	
-			
-				
+		compressed = new MatcherProcessorCallback() {
+			String matchCallback(final Matcher matcher) {
+
+				final String replacement = it.next();
+				return RegexUtil.adaptReplacementToMatcher(replacement);
+			}
+		}.processWithMatcher(restoreMatcher);
+
 		return new StringBuffer(compressed);
 	}
-
+	
 }
