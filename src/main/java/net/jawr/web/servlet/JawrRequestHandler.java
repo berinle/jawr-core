@@ -803,8 +803,10 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 	 */
 	public void destroy() {
 		// Stop the config change listener.
-		if (null != this.configChangeListenerThread)
+		if (null != this.configChangeListenerThread){
 			configChangeListenerThread.stopPolling();
+		}
+		ThreadLocalJawrContext.reset();
 	}
 
 	/*
