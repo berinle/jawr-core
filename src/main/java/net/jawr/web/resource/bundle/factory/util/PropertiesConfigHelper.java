@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -54,6 +54,9 @@ public class PropertiesConfigHelper {
 
 	/** The global preprocessor class name pattern */
 	private Pattern globalPreProcessorClassPattern = Pattern.compile("(jawr\\.custom\\.global\\.preprocessor\\.)([-_a-zA-Z0-9]+).class");
+	
+	/** The global postprocessor class name pattern */
+	private Pattern globalPostProcessorClassPattern = Pattern.compile("(jawr\\.custom\\.global\\.postprocessor\\.)([-_a-zA-Z0-9]+).class");
 	
 	/**
 	 * Build a properties wrapper that appends 'jawr.' and the specified
@@ -272,6 +275,14 @@ public class PropertiesConfigHelper {
 	 */
 	public Map<String,String> getCustomGlobalPreprocessorMap() {
 		return getCustomMap(globalPreProcessorClassPattern);
+	}
+	
+	/**
+	 * Returns the map of custom global preprocessor
+	 * @return the map of custom global preprocessor
+	 */
+	public Map<String,String> getCustomGlobalPostprocessorMap() {
+		return getCustomMap(globalPostProcessorClassPattern);
 	}
 	
 	/**

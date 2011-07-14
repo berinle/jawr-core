@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2011 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -16,12 +16,12 @@ package net.jawr.web.resource.bundle.factory.global.postprocessor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
-import net.jawr.web.resource.bundle.global.preprocessor.css.smartsprites.CssSmartSpritesGlobalPreprocessor;
+import net.jawr.web.resource.bundle.global.postprocessor.google.closure.ClosureGlobalPostProcessor;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
 import net.jawr.web.resource.bundle.global.processor.ChainedGlobalProcessor;
 import net.jawr.web.resource.bundle.global.processor.CustomGlobalProcessorChainedWrapper;
@@ -37,8 +37,8 @@ import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
 public class BasicGlobalPostprocessorChainFactory implements
 		GlobalPostprocessorChainFactory {
 
-	/** The user-defined preprocessors */
-	private Map<String, ChainedGlobalProcessor> customPreprocessors = new HashMap<String, ChainedGlobalProcessor>();
+	/** The user-defined postprocessors */
+	private Map<String, ChainedGlobalProcessor> customPostprocessors = new HashMap<String, ChainedGlobalProcessor>();
 
 	/*
 	 * (non-Javadoc)
@@ -46,7 +46,7 @@ public class BasicGlobalPostprocessorChainFactory implements
 	 * @seenet.jawr.web.resource.bundle.factory.global.preprocessor.
 	 * GlobalPreprocessorChainFactory#setCustomGlobalPreprocessors(java.util.Map)
 	 */
-	public void setCustomGlobalPreprocessors(Map<String, String> keysClassNames) {
+	public void setCustomGlobalPostprocessors(Map<String, String> keysClassNames) {
 		
 		for(Iterator<Entry<String, String>> it = keysClassNames.entrySet().iterator(); it.hasNext();){
 			
@@ -55,7 +55,7 @@ public class BasicGlobalPostprocessorChainFactory implements
 				(GlobalProcessor) ClassLoaderResourceUtils.buildObjectInstance((String) entry.getValue());
 			
 			String key = (String) entry.getKey();			
-			customPreprocessors.put(key, new CustomGlobalProcessorChainedWrapper(key, customGlobalPreprocessor));
+			customPostprocessors.put(key, new CustomGlobalProcessorChainedWrapper(key, customGlobalPreprocessor));
 		}		
 	}
 
@@ -111,10 +111,10 @@ public class BasicGlobalPostprocessorChainFactory implements
 
 		AbstractChainedGlobalProcessor toAdd;
 
-		if (customPreprocessors.get(key) == null) {
+		if (customPostprocessors.get(key) == null) {
 			toAdd = buildProcessorByKey(key);
 		} else{
-			toAdd = (AbstractChainedGlobalProcessor) customPreprocessors
+			toAdd = (AbstractChainedGlobalProcessor) customPostprocessors
 				.get(key);
 		}
 		
@@ -139,8 +139,8 @@ public class BasicGlobalPostprocessorChainFactory implements
 
 		AbstractChainedGlobalProcessor processor = null;
 
-		if (key.equals(JawrConstant.GLOBAL_CSS_SMARTSPRITES_PREPROCESSOR_ID)) {
-			processor = new CssSmartSpritesGlobalPreprocessor();
+		if (key.equals(JawrConstant.GLOBAL_GOOGLE_CLOSURE_POSTPROCESSOR_ID)) {
+			processor = new ClosureGlobalPostProcessor();
 		}
 
 		return processor;

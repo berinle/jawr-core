@@ -13,7 +13,6 @@
  */
 package net.jawr.web.resource.bundle.global.preprocessor.css.smartsprites;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +21,6 @@ import java.util.Set;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.resource.ImageResourcesHandler;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
@@ -30,15 +28,7 @@ import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
 import net.jawr.web.resource.handler.reader.ResourceReader;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-//import org.carrot2.labs.smartsprites.SmartSpritesParameters;
-//import org.carrot2.labs.smartsprites.SpriteBuilder;
-//import org.carrot2.labs.smartsprites.SmartSpritesParameters.PngDepth;
-//import org.carrot2.labs.smartsprites.message.Message;
-//import org.carrot2.labs.smartsprites.message.MessageLog;
-//import org.carrot2.labs.smartsprites.message.MessageSink;
-//import org.carrot2.labs.smartsprites.message.Message.MessageLevel;
 
 
 /**
@@ -70,11 +60,8 @@ public class CssSmartSpritesGlobalPreprocessor extends
 		super(JawrConstant.GLOBAL_CSS_SMARTSPRITES_PREPROCESSOR_ID);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seenet.jawr.web.resource.bundle.global.processor.ResourceTypeBundleProcessor#processBundles(net.jawr.web.resource.bundle.global.processor.
-	 * ResourceTypeBundleProcessingContext, java.util.List)
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessor#processBundles(net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessingContext, java.util.List)
 	 */
 	public void processBundles(GlobalProcessingContext ctx,
 			List<JoinableResourceBundle> bundles) {
@@ -161,7 +148,7 @@ public class CssSmartSpritesGlobalPreprocessor extends
 
 		return resourcePaths;
 	}
-
+	
 //	/**
 //	 * The log message sink
 //	 * 

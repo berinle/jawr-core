@@ -13,9 +13,7 @@
  */
 package net.jawr.web.resource.bundle.global.processor;
 
-import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
 /**

@@ -46,6 +46,7 @@ import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleContent;
 import net.jawr.web.resource.bundle.JoinableResourceBundlePropertySerializer;
+import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
 import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
@@ -118,8 +119,11 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 	/** The unitary post processor for composite bundle */
 	private ResourceBundlePostProcessor unitaryCompositePostProcessor;
 
-	/** The resourceTypeBundle processor */
-	private GlobalProcessor resourceTypeProcessor;
+	/** The resourceTypeBundle global preprocessor */
+	private GlobalProcessor resourceTypePreprocessor;
+
+	/** The resourceTypeBundle global postprocessor */
+	private GlobalProcessor resourceTypePostprocessor;
 
 	/** The client side handler generator */
 	private ClientSideHandlerGenerator clientSideHandlerGenerator;
@@ -144,7 +148,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			ResourceReaderHandler resourceHandler,
 			ResourceBundleHandler resourceBundleHandler, JawrConfig config) {
 		this(bundles, resourceHandler, resourceBundleHandler, config, null,
-				null, null, null, null);
+				null, null, null, null, null);
 	}
 
 	/**
@@ -166,7 +170,8 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			ResourceBundlePostProcessor unitaryPostProcessor,
 			ResourceBundlePostProcessor compositePostProcessor,
 			ResourceBundlePostProcessor unitaryCompositePostProcessor,
-			GlobalProcessor resourceTypeProcessor) {
+			GlobalProcessor resourceTypePreprocessor,
+			GlobalProcessor resourceTypePostprocessor){
 		super();
 		this.resourceHandler = resourceHandler;
 		this.resourceBundleHandler = resourceBundleHandler;
@@ -176,7 +181,8 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 		this.unitaryPostProcessor = unitaryPostProcessor;
 		this.compositePostProcessor = compositePostProcessor;
 		this.unitaryCompositePostProcessor = unitaryCompositePostProcessor;
-		this.resourceTypeProcessor = resourceTypeProcessor;
+		this.resourceTypePreprocessor = resourceTypePreprocessor;
+		this.resourceTypePostprocessor = resourceTypePostprocessor;
 		this.bundles = new CopyOnWriteArrayList<JoinableResourceBundle>();
 		this.bundles.addAll(bundles);
 		splitBundlesByType(bundles);
@@ -525,10 +531,10 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 		boolean processBundleFlag = !config.getUseBundleMapping()
 				|| !mappingFileExists;
 
-		if (resourceTypeProcessor != null) {
+		if (resourceTypePreprocessor != null) {
 			GlobalProcessingContext ctx = new GlobalProcessingContext(
 					config, resourceHandler, processBundleFlag);
-			resourceTypeProcessor.processBundles(ctx, bundles);
+			resourceTypePreprocessor.processBundles(ctx, bundles);
 		}
 
 		for (Iterator<JoinableResourceBundle> itCol = bundles.iterator(); itCol.hasNext();) {
@@ -558,6 +564,15 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			}
 		}
 
+		// Launch global postprocessing
+		if (resourceTypePostprocessor != null) {
+			GlobalPostProcessingContext ctx = new GlobalPostProcessingContext(
+					config, this, resourceHandler, processBundleFlag);
+			
+			resourceTypePostprocessor.processBundles(ctx, bundles);
+		}
+		
+		
 		if (config.getUseBundleMapping() && !mappingFileExists) {
 			resourceBundleHandler.storeJawrBundleMapping(bundleMapping);
 

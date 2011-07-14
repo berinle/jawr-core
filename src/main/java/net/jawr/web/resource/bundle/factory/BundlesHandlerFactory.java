@@ -33,6 +33,8 @@ import net.jawr.web.resource.bundle.CompositeResourceBundle;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
+import net.jawr.web.resource.bundle.factory.global.postprocessor.BasicGlobalPostprocessorChainFactory;
+import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostprocessorChainFactory;
 import net.jawr.web.resource.bundle.factory.global.preprocessor.BasicGlobalPreprocessorChainFactory;
 import net.jawr.web.resource.bundle.factory.global.preprocessor.GlobalPreprocessorChainFactory;
 import net.jawr.web.resource.bundle.factory.mapper.OrphanResourceBundlesMapper;
@@ -89,8 +91,11 @@ public class BundlesHandlerFactory {
 	/** The keys of the unitary post composite processors */
 	private String unitCompositePostProcessorKeys;
 	
-	/** The keys of the resource type processors */
-	private String resourceTypeProcessorKeys;
+	/** The keys of the resource type preprocessors */
+	private String resourceTypePreprocessorKeys;
+	
+	/** The keys of the resource type postprocessors */
+	private String resourceTypePostprocessorKeys;
 	
 	/** The set of bundle definitions */
 	private Set<ResourceBundleDefinition> bundleDefinitions;
@@ -108,7 +113,10 @@ public class BundlesHandlerFactory {
 	private PostProcessorChainFactory chainFactory;
 	
 	/** The global preprocessor chain factory */
-	private GlobalPreprocessorChainFactory resourceTypeChainFactory;
+	private GlobalPreprocessorChainFactory resourceTypePreprocessorChainFactory;
+	
+	/** The global postprocessor chain factory */
+	private GlobalPostprocessorChainFactory resourceTypePostprocessorChainFactory;
 	
 	/** The flag indicating if we should use a single resource factory for the orphans resource of the base directory */
 	private boolean useSingleResourceFactory = false;
@@ -130,6 +138,9 @@ public class BundlesHandlerFactory {
 	
 	/** The map of custom global pre processor */
 	private Map<String, String> customGlobalPreprocessors;
+	
+	/** The map of custom global post processor */
+	private Map<String, String> customGlobalPostprocessors;
 	
 	/** The flag indicating if we should skip the scan for the orphans */
 	private boolean scanForOrphans = true;
@@ -211,22 +222,34 @@ public class BundlesHandlerFactory {
 		}
 		
 		
-		// Build the resource type processor to use on resources.
-		// Initialize custom postprocessors before using the factory to build the postprocessing chains
+		// Build the resource type global preprocessor to use on resources.
+		// Initialize custom preprocessors before using the factory to build the preprocessing chains
 		if (null != customGlobalPreprocessors)
-			resourceTypeChainFactory.setCustomGlobalPreprocessors(customGlobalPreprocessors);
+			resourceTypePreprocessorChainFactory.setCustomGlobalPreprocessors(customGlobalPreprocessors);
 
-		GlobalProcessor resourceTypeProcessor = null;
-		if (null == this.resourceTypeProcessorKeys)
-			resourceTypeProcessor = this.resourceTypeChainFactory.buildDefaultProcessorChain();
+		GlobalProcessor resourceTypePreprocessor = null;
+		if (null == this.resourceTypePreprocessorKeys)
+			resourceTypePreprocessor = this.resourceTypePreprocessorChainFactory.buildDefaultProcessorChain();
 		else
-			resourceTypeProcessor = this.resourceTypeChainFactory
-					.buildProcessorChain(resourceTypeProcessorKeys);
+			resourceTypePreprocessor = this.resourceTypePreprocessorChainFactory
+					.buildProcessorChain(resourceTypePreprocessorKeys);
+
+		// Build the resource type global postprocessor to use on resources.
+		// Initialize custom postprocessors before using the factory to build the postprocessing chains
+		if (null != customGlobalPostprocessors)
+			resourceTypePreprocessorChainFactory.setCustomGlobalPreprocessors(customGlobalPostprocessors);
+
+		GlobalProcessor resourceTypePostprocessor = null;
+		if (null == this.resourceTypePostprocessorKeys)
+			resourceTypePostprocessor = this.resourceTypePostprocessorChainFactory.buildDefaultProcessorChain();
+		else
+			resourceTypePostprocessor = this.resourceTypePostprocessorChainFactory
+					.buildProcessorChain(resourceTypePostprocessorKeys);
 
 		// Build the handler
 		ResourceBundlesHandler collector = new ResourceBundlesHandlerImpl(
 				resourceBundles, resourceReaderHandler, resourceBundleHandler, jawrConfig, processor,
-				unitProcessor, compositeBundleProcessor, compositeUnitProcessor, resourceTypeProcessor);
+				unitProcessor, compositeBundleProcessor, compositeUnitProcessor, resourceTypePreprocessor, resourceTypePostprocessor);
 
 		// Use the cached proxy if specified when debug mode is off.
 		if (useInMemoryCache && !jawrConfig.isDebugModeOn())
@@ -651,7 +674,8 @@ public class BundlesHandlerFactory {
 		// Set the extension for resources and bundles
 		this.resourceType = resourceType;
 		this.fileExtension = "." + resourceType.toLowerCase();
-		this.resourceTypeChainFactory = new BasicGlobalPreprocessorChainFactory();
+		this.resourceTypePreprocessorChainFactory = new BasicGlobalPreprocessorChainFactory();
+		this.resourceTypePostprocessorChainFactory = new BasicGlobalPostprocessorChainFactory();
 		// Create the chain factory.
 		if ("js".equals(resourceType))
 			this.chainFactory = new JSPostProcessorChainFactory();
@@ -714,14 +738,22 @@ public class BundlesHandlerFactory {
 	}
 
 	/**
-	 * Set the keys to pass to the processor factory upon global processors creation. If none specified, the default version is used.
+	 * Set the keys to pass to the preprocessor factory upon global preprocessors creation. If none specified, the default version is used.
 	 * 
-	 * @param resourceTypeProcessorKeys String Comma separated list of processor keys.
+	 * @param resourceTypePreprocessorKeys String Comma separated list of preprocessor keys.
 	 */
-	public void setResourceTypeProcessorKeys(String resourceTypeProcessorKeys) {
-		this.resourceTypeProcessorKeys = resourceTypeProcessorKeys;
+	public void setResourceTypePreprocessorKeys(String resourceTypePreprocessorKeys) {
+		this.resourceTypePreprocessorKeys = resourceTypePreprocessorKeys;
 	}
 	
+	/**
+	 * Set the keys to pass to the postprocessor factory upon global postprocessors creation. If none specified, the default version is used.
+	 * 
+	 * @param resourceTypePostprocessorKeys String Comma separated list of processor keys.
+	 */
+	public void setResourceTypePostprocessorKeys(String resourceTypePostprocessorKeys) {
+		this.resourceTypePostprocessorKeys = resourceTypePostprocessorKeys;
+	}
 	
 	/**
 	 * Set the resource handler to use for file access.
@@ -813,6 +845,15 @@ public class BundlesHandlerFactory {
 	public void setCustomGlobalPreprocessors(Map<String, String> customGlobalPreprocessors) {
 		this.customGlobalPreprocessors = customGlobalPreprocessors;
 	}
+	
+	/**
+	 * Sets the map of custom global preprocessor
+	 * @param customGlobalPreprocessors the map to set
+	 */
+	public void setCustomGlobalPostprocessors(Map<String, String> customGlobalPostprocessors) {
+		this.customGlobalPostprocessors = customGlobalPostprocessors;
+	}
+	
 	/**
 	 * Sets the flag indicating if we should scan or not for the orphan resources
 	 * @param scanForOrphans the flag to set

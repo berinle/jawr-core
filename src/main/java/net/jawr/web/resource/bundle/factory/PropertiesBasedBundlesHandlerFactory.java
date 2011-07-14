@@ -98,8 +98,10 @@ public class PropertiesBasedBundlesHandlerFactory {
 				.getProperty(PropertiesBundleConstant.COMPOSITE_BUNDLE_FACTORY_POSTPROCESSOR));
 		factory.setUnitCompositePostProcessorKeys(props
 				.getProperty(PropertiesBundleConstant.COMPOSITE_BUNDLE_FACTORY_FILE_POSTPROCESSOR));
-		factory.setResourceTypeProcessorKeys(props
-				.getProperty(PropertiesBundleConstant.BUNDLE_FACTORY_PROCESSOR));
+		factory.setResourceTypePreprocessorKeys(props
+				.getProperty(PropertiesBundleConstant.BUNDLE_FACTORY_GLOBAL_PREPROCESSORS));
+		factory.setResourceTypePostprocessorKeys(props
+				.getProperty(PropertiesBundleConstant.BUNDLE_FACTORY_GLOBAL_POSTPROCESSORS));
 		
 		// Single or multiple bundle for orphans settings.
 		factory.setUseSingleResourceFactory(Boolean.valueOf(
@@ -159,6 +161,9 @@ public class PropertiesBasedBundlesHandlerFactory {
 
 		// Set global bundle preprocessor
 		factory.setCustomGlobalPreprocessors(props.getCustomGlobalPreprocessorMap());
+		
+		// Set global bundle postprocessor
+		factory.setCustomGlobalPostprocessors(props.getCustomGlobalPostprocessorMap());
 		
 		// Check if we should use the custom postprocessor names property or
 		// find the postprocessor name using the postprocessor class declaration :
