@@ -35,8 +35,10 @@ import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.exception.ResourceNotFoundException;
+import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
+import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.variant.VariantSet;
@@ -101,8 +103,11 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<G
 	private static final String JAWR_JS_CLOSURE_EXTERNS = "jawr.js.closure.externs";
 
 	/** The google closure temporary directory */
-	private static final String GOOGLE_CLOSURE_TEMP_DIR = "/googleClosure/";
+	private static final String GOOGLE_CLOSURE_TEMP_DIR = "/googleClosure/temp/";
 
+	/** The google closure result directory */
+	private static final String GOOGLE_CLOSURE_RESULT_DIR = "/googleClosure/result/";
+	
 	/** The JAWR root module file path */
 	private static final String JAWR_ROOT_MODULE_JS = "/JAWR_ROOT_MODULE.js";
 	
@@ -145,7 +150,7 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<G
 		
 		if(srcDir == null || destDir == null || tempDir == null){
 			srcDir = ctx.getBundleHandler().getBundleTextDirPath();
-			destDir = srcDir;
+			destDir = workingDir + GOOGLE_CLOSURE_RESULT_DIR;
 			tempDir = workingDir + GOOGLE_CLOSURE_TEMP_DIR;
 		}
 		
@@ -159,6 +164,8 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<G
 			JawrClosureCommandLineRunner cmdRunner = new JawrClosureCommandLineRunner(
 					ctx, bundles, resultBundleMapping);
 			cmdRunner.doRun();
+			FileUtils.copyDirectory(new File(destDir), new File(
+					srcDir));
 
 		} catch (Exception e) { // Check exception because FlagUsageException is
 								// not public
@@ -414,7 +421,7 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<G
 		/**
 		 * The fake prefix to be used for the bundle handler 
 		 */
-		private static final String FAKE_PREFIX = "/fakePrefix";
+		private static final String FAKE_PREFIX = "/fakePrefix/";
 		
 		/**
 		 * The global postprocessing context 
@@ -476,25 +483,30 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<G
 				}else if (!"-".equals(filename)) {
 					Reader rd = null;
 					StringWriter swr = new StringWriter();
-					try {
-						resourceBundlesHandler.writeBundleTo(FAKE_PREFIX+filename, swr);
-						rd = new StringReader(swr.getBuffer().toString());
-					} catch (ResourceNotFoundException e) {
-						// Do nothing
-					}
-					
-					if(rd == null){
+					try{
 						try {
-							rd = ctx.getRsReaderHandler().getResource(filename);
-						} catch (ResourceNotFoundException e1) {
-							throw new BundlingProcessException(e1);
+							
+							resourceBundlesHandler.writeBundleTo(PathNormalizer.concatWebPath(FAKE_PREFIX, filename), swr);
+							rd = new StringReader(swr.getBuffer().toString());
+						} catch (ResourceNotFoundException e) {
+							// Do nothing
 						}
+						
+						if(rd == null){
+							try {
+								rd = ctx.getRsReaderHandler().getResource(filename);
+							} catch (ResourceNotFoundException e1) {
+								throw new BundlingProcessException(e1);
+							}
+						}
+						
+						String jsCode = CharStreams.toString(rd);
+						JSSourceFile newFile = JSSourceFile.fromCode(filename,
+								jsCode);
+						inputs.add(newFile);
+					}finally{
+						IOUtils.close(rd);
 					}
-					
-					String jsCode = CharStreams.toString(rd);
-					JSSourceFile newFile = JSSourceFile.fromCode(filename,
-							jsCode);
-					inputs.add(newFile);
 				}
 			}
 			return inputs;

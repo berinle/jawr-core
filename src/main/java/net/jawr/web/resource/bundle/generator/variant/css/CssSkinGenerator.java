@@ -335,8 +335,15 @@ public class CssSkinGenerator extends AbstractCSSGenerator implements VariantRes
 			skinMapping.put(localeRootDir, variantsMap);
 		}
 		
-		CssSkinVariantResolver resolver = new CssSkinVariantResolver(defaultSkinName, config.getSkinCookieName());
-		config.getGeneratorRegistry().registerVariantResolver(resolver);
+		CssSkinVariantResolver resolver = (CssSkinVariantResolver) config.getGeneratorRegistry().getVariantResolver(JawrConstant.SKIN_VARIANT_TYPE);
+		if(resolver == null){
+			resolver = new CssSkinVariantResolver(defaultSkinName, config.getSkinCookieName());
+			config.getGeneratorRegistry().registerVariantResolver(resolver);
+		}else{
+			resolver.setDefaultSkin(defaultSkinName);
+			resolver.setSkinCookieName(config.getSkinCookieName());
+		}
+		
 	}
 	
 	/**

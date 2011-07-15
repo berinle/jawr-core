@@ -112,8 +112,8 @@ public interface ResourceBundlesHandler {
 	
 	/**
 	 * Writes data using the supplied writer, representing a unified bundle of resources. 
-	 * @param bundlePath
-	 * @return
+	 * @param bundlePath the bundle path
+	 * @param writer the writer
 	 */
 	public void writeBundleTo(String bundlePath, Writer writer) throws ResourceNotFoundException;
 	

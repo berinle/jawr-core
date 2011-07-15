@@ -9,6 +9,8 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
+import net.jawr.web.resource.bundle.IOUtils;
+
 public class FileUtils {
 
 	public static File createDir(String pathName) throws Exception {
@@ -70,14 +72,26 @@ public class FileUtils {
 	public static String readFile(File toRead, String charset) throws Exception {
 		
 		StringWriter sw = new StringWriter();
-		FileInputStream fis = new FileInputStream(toRead);
-		FileChannel inchannel = fis.getChannel();
-		Reader rd = Channels.newReader(inchannel, charset);
-		int i;
-		while ((i = rd.read()) != -1)
-			sw.write(i);
-		rd.close();
-		sw.close();
+		FileInputStream fis = null;
+		FileChannel inchannel = null;
+		Reader rd = null;
+		
+		try {
+		
+			fis = new FileInputStream(toRead);
+			inchannel = fis.getChannel();
+			rd = Channels.newReader(inchannel, charset);
+			int i;
+			while ((i = rd.read()) != -1){
+				sw.write(i);
+			}
+		}finally{
+			IOUtils.close(rd);
+			IOUtils.close(inchannel);
+			IOUtils.close(fis);
+			IOUtils.close(sw);
+		}
+		
 
 		return removeCarriageReturn(sw.getBuffer().toString());
 	}

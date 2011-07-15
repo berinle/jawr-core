@@ -472,19 +472,24 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 		try {
 			if(liveProcessBundles.contains(path)){
 				
-				Reader rd = resourceBundleHandler.getResourceBundleReader(path);
-				StringReader strRd = processInLive(rd);
-				StringWriter strWriter = new StringWriter();
-				IOUtils.copy(strRd, strWriter);
-				
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				GZIPOutputStream gzOut = new GZIPOutputStream(bos);
-				byte[] byteData = strWriter.getBuffer().toString().getBytes(
-						config.getResourceCharset().name());
-				gzOut.write(byteData, 0, byteData.length);
-				gzOut.close();
-				ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-				data = Channels.newChannel(bis);
+				Reader rd = null;
+				try{
+					rd = resourceBundleHandler.getResourceBundleReader(path);
+					StringReader strRd = processInLive(rd);
+					StringWriter strWriter = new StringWriter();
+					IOUtils.copy(strRd, strWriter);
+					
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					GZIPOutputStream gzOut = new GZIPOutputStream(bos);
+					byte[] byteData = strWriter.getBuffer().toString().getBytes(
+							config.getResourceCharset().name());
+					gzOut.write(byteData, 0, byteData.length);
+					gzOut.close();
+					ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+					data = Channels.newChannel(bis);
+				}finally{
+					IOUtils.close(rd);
+				}
 			
 			}else{
 				data = resourceBundleHandler.getResourceBundleChannel(path);

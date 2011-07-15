@@ -22,6 +22,7 @@ import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
+import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.global.postprocessor.google.closure.ClosureGlobalPostProcessor;
 import net.jawr.web.resource.bundle.handler.ClientSideHandlerGenerator;
@@ -168,7 +169,6 @@ public class ClosureGlobalPostProcessorTestCase {
 		Properties props = new Properties();
 		props.put("jawr.js.closure.modules", "bundle01:bundle02,msgBundle");
 		props.put("jawr.js.closure.externs", "extern.js");
-		props.put("jawr.js.closure.compilation.level", "ADVANCED_OPTIMIZATIONS");
 		initProcessingContext(props);
 		
 		List<JoinableResourceBundle> bundles = new ArrayList<JoinableResourceBundle>();
@@ -210,13 +210,41 @@ public class ClosureGlobalPostProcessorTestCase {
 		compareResult("variantBundle@ssl@fr");
 				
 	}
+	
+	@Test
+	public void testPostProcessingBundleWithAdvancedCompression() throws ResourceNotFoundException, Exception{
+		
+		Properties props = new Properties();
+		props.put("jawr.js.closure.modules", "bundle01:bundle02,msgBundle");
+		props.put("jawr.js.closure.externs", "extern.js");
+		initProcessingContext(props);
+		
+		List<JoinableResourceBundle> bundles = new ArrayList<JoinableResourceBundle>();
+		bundles.add(bundle01);
+		bundles.add(bundle02);
+		bundles.add(bundle03);
+		bundles.add(msgBundle);
+		processor.processBundles(ctx, bundles);
+		
+		// Check bundles
+		compareResult("bundle01", false);
+		compareResult("bundle02", false);
+		compareResult("bundle03", false);
+		compareResult("msgBundle", false);
+		compareResult("msgBundle@en", false);
+		compareResult("msgBundle@fr", false);
+	}
 
 	private void compareResult(String bundle) throws Exception {
-		String expected = FileUtils.readClassPathFile("global/postprocessor/google/closure/expectedResult/"+bundle+"_whitespace_compression.js");
+		compareResult(bundle, true);
+	}
+
+	private void compareResult(String bundle, boolean whitespaceCompression) throws Exception {
+		String expected = FileUtils.readClassPathFile("global/postprocessor/google/closure/expectedResult/"+bundle+"_"+(whitespaceCompression? "whitespace" :"advanced") + "_compression.js");
 		String result = FileUtils.readFile(destDir+"myBundle/"+bundle+".js");
 		assertEquals(expected, result);
 	}
-
+	
 	private ResourceBundlesHandler getResourceBundlesHandler(final String bundleDirPath) {
 		
 		ResourceBundlesHandler bundlesHandler = new ResourceBundlesHandler() {
@@ -225,11 +253,12 @@ public class ClosureGlobalPostProcessorTestCase {
 			public void writeBundleTo(String bundlePath, Writer writer)
 					throws ResourceNotFoundException {
 				
+				String path = PathNormalizer.removeVariantPrefixFromPath(bundlePath);
 				String content;
 				try {
-					content = FileUtils.readFile(bundleDirPath+bundlePath);
+					content = FileUtils.readFile(bundleDirPath+path);
 				} catch (Exception e1) {
-					throw new ResourceNotFoundException(bundlePath);
+					throw new ResourceNotFoundException(path);
 				}
 				
 				try {
