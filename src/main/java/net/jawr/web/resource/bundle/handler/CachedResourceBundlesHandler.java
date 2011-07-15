@@ -52,7 +52,8 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	/** The cache map for text resource */
 	private Map<String, String> textCache;
 
-	/** The cache map for zip resource */
+	/** The cache map for zip resource, we use a byte arrays instead of byteBuffers because 
+	 * byteBuffers are not thread safe */
 	private Map<String, byte[]> gzipCache;
 
 	/**
@@ -162,7 +163,6 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 
 		try {
 			byte[] gzip = gzipCache.get(bundlePath);
-
 			// If it's not cached yet
 			if (null == gzip) {
 				// Stream the stored data
