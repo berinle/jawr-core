@@ -93,7 +93,7 @@ public class CSSMinifier {
 			final StringBuffer sb = new StringBuffer();
 			while (matcher.find()) {
 				matcher.appendReplacement(sb,
-						matchCallback(matcher));
+						RegexUtil.adaptReplacementToMatcher(matchCallback(matcher)));
 			}
 			matcher.appendTail(sb);
 			return sb.toString();
@@ -171,7 +171,7 @@ public class CSSMinifier {
 			String matchCallback(final Matcher matcher) {
 
 				final String replacement = it.next();
-				return RegexUtil.adaptReplacementToMatcher(replacement);
+				return replacement;
 			}
 		}.processWithMatcher(restoreMatcher);
 
