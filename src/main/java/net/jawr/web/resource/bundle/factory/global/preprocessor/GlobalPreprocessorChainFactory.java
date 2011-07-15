@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2011 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,9 +13,7 @@
  */
 package net.jawr.web.resource.bundle.factory.global.preprocessor;
 
-import java.util.Map;
-
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
+import net.jawr.web.resource.bundle.global.processor.GlobalProcessorChainFactory;
 
 /**
  * Interface for a factory of chained preprocessor objects. It is meant to ease 
@@ -24,30 +22,7 @@ import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
  * @author Ibrahim Chaehoi
  *
  */
-public interface GlobalPreprocessorChainFactory {
+public interface GlobalPreprocessorChainFactory extends GlobalProcessorChainFactory<GlobalPreprocessingContext>{
 
-	/**
-	 * Builds the default chain of preprocessors for resources, be it javascript or css ones. 
-	 * @return the default chain of preprocessors
-	 */
-	public abstract GlobalProcessor buildDefaultProcessorChain();
-
-	/**
-	 * Builds a chain of preprocessors based on a comma-separated list of postprocessor keys. 
-	 * @param preprocessorKeys the comma-separated list of preprocessor keys.
-	 * @return a chain of preprocessors
-	 */
-	public abstract GlobalProcessor buildProcessorChain(String preprocessorKeys);
-	
-	
-	/**
-	 * Sets a map of custom preprocessors to use. 
-	 * The map has a key to name a preprocessor (to be used in bundle definitions), and 
-	 * the class name of a custom processor class which must implement 
-	 * net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessor 
-	 * 
-	 * @param keysClassNames the map associated the keys and the class names.
-	 */
-	public abstract void setCustomGlobalPreprocessors(Map<String, String> keysClassNames);
 
 }

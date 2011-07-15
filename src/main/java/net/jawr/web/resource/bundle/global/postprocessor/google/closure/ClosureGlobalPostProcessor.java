@@ -38,7 +38,6 @@ import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.variant.VariantSet;
 import net.jawr.web.resource.bundle.variant.VariantUtils;
@@ -59,7 +58,7 @@ import com.google.javascript.jscomp.JSSourceFile;
  *  
  * @author Ibrahim Chaehoi
  */
-public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
+public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor<GlobalPostProcessingContext> {
 
 	/** The logger */
 	private static final Logger LOGGER = Logger
@@ -136,18 +135,12 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
 		this.tempDir = tempDir;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.jawr.web.resource.bundle.global.postprocessor.GlobalPostprocessor
-	 * #processBundles(net.jawr.web.resource.bundle.global.postprocessor.
-	 * GlobalPostprocessingContext, java.util.List)
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.global.processor.GlobalProcessor#processBundles(net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext, java.util.List)
 	 */
-	public void processBundles(GlobalProcessingContext pCtx,
+	public void processBundles(GlobalPostProcessingContext ctx,
 			List<JoinableResourceBundle> bundles) {
 		
-		GlobalPostProcessingContext ctx = (GlobalPostProcessingContext) pCtx;
 		String workingDir = ctx.getRsReaderHandler().getWorkingDirectory(); 
 		
 		if(srcDir == null || destDir == null || tempDir == null){
@@ -519,7 +512,8 @@ public class ClosureGlobalPostProcessor extends AbstractChainedGlobalProcessor {
 				return null;
 			}
 
-			String bundleName = fileName.substring(0, fileName.length() - 3).substring(2);
+			int fileExtensionIdx = fileName.lastIndexOf(".");
+			String bundleName = fileName.substring(0, fileExtensionIdx).substring(2);
 			
 			String bundlePath = resultBundleMapping.get(bundleName);
 			File outFile = new File(destDir, bundlePath);

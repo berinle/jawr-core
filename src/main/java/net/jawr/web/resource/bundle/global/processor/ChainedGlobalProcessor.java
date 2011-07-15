@@ -19,7 +19,7 @@ package net.jawr.web.resource.bundle.global.processor;
  * @author Ibrahim Chaehoi
  * 
  */
-public interface ChainedGlobalProcessor extends GlobalProcessor {
+public interface ChainedGlobalProcessor<T extends AbstractGlobalProcessingContext> extends GlobalProcessor<T> {
 
 	/**
 	 * Returns the ID of the chained post processor
@@ -34,6 +34,6 @@ public interface ChainedGlobalProcessor extends GlobalProcessor {
 	 * @param nextProcessor
 	 *            the next post processor
 	 */
-	public void addNextProcessor(ChainedGlobalProcessor nextProcessor);
+	public void addNextProcessor(ChainedGlobalProcessor<T> nextProcessor);
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2011 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -18,14 +18,14 @@ package net.jawr.web.resource.bundle.global.processor;
  * 
  * @author Ibrahim Chaehoi
  */
-public abstract class AbstractChainedGlobalProcessor implements
-		ChainedGlobalProcessor {
+public abstract class AbstractChainedGlobalProcessor<T extends AbstractGlobalProcessingContext> implements
+		ChainedGlobalProcessor<T> {
 
 	/** The ID of the resource type bundle processor */
 	private String id;
 	
 	/** The next processor */
-	private ChainedGlobalProcessor nextProcessor;
+	private ChainedGlobalProcessor<T> nextProcessor;
 	
 	/**
 	 * Constructor
@@ -39,7 +39,7 @@ public abstract class AbstractChainedGlobalProcessor implements
 	 * @see net.jawr.web.resource.bundle.global.processor.ChainedResourceTypeBundleProcessor#addNextProcessor(net.jawr.web.resource.bundle.global.processor.ChainedResourceTypeBundleProcessor)
 	 */
 	public void addNextProcessor(
-			ChainedGlobalProcessor nextProcessor) {
+			ChainedGlobalProcessor<T> nextProcessor) {
 		
 		if(this.nextProcessor == null){
 			this.nextProcessor = nextProcessor;

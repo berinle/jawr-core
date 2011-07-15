@@ -34,8 +34,10 @@ import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.BasicGlobalPostprocessorChainFactory;
+import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostprocessorChainFactory;
 import net.jawr.web.resource.bundle.factory.global.preprocessor.BasicGlobalPreprocessorChainFactory;
+import net.jawr.web.resource.bundle.factory.global.preprocessor.GlobalPreprocessingContext;
 import net.jawr.web.resource.bundle.factory.global.preprocessor.GlobalPreprocessorChainFactory;
 import net.jawr.web.resource.bundle.factory.mapper.OrphanResourceBundlesMapper;
 import net.jawr.web.resource.bundle.factory.mapper.ResourceBundleDirMapper;
@@ -225,9 +227,9 @@ public class BundlesHandlerFactory {
 		// Build the resource type global preprocessor to use on resources.
 		// Initialize custom preprocessors before using the factory to build the preprocessing chains
 		if (null != customGlobalPreprocessors)
-			resourceTypePreprocessorChainFactory.setCustomGlobalPreprocessors(customGlobalPreprocessors);
+			resourceTypePreprocessorChainFactory.setCustomGlobalProcessors(customGlobalPreprocessors);
 
-		GlobalProcessor resourceTypePreprocessor = null;
+		GlobalProcessor<GlobalPreprocessingContext> resourceTypePreprocessor = null;
 		if (null == this.resourceTypePreprocessorKeys)
 			resourceTypePreprocessor = this.resourceTypePreprocessorChainFactory.buildDefaultProcessorChain();
 		else
@@ -237,9 +239,9 @@ public class BundlesHandlerFactory {
 		// Build the resource type global postprocessor to use on resources.
 		// Initialize custom postprocessors before using the factory to build the postprocessing chains
 		if (null != customGlobalPostprocessors)
-			resourceTypePreprocessorChainFactory.setCustomGlobalPreprocessors(customGlobalPostprocessors);
+			resourceTypePreprocessorChainFactory.setCustomGlobalProcessors(customGlobalPostprocessors);
 
-		GlobalProcessor resourceTypePostprocessor = null;
+		GlobalProcessor<GlobalPostProcessingContext> resourceTypePostprocessor = null;
 		if (null == this.resourceTypePostprocessorKeys)
 			resourceTypePostprocessor = this.resourceTypePostprocessorChainFactory.buildDefaultProcessorChain();
 		else

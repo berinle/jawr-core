@@ -14,7 +14,7 @@
 package net.jawr.web.resource.bundle.factory.global.postprocessor;
 
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
+import net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
@@ -23,9 +23,11 @@ import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
  *  
  * @author Ibrahim Chaehoi
  */
-public class GlobalPostProcessingContext extends GlobalProcessingContext {
+public class GlobalPostProcessingContext extends AbstractGlobalProcessingContext {
 
 	private ResourceBundlesHandler bundleHandler;
+	
+	private ResourceReaderHandler rsHandler;
 	
 	/**
 	 * Constructor
@@ -36,7 +38,8 @@ public class GlobalPostProcessingContext extends GlobalProcessingContext {
 	 */
 	public GlobalPostProcessingContext(JawrConfig config,
 			ResourceBundlesHandler bundleHandler, ResourceReaderHandler resourceHandler, boolean processBundle) {
-		super(config, resourceHandler, processBundle);
+		super(config, processBundle);
+		this.rsHandler = resourceHandler;
 		this.bundleHandler = bundleHandler;
 	}
 
@@ -46,5 +49,22 @@ public class GlobalPostProcessingContext extends GlobalProcessingContext {
 	public ResourceBundlesHandler getBundleHandler() {
 		return bundleHandler;
 	}
+	
+	/**
+	 * Returns the resource reader handler.
+	 * @return the resource reader Handler
+	 */
+	public ResourceReaderHandler getRsReaderHandler() {
+		return rsHandler;
+	}
+	
+	/**
+	 * Sets the resource handler 
+	 * @param rsHandler the rsHandler to set
+	 */
+	public void setRsReaderHandler(ResourceReaderHandler rsHandler) {
+		this.rsHandler = rsHandler;
+	}
+
 	
 }

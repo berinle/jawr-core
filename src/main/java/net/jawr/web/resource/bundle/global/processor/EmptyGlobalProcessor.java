@@ -25,8 +25,8 @@ import net.jawr.web.resource.bundle.JoinableResourceBundle;
  * @author Ibrahim Chaehoi
  *
  */
-public class EmptyGlobalProcessor extends
-		AbstractChainedGlobalProcessor {
+public class EmptyGlobalProcessor<T extends AbstractGlobalProcessingContext> extends
+		AbstractChainedGlobalProcessor<T> {
 
 	/**
 	 * Construtor
@@ -38,7 +38,7 @@ public class EmptyGlobalProcessor extends
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessor#processBundles(net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessingContext, java.util.List)
 	 */
-	public void processBundles(GlobalProcessingContext ctx,
+	public void processBundles(T ctx,
 			List<JoinableResourceBundle> bundles) {
 
 		// Nothing to do

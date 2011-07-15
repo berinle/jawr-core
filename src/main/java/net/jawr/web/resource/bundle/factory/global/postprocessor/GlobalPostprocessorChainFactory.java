@@ -13,41 +13,15 @@
  */
 package net.jawr.web.resource.bundle.factory.global.postprocessor;
 
-import java.util.Map;
-
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
+import net.jawr.web.resource.bundle.global.processor.GlobalProcessorChainFactory;
 
 /**
- * Interface for a factory of chained preprocessor objects. It is meant to ease 
+ * Interface for a factory of chained postprocessor objects. It is meant to ease 
  * configuration implementations. 
  * 
  * @author Ibrahim Chaehoi
  *
  */
-public interface GlobalPostprocessorChainFactory {
-
-	/**
-	 * Builds the default chain of preprocessors for resources, be it javascript or css ones. 
-	 * @return the default chain of preprocessors
-	 */
-	public abstract GlobalProcessor buildDefaultProcessorChain();
-
-	/**
-	 * Builds a chain of preprocessors based on a comma-separated list of postprocessor keys. 
-	 * @param preprocessorKeys the comma-separated list of preprocessor keys.
-	 * @return a chain of preprocessors
-	 */
-	public abstract GlobalProcessor buildProcessorChain(String preprocessorKeys);
+public interface GlobalPostprocessorChainFactory extends GlobalProcessorChainFactory<GlobalPostProcessingContext>{
 	
-	
-	/**
-	 * Sets a map of custom preprocessors to use. 
-	 * The map has a key to name a preprocessor (to be used in bundle definitions), and 
-	 * the class name of a custom processor class which must implement 
-	 * net.jawr.web.resource.bundle.global.preprocessor.GlobalPreprocessor 
-	 * 
-	 * @param keysClassNames the map associated the keys and the class names.
-	 */
-	public abstract void setCustomGlobalPostprocessors(Map<String, String> keysClassNames);
-
 }

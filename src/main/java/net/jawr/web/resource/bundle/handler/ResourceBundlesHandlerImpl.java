@@ -47,8 +47,8 @@ import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleContent;
 import net.jawr.web.resource.bundle.JoinableResourceBundlePropertySerializer;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
+import net.jawr.web.resource.bundle.factory.global.preprocessor.GlobalPreprocessingContext;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
 import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
 import net.jawr.web.resource.bundle.hashcode.BundleHashcodeGenerator;
 import net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler;
@@ -120,10 +120,10 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 	private ResourceBundlePostProcessor unitaryCompositePostProcessor;
 
 	/** The resourceTypeBundle global preprocessor */
-	private GlobalProcessor resourceTypePreprocessor;
+	private GlobalProcessor<GlobalPreprocessingContext> resourceTypePreprocessor;
 
 	/** The resourceTypeBundle global postprocessor */
-	private GlobalProcessor resourceTypePostprocessor;
+	private GlobalProcessor<GlobalPostProcessingContext> resourceTypePostprocessor;
 
 	/** The client side handler generator */
 	private ClientSideHandlerGenerator clientSideHandlerGenerator;
@@ -170,8 +170,8 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			ResourceBundlePostProcessor unitaryPostProcessor,
 			ResourceBundlePostProcessor compositePostProcessor,
 			ResourceBundlePostProcessor unitaryCompositePostProcessor,
-			GlobalProcessor resourceTypePreprocessor,
-			GlobalProcessor resourceTypePostprocessor){
+			GlobalProcessor<GlobalPreprocessingContext> resourceTypePreprocessor,
+			GlobalProcessor<GlobalPostProcessingContext> resourceTypePostprocessor){
 		super();
 		this.resourceHandler = resourceHandler;
 		this.resourceBundleHandler = resourceBundleHandler;
@@ -532,7 +532,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 				|| !mappingFileExists;
 
 		if (resourceTypePreprocessor != null) {
-			GlobalProcessingContext ctx = new GlobalProcessingContext(
+			GlobalPreprocessingContext ctx = new GlobalPreprocessingContext(
 					config, resourceHandler, processBundleFlag);
 			resourceTypePreprocessor.processBundles(ctx, bundles);
 		}

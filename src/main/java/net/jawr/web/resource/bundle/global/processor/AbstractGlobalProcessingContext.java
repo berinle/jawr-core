@@ -11,35 +11,30 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.jawr.web.resource.bundle.global.preprocessor;
+package net.jawr.web.resource.bundle.global.processor;
 
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
 /**
  * This class defines the context for the global preprocessing
  * 
  * @author Ibrahim Chaehoi
  */
-public class GlobalPreprocessingContext {
-
-	/** The resource handler */
-	private ResourceReaderHandler rsHandler;
+public class AbstractGlobalProcessingContext {
 
 	/** The Jawr config */
 	private JawrConfig config;
 	
 	/** The flag indicating if the bundle must be processed */
-	private boolean bundleMustBePreprocessed;
+	private boolean bundleMustBeProcessed;
 	
 	/**
 	 * Constructor
 	 */
-	public GlobalPreprocessingContext(JawrConfig config, ResourceReaderHandler resourceHandler, boolean processBundle) {
+	public AbstractGlobalProcessingContext(JawrConfig config, boolean processBundle) {
 		
 		this.config = config;
-		this.rsHandler = resourceHandler;
-		this.bundleMustBePreprocessed = processBundle;
+		this.bundleMustBeProcessed = processBundle;
 	}
 
 	/**
@@ -51,27 +46,11 @@ public class GlobalPreprocessingContext {
 	}
 
 	/**
-	 * Returns the resource reader handler.
-	 * @return the resource reader Handler
-	 */
-	public ResourceReaderHandler getRsReaderHandler() {
-		return rsHandler;
-	}
-
-	/**
-	 * Sets the resource handler 
-	 * @param rsHandler the rsHandler to set
-	 */
-	public void setRsReaderHandler(ResourceReaderHandler rsHandler) {
-		this.rsHandler = rsHandler;
-	}
-
-	/**
 	 * Returns true if the bundles will be processed
 	 * @return true if the bundles will be processed
 	 */
-	public boolean hasBundleToBePreprocessed() {
-		return bundleMustBePreprocessed;
+	public boolean hasBundleToBeProcessed() {
+		return bundleMustBeProcessed;
 	}
 	
 }

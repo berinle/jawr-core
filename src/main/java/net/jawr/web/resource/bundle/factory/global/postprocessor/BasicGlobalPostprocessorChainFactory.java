@@ -13,20 +13,10 @@
  */
 package net.jawr.web.resource.bundle.factory.global.postprocessor;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.StringTokenizer;
-
 import net.jawr.web.JawrConstant;
-import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
 import net.jawr.web.resource.bundle.global.postprocessor.google.closure.ClosureGlobalPostProcessor;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
-import net.jawr.web.resource.bundle.global.processor.ChainedGlobalProcessor;
-import net.jawr.web.resource.bundle.global.processor.CustomGlobalProcessorChainedWrapper;
-import net.jawr.web.resource.bundle.global.processor.EmptyGlobalProcessor;
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
+import net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessorChainFactory;
 
 /**
  * This class defines the global preprocessor factory.
@@ -34,100 +24,8 @@ import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
  * @author Ibrahim Chaehoi
  * 
  */
-public class BasicGlobalPostprocessorChainFactory implements
+public class BasicGlobalPostprocessorChainFactory extends AbstractGlobalProcessorChainFactory<GlobalPostProcessingContext> implements
 		GlobalPostprocessorChainFactory {
-
-	/** The user-defined postprocessors */
-	private Map<String, ChainedGlobalProcessor> customPostprocessors = new HashMap<String, ChainedGlobalProcessor>();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seenet.jawr.web.resource.bundle.factory.global.preprocessor.
-	 * GlobalPreprocessorChainFactory#setCustomGlobalPreprocessors(java.util.Map)
-	 */
-	public void setCustomGlobalPostprocessors(Map<String, String> keysClassNames) {
-		
-		for(Iterator<Entry<String, String>> it = keysClassNames.entrySet().iterator(); it.hasNext();){
-			
-			Entry<String, String> entry = it.next();
-			GlobalProcessor customGlobalPreprocessor = 
-				(GlobalProcessor) ClassLoaderResourceUtils.buildObjectInstance((String) entry.getValue());
-			
-			String key = (String) entry.getKey();			
-			customPostprocessors.put(key, new CustomGlobalProcessorChainedWrapper(key, customGlobalPreprocessor));
-		}		
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.jawr.web.resource.bundle.factory.processor.ProcessorChainFactory#
-	 * buildDefaultProcessorChain()
-	 */
-	public GlobalProcessor buildDefaultProcessorChain() {
-
-		return new EmptyGlobalProcessor();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.jawr.web.resource.bundle.factory.processor.ProcessorChainFactory#
-	 * buildProcessorChain(java.lang.String)
-	 */
-	public GlobalProcessor buildProcessorChain(String processorKeys) {
-
-		if (null == processorKeys)
-			return null;
-		else if (JawrConstant.EMPTY_GLOBAL_PREPROCESSOR_ID
-				.equals(processorKeys))
-			return new EmptyGlobalProcessor();
-
-		StringTokenizer tk = new StringTokenizer(processorKeys, ",");
-
-		AbstractChainedGlobalProcessor chain = null;
-		while (tk.hasMoreTokens())
-			chain = addOrCreateChain(chain, tk.nextToken());
-
-		return chain;
-	}
-
-	/**
-	 * Creates an AbstractChainedGlobalPreprocessor. If the supplied
-	 * chain is null, the new chain is returned. Otherwise it is added to the
-	 * existing chain.
-	 * 
-	 * @param chain
-	 *            the chained post processor
-	 * @param key
-	 *            the id of the post processor
-	 * @return the chained post processor, with the new post processor.
-	 */
-	private AbstractChainedGlobalProcessor addOrCreateChain(
-			AbstractChainedGlobalProcessor chain, String key) {
-
-		AbstractChainedGlobalProcessor toAdd;
-
-		if (customPostprocessors.get(key) == null) {
-			toAdd = buildProcessorByKey(key);
-		} else{
-			toAdd = (AbstractChainedGlobalProcessor) customPostprocessors
-				.get(key);
-		}
-		
-		AbstractChainedGlobalProcessor newChainResult = null;
-		if (chain == null) {
-			newChainResult = toAdd;
-		}else{
-			chain.addNextProcessor(toAdd);
-			newChainResult = chain;
-		}
-
-		return newChainResult;
-	}
 
 	/**
 	 * Build the global preprocessor from the ID given in parameter
@@ -135,9 +33,9 @@ public class BasicGlobalPostprocessorChainFactory implements
 	 * @param key the ID of the preprocessor
 	 * @return a global preprocessor
 	 */
-	private AbstractChainedGlobalProcessor buildProcessorByKey(String key) {
+	protected AbstractChainedGlobalProcessor<GlobalPostProcessingContext> buildProcessorByKey(String key) {
 
-		AbstractChainedGlobalProcessor processor = null;
+		AbstractChainedGlobalProcessor<GlobalPostProcessingContext> processor = null;
 
 		if (key.equals(JawrConstant.GLOBAL_GOOGLE_CLOSURE_POSTPROCESSOR_ID)) {
 			processor = new ClosureGlobalPostProcessor();

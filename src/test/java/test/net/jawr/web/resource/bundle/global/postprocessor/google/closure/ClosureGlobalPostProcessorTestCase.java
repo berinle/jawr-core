@@ -1,8 +1,8 @@
 package test.net.jawr.web.resource.bundle.global.postprocessor.google.closure;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,9 +21,9 @@ import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
+import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.global.postprocessor.google.closure.ClosureGlobalPostProcessor;
-import net.jawr.web.resource.bundle.global.processor.GlobalProcessingContext;
 import net.jawr.web.resource.bundle.handler.ClientSideHandlerGenerator;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler;
@@ -45,7 +45,7 @@ public class ClosureGlobalPostProcessorTestCase {
 	private JoinableResourceBundle msgBundle;
 	private JoinableResourceBundle variantBundle;
 	private JawrConfig config;
-	private GlobalProcessingContext ctx;
+	private GlobalPostProcessingContext ctx;
 	private ClosureGlobalPostProcessor processor;
 	private String srcDir;
 	private String tempDir;
@@ -111,7 +111,7 @@ public class ClosureGlobalPostProcessorTestCase {
 		when(rsHandler.getWorkingDirectory()).thenReturn(FileUtils.getClasspathRootDir()+"/global/postprocessor/google/closure/");
 		when(rsHandler.getResource("extern.js")).thenReturn(new StringReader(FileUtils.readClassPathFile("global/postprocessor/google/closure/externs/extern.js")));
 		
-		ctx = new GlobalProcessingContext(config, rsHandler, false);
+		ctx = new GlobalPostProcessingContext(config, rsBundlesHandler, rsHandler, false);
 	}
 
 	private GeneratorRegistry addGeneratorRegistryToConfig(JawrConfig config, String type) {
