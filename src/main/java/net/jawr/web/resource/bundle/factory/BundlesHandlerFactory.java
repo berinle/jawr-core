@@ -630,7 +630,7 @@ public class BundlesHandlerFactory {
 		if(idxExtension != -1){
 			bundleName = bundleName.substring(0, idxExtension);
 		}
-		return bundleName.replaceAll("/", "_");
+		return bundleName.replaceAll("(/|\\.)", "_");
 	}
 
 	/**
@@ -657,7 +657,7 @@ public class BundlesHandlerFactory {
 	 * @return a non-global, single-file resource bundle for orphans.
 	 */
 	private JoinableResourceBundle buildOrphanResourceBundle(String orphanPath) {
-		String mapping = orphanPath;// .startsWith("/") ? orphanPath.substring(0) : orphanPath;
+		String mapping = orphanPath;
 
 		List<String> paths = Collections.singletonList(mapping);
 		JoinableResourceBundle newBundle = new JoinableResourceBundleImpl(
