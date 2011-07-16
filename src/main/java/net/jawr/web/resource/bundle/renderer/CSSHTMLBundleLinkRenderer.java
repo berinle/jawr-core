@@ -240,17 +240,19 @@ public class CSSHTMLBundleLinkRenderer extends AbstractBundleLinkRenderer implem
 			alternate = true;
 			for (Iterator<Map<String, String>> itVariantMap = variants.iterator(); itVariantMap.hasNext();) {
 				Map<String, String> variant = itVariantMap.next();
-				String skin = variant.get(JawrConstant.SKIN_VARIANT_TYPE);
-				if(skin == null){
-					throw new JawrLinkRenderingException("You are trying to render alternate CSS for a bundle which don't have skin variant defined.");
-				}
-				
-				// Only apply if the locale doesn't exists or is the current one  
-				String locale = variant.get(JawrConstant.LOCALE_VARIANT_TYPE);
-				if(currentLocale == null || currentLocale.equals(locale)){
-						
-					title = skin;
-					renderBundleLinks(bundle, ctx, variant, out, debugOn);
+				if(variant != null){
+					String skin = variant.get(JawrConstant.SKIN_VARIANT_TYPE);
+					if(skin == null){
+						throw new JawrLinkRenderingException("You are trying to render alternate CSS for a bundle which don't have skin variant defined.");
+					}
+					
+					// Only apply if the locale doesn't exists or is the current one  
+					String locale = variant.get(JawrConstant.LOCALE_VARIANT_TYPE);
+					if(currentLocale == null || currentLocale.equals(locale)){
+							
+						title = skin;
+						renderBundleLinks(bundle, ctx, variant, out, debugOn);
+					}	
 				}
 			}
 			alternate = false;

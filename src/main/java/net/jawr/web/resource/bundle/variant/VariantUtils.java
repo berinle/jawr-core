@@ -46,7 +46,7 @@ public class VariantUtils {
 	public static List<Map<String, String>> getAllVariants(
 			Map<String, VariantSet> variantSets) {
 
-		List<Map<String, String>> variantKeys = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> variants = new ArrayList<Map<String, String>>();
 		if (variantSets != null) {
 			for (Iterator<Entry<String, Collection<String>>> itVariantSets = new TreeMap<String, Collection<String>>(
 					variantSets).entrySet().iterator(); itVariantSets.hasNext();) {
@@ -55,29 +55,29 @@ public class VariantUtils {
 						.next();
 				String variantType = variantEntry.getKey();
 				Collection<String> variantList = variantEntry.getValue();
-				if (variantKeys.isEmpty()) {
-					variantKeys = getVariants(null, variantType, variantList);
+				if (variants.isEmpty()) {
+					variants = getVariants(null, variantType, variantList);
 				} else {
 
 					List<Map<String, String>> tmpResult = new ArrayList<Map<String, String>>();
-					for (Iterator<Map<String, String>> itCurVariantKeys = variantKeys
+					for (Iterator<Map<String, String>> itCurVariantKeys = variants
 							.iterator(); itCurVariantKeys.hasNext();) {
 						Map<String, String> curVariant = itCurVariantKeys
 								.next();
 						tmpResult.addAll(getVariants(curVariant, variantType,
 								variantList));
 					}
-					variantKeys = tmpResult;
+					variants = tmpResult;
 				}
 			}
 		}
-
-		return variantKeys;
+		
+		return variants;
 	}
 
 	/**
-	 * Returns the list of variant maps, which are initialize with the current
-	 * map values and each element of the list contains a element of the variant
+	 * Returns the list of variant maps, which are initialized with the current
+	 * map values and each element of the list contains an element of the variant
 	 * list with the variant type as key
 	 * 
 	 * @param curVariant
@@ -139,6 +139,9 @@ public class VariantUtils {
 			}
 		}
 
+		if(variantKeys.isEmpty()){
+			variantKeys.add(null);
+		}
 		return variantKeys;
 	}
 
@@ -201,6 +204,7 @@ public class VariantUtils {
 				variantKeys.add(variantKeyPrefix + variant);
 			}
 		}
+		
 		return variantKeys;
 	}
 

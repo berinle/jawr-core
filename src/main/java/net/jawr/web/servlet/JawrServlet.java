@@ -55,6 +55,7 @@ public class JawrServlet extends HttpServlet {
 			}else{
 				requestHandler = new JawrRequestHandler(getServletContext(),getServletConfig());
 			}
+			//getServletConfig().getServletContext().
 		}catch (ServletException e) {
 			LOGGER.fatal("Jawr servlet with name " +  getServletConfig().getServletName() +" failed to initialize properly. ");
 			LOGGER.fatal("Cause:");

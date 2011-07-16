@@ -359,7 +359,6 @@ public abstract class AbstractResourceBundleHandler implements ResourceBundleHan
 	public ReadableByteChannel getResourceBundleChannel(String bundleName, boolean gzipBundle)
 			throws ResourceNotFoundException {
 
-		//tempFileName = getStoredBundlePath(bundleName, false);
 		String tempFileName = getStoredBundlePath(bundleName, gzipBundle);
 		InputStream is = getTemporaryResourceAsStream(tempFileName);
 		return Channels.newChannel(is);
@@ -465,20 +464,25 @@ public abstract class AbstractResourceBundleHandler implements ResourceBundleHan
 
 			File store = createNewFile(rootdir + File.separator + bundleName);
 
-			if (gzipFile) {
-				FileOutputStream fos = new FileOutputStream(store);
-				GZIPOutputStream gzOut = new GZIPOutputStream(fos);
-				byte[] data = bundledResources.toString().getBytes(
-						charset.name());
-				gzOut.write(data, 0, data.length);
-				gzOut.close();
-			} else {
-				FileOutputStream fos = new FileOutputStream(store);
-				FileChannel channel = fos.getChannel();
-				Writer wr = Channels.newWriter(channel, charset.newEncoder(),
-						-1);
-				wr.write(bundledResources.toString());
-				wr.close();
+			GZIPOutputStream gzOut = null;
+			Writer wr = null;
+			try{
+				if (gzipFile) {
+					FileOutputStream fos = new FileOutputStream(store);
+					gzOut = new GZIPOutputStream(fos);
+					byte[] data = bundledResources.toString().getBytes(
+							charset.name());
+					gzOut.write(data, 0, data.length);
+				} else {
+					FileOutputStream fos = new FileOutputStream(store);
+					FileChannel channel = fos.getChannel();
+					wr = Channels.newWriter(channel, charset.newEncoder(),
+							-1);
+					wr.write(bundledResources.toString());
+				}
+			}finally{
+				IOUtils.close(gzOut);
+				IOUtils.close(wr);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
