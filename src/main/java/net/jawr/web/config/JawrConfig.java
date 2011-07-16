@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hernández Sellés, Ibrahim Chaehoi, Matt Ruby
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi, Matt Ruby
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,14 +15,20 @@ package net.jawr.web.config;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
+
+import org.apache.log4j.Logger;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.context.ThreadLocalJawrContext;
 import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
+import net.jawr.web.resource.bundle.factory.util.RegexUtil;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.generator.variant.css.CssSkinVariantResolver;
 import net.jawr.web.resource.bundle.hashcode.BundleHashcodeGenerator;
@@ -48,6 +54,15 @@ public class JawrConfig implements Serializable {
 
 	/** The serial version UID */
 	private static final long serialVersionUID = -6243263853446050289L;
+
+	/** The logger */
+	private static final Logger LOGGER = Logger
+			.getLogger(JawrConfig.class);
+	
+	/**
+	 * The jawr property placeholder patten ex : ${my_property.id}
+	 */
+	public static final Pattern JAWR_PROPERY_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([a-zA-Z0-9_\\.\\-]+)}");
 
 	/**
 	 * The property name for the css link flavor
@@ -329,7 +344,43 @@ public class JawrConfig implements Serializable {
 	 * @param props the properties
 	 */
 	public JawrConfig(final Properties props) {
+		
+	}
+	
+	/**
+	 * Initialize configuration using params contained in the initialization properties file.
+	 * 
+	 * @param props the properties
+	 */
+	public JawrConfig(final Properties props, ConfigPropertyResolver resolver) {
 		this.configProperties = props;
+		if(resolver != null){
+			for(Entry<Object, Object> entry : this.configProperties.entrySet()){
+				String value = (String) entry.getValue();
+				Matcher matcher = JAWR_PROPERY_PLACEHOLDER_PATTERN.matcher(value);
+				StringBuffer sb = new StringBuffer();
+				boolean resolved = false; 
+				while(matcher.find()){
+					String resolvedValue = resolver.resolve(matcher.group(1));
+					if(value == null){
+						resolvedValue = matcher.group(1);
+						LOGGER.warn("The property '"+matcher.group(1)+"' has not been resolved. Please make sure that your configuration is correct.");
+					}else{
+						resolved = true;
+					}
+					
+					matcher.appendReplacement(sb, RegexUtil.adaptReplacementToMatcher(resolvedValue));
+				}
+				matcher.appendTail(sb);
+				// Sets the new value
+				if(resolved){ 
+					entry.setValue(sb.toString());
+					if(LOGGER.isDebugEnabled()){
+						LOGGER.debug("The property '"+entry.getKey()+"' has been resolved to : "+entry.getValue());
+					}
+				}
+			}
+		}
 		if (null != props.getProperty(JAWR_DEBUG_ON)) {
 			this.debugModeOn = Boolean.valueOf(props.getProperty(JAWR_DEBUG_ON)).booleanValue();
 		}

@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.jawr.web.JawrConstant;
+import net.jawr.web.config.ConfigPropertyResolver;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.config.jmx.JmxUtils;
 import net.jawr.web.context.ThreadLocalJawrContext;
@@ -149,6 +150,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 	/** The configuration properties source */
 	protected ConfigPropertiesSource propertiesSource;
 	
+	/** The configuration property resolver */
+	protected ConfigPropertyResolver configPropResolver;
+	
 	/** The configuration properties which overrides the one defined with the propertiesSource  */
 	protected Properties overrideProperties;
 	
@@ -219,35 +223,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		resourceType = getInitParameter("type");
 		resourceType = null == resourceType ? "js" : resourceType;
 
-		String configLocation = getInitParameter("configLocation");
-		String configPropsSourceClass = getInitParameter("configPropertiesSourceClass");
-		if (null == configProps && null == configLocation && null == configPropsSourceClass)
-			throw new ServletException("Neither configLocation nor configPropertiesSourceClass init params were set."
-					+ " You must set at least the configLocation param. Please check your web.xml file");
-
 		// Initialize the config properties source that will provide with all configuration options.
-		ConfigPropertiesSource propsSrc;
-
-		// Load a custom class to set config properties
-		if (null != configPropsSourceClass) {
-			propsSrc = (ConfigPropertiesSource) ClassLoaderResourceUtils.buildObjectInstance(configPropsSourceClass);
-			if (propsSrc instanceof ServletContextAware) {
-				((ServletContextAware) propsSrc).setServletContext(context);
-			}
-		} else if(configLocation == null && configProps != null){
-			
-			// configuration retrieved from the in memory configuration properties
-			propsSrc = new PropsConfigPropertiesSource(configProps);
-			
-		}else{
-			// Default config properties source, reads from a .properties file in the classpath.
-			propsSrc = new PropsFilePropertiesSource();
-		}
-
-		// If a custom properties source is a subclass of PropsFilePropertiesSource, we hand it the configLocation param.
-		// This affects the standard one as well.
-		if (propsSrc instanceof PropsFilePropertiesSource)
-			((PropsFilePropertiesSource) propsSrc).setConfigLocation(configLocation);
+		ConfigPropertiesSource propsSrc = initConfigPropertiesSource(context,
+				configProps);
 
 		// Read properties from properties source
 		Properties props = propsSrc.getConfigProperties();
@@ -259,6 +237,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		// hang onto the propertiesSource for manual reloads
 		this.propertiesSource = propsSrc;
 
+		// Initialize the ConfigPropertyResolver
+		initConfigPropertyResolver(context);
+		
 		// Initialize config
 		initializeJawrConfig(props);
 
@@ -282,6 +263,65 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			long totaltime = System.currentTimeMillis() - initialTime;
 			LOGGER.info("Init method succesful. jawr started in " + (totaltime / 1000) + " seconds....");
 		}
+	}
+
+	/**
+	 * Initialize the config property resolver
+	 * @param context the servlet context
+	 */
+	private void initConfigPropertyResolver(ServletContext context) {
+		String configPropertyResolverClass = getInitParameter("configPropertyResolverClass");
+		// Load a custom class to set configPropertyResolver
+		configPropResolver = null;
+		if (null != configPropertyResolverClass) {
+			configPropResolver = (ConfigPropertyResolver) ClassLoaderResourceUtils.buildObjectInstance(configPropertyResolverClass);
+			if (configPropResolver instanceof ServletContextAware) {
+				((ServletContextAware) configPropResolver).setServletContext(context);
+			}
+		}
+	}
+
+	/**
+	 * Initialize the config properties source that will provide with all configuration options.
+	 * @param context the servlet context
+	 * @param configProps the config properties
+	 * @return the config properties source
+	 * @throws ServletException if an exception occurs
+	 */
+	private ConfigPropertiesSource initConfigPropertiesSource(
+			ServletContext context, Properties configProps)
+			throws ServletException {
+		
+		String configLocation = getInitParameter("configLocation");
+		String configPropsSourceClass = getInitParameter("configPropertiesSourceClass");
+		if (null == configProps && null == configLocation && null == configPropsSourceClass)
+			throw new ServletException("Neither configLocation nor configPropertiesSourceClass init params were set."
+					+ " You must set at least the configLocation param. Please check your web.xml file");
+
+		// Initialize the config properties source that will provide with all configuration options.
+		ConfigPropertiesSource propsSrc = null;
+
+		// Load a custom class to set config properties
+		if (null != configPropsSourceClass) {
+			propsSrc = (ConfigPropertiesSource) ClassLoaderResourceUtils.buildObjectInstance(configPropsSourceClass);
+			if (propsSrc instanceof ServletContextAware) {
+				((ServletContextAware) propsSrc).setServletContext(context);
+			}
+		} else if(configLocation == null && configProps != null){
+			
+			// configuration retrieved from the in memory configuration properties
+			propsSrc = new PropsConfigPropertiesSource(configProps);
+			
+		}else{
+			// Default config properties source, reads from a .properties file in the classpath.
+			propsSrc = new PropsFilePropertiesSource();
+		}
+
+		// If a custom properties source is a subclass of PropsFilePropertiesSource, we hand it the configLocation param.
+		// This affects the standard one as well.
+		if (propsSrc instanceof PropsFilePropertiesSource)
+			((PropsFilePropertiesSource) propsSrc).setConfigLocation(configLocation);
+		return propsSrc;
 	}
 
 	/**
@@ -419,7 +459,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 	 * @param props the properties
 	 */
 	protected JawrConfig createJawrConfig(Properties props) {
-		jawrConfig = new JawrConfig(props);
+		jawrConfig = new JawrConfig(props, configPropResolver);
 		
 		// Override properties which are incompatible with the build time bundle processing
 		if(ThreadLocalJawrContext.isBundleProcessingAtBuildTime()){
