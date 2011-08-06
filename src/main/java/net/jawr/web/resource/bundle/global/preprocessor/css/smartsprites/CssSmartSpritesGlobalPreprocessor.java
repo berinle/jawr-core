@@ -32,6 +32,7 @@ import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.wicket.util.file.File;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters.PngDepth;
 import org.carrot2.labs.smartsprites.SpriteBuilder;
@@ -130,6 +131,14 @@ public class CssSmartSpritesGlobalPreprocessor extends
 		
 		String outDir = cssRsHandler.getWorkingDirectory()+JawrConstant.CSS_SMARTSPRITES_TMP_DIR;
 		
+		// Create temp directories
+		File tmpDir = new File(outDir);
+		if(!tmpDir.exists()){
+			if(!tmpDir.mkdirs()){
+				throw new BundlingProcessException("Impossible to create temporary directory : "+outDir);
+			}
+		}
+				
 		SmartSpritesParameters params = new SmartSpritesParameters("/", null, outDir, null, msgLevel, "", PngDepth.valueOf("AUTO"),
 			 false, charset.toString());
 		
