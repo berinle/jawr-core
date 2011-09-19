@@ -13,6 +13,7 @@
  */
 package net.jawr.web.resource.bundle.global.preprocessor.css.smartsprites;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
@@ -32,7 +33,6 @@ import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.wicket.util.file.File;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters.PngDepth;
 import org.carrot2.labs.smartsprites.SpriteBuilder;
@@ -41,11 +41,10 @@ import org.carrot2.labs.smartsprites.message.Message.MessageLevel;
 import org.carrot2.labs.smartsprites.message.MessageLog;
 import org.carrot2.labs.smartsprites.message.MessageSink;
 
-
 /**
- * This class defines the global preprocessor which will process all CSS files which
- * used smartsprites annotations.
- *  
+ * This class defines the global preprocessor which will process all CSS files
+ * which used smartsprites annotations.
+ * 
  * @author Ibrahim Chaehoi
  * 
  */
@@ -53,96 +52,124 @@ public class CssSmartSpritesGlobalPreprocessor extends
 		AbstractChainedGlobalProcessor<GlobalPreprocessingContext> {
 
 	/** The logger */
-	private static Logger LOGGER = Logger.getLogger(CssSmartSpritesGlobalPreprocessor.class);
-	
+	private static Logger LOGGER = Logger
+			.getLogger(CssSmartSpritesGlobalPreprocessor.class);
+
 	/** The error level name */
 	private static final String ERROR_LEVEL = "ERROR";
-	
+
 	/** The warn level name */
 	private static final String WARN_LEVEL = "WARN";
-	
+
 	/** The info level name */
 	private static final String INFO_LEVEL = "INFO";
-	
+
 	/**
-	 * Constructor 
+	 * Constructor
 	 */
 	public CssSmartSpritesGlobalPreprocessor() {
 		super(JawrConstant.GLOBAL_CSS_SMARTSPRITES_PREPROCESSOR_ID);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.global.processor.GlobalProcessor#processBundles(net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext, java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.jawr.web.resource.bundle.global.processor.GlobalProcessor#processBundles
+	 * (
+	 * net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext
+	 * , java.util.List)
 	 */
 	public void processBundles(GlobalPreprocessingContext ctx,
 			List<JoinableResourceBundle> bundles) {
-		
+
 		ResourceReaderHandler rsHandler = ctx.getRsReaderHandler();
 		Set<String> resourcePaths = getResourcePaths(bundles);
 		JawrConfig jawrConfig = ctx.getJawrConfig();
 		Charset charset = jawrConfig.getResourceCharset();
-		
-		ImageResourcesHandler imgRsHandler = (ImageResourcesHandler) jawrConfig.getContext().getAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE);
-		
+
+		ImageResourcesHandler imgRsHandler = (ImageResourcesHandler) jawrConfig
+				.getContext().getAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE);
+
 		ResourceReader cssSpriteResourceReader = null;
-		if(ctx.hasBundleToBeProcessed()){
-			generateSprites(rsHandler, imgRsHandler,
-					resourcePaths, jawrConfig, charset);
+		if (ctx.hasBundleToBeProcessed()) {
+			generateSprites(rsHandler, imgRsHandler, resourcePaths, jawrConfig,
+					charset);
 		}
-		
+
 		// Update CSS resource handler
-		cssSpriteResourceReader = new CssSmartSpritesResourceReader(rsHandler.getWorkingDirectory(),jawrConfig);
-		ctx.getRsReaderHandler().addResourceReaderToStart(cssSpriteResourceReader);
-		
+		cssSpriteResourceReader = new CssSmartSpritesResourceReader(
+				rsHandler.getWorkingDirectory(), jawrConfig);
+		ctx.getRsReaderHandler().addResourceReaderToStart(
+				cssSpriteResourceReader);
+
 		// Update image resource handler
-		ResourceReaderHandler imgStreamRsHandler = imgRsHandler.getRsReaderHandler();
+		ResourceReaderHandler imgStreamRsHandler = imgRsHandler
+				.getRsReaderHandler();
 		imgStreamRsHandler.addResourceReaderToStart(cssSpriteResourceReader);
 	}
 
 	/**
-	 * Generates the image sprites from the smartsprites annotation in the CSS, rewrite the CSS files
-	 * to references the generated sprites.
-	 * @param cssRsHandler the css resourceHandler 
-	 * @param imgRsHandler the image resourceHandler
-	 * @param resourcePaths the set of CSS resource paths to handle
-	 * @param jawrConfig the Jawr config
-	 * @param charset the charset
+	 * Generates the image sprites from the smartsprites annotation in the CSS,
+	 * rewrite the CSS files to references the generated sprites.
+	 * 
+	 * @param cssRsHandler
+	 *            the css resourceHandler
+	 * @param imgRsHandler
+	 *            the image resourceHandler
+	 * @param resourcePaths
+	 *            the set of CSS resource paths to handle
+	 * @param jawrConfig
+	 *            the Jawr config
+	 * @param charset
+	 *            the charset
 	 */
-	private void generateSprites(
-			ResourceReaderHandler cssRsHandler, ImageResourcesHandler imgRsHandler, Set<String> resourcePaths,
+	private void generateSprites(ResourceReaderHandler cssRsHandler,
+			ImageResourcesHandler imgRsHandler, Set<String> resourcePaths,
 			JawrConfig jawrConfig, Charset charset) {
-		
+
 		Level logLevel = LOGGER.getEffectiveLevel();
 		MessageLevel msgLevel = MessageLevel.valueOf(ERROR_LEVEL);
-		if(logLevel != null){
-			if(logLevel.isGreaterOrEqual(Level.DEBUG)){
+		Level sinkLevel = LOGGER.getEffectiveLevel();
+		if (logLevel != null) {
+			if (logLevel.isGreaterOrEqual(Level.DEBUG)) {
 				msgLevel = MessageLevel.valueOf(INFO_LEVEL);
-			}else if(logLevel.isGreaterOrEqual(Level.WARN)){
+				sinkLevel = Level.INFO;
+			} else if (logLevel.isGreaterOrEqual(Level.WARN)) {
 				msgLevel = MessageLevel.valueOf(WARN_LEVEL);
+				sinkLevel = Level.WARN;
 			}
 		}
-		
-		MessageLog messageLog = new MessageLog(new MessageSink[]{new LogMessageSink()});
-		
-		SmartSpritesResourceHandler smartSpriteRsHandler = new SmartSpritesResourceHandler(cssRsHandler, imgRsHandler.getRsReaderHandler(), 
-				jawrConfig.getGeneratorRegistry(), imgRsHandler.getJawrConfig().getGeneratorRegistry(), charset.toString(), messageLog);
-		
-		smartSpriteRsHandler.setContextPath(jawrConfig.getProperty(JawrConstant.JAWR_CSS_URL_REWRITER_CONTEXT_PATH));
-		
-		String outDir = cssRsHandler.getWorkingDirectory()+JawrConstant.CSS_SMARTSPRITES_TMP_DIR;
-		
+
+		MessageLog messageLog = new MessageLog(
+				new MessageSink[] { new LogMessageSink(sinkLevel) });
+
+		SmartSpritesResourceHandler smartSpriteRsHandler = new SmartSpritesResourceHandler(
+				cssRsHandler, imgRsHandler.getRsReaderHandler(),
+				jawrConfig.getGeneratorRegistry(), imgRsHandler.getJawrConfig()
+						.getGeneratorRegistry(), charset.toString(), messageLog);
+
+		smartSpriteRsHandler.setContextPath(jawrConfig
+				.getProperty(JawrConstant.JAWR_CSS_URL_REWRITER_CONTEXT_PATH));
+
+		String outDir = cssRsHandler.getWorkingDirectory()
+				+ JawrConstant.CSS_SMARTSPRITES_TMP_DIR;
+
 		// Create temp directories
 		File tmpDir = new File(outDir);
-		if(!tmpDir.exists()){
-			if(!tmpDir.mkdirs()){
-				throw new BundlingProcessException("Impossible to create temporary directory : "+outDir);
+		if (!tmpDir.exists()) {
+			if (!tmpDir.mkdirs()) {
+				throw new BundlingProcessException(
+						"Impossible to create temporary directory : " + outDir);
 			}
 		}
-				
-		SmartSpritesParameters params = new SmartSpritesParameters("/", null, outDir, null, msgLevel, "", PngDepth.valueOf("AUTO"),
-			 false, charset.toString());
-		
-		SpriteBuilder spriteBuilder = new SpriteBuilder(params, messageLog, smartSpriteRsHandler);
+
+		SmartSpritesParameters params = new SmartSpritesParameters("/", null,
+				outDir, null, msgLevel, "", PngDepth.valueOf("AUTO"), false,
+				charset.toString());
+
+		SpriteBuilder spriteBuilder = new SpriteBuilder(params, messageLog,
+				smartSpriteRsHandler);
 		try {
 			spriteBuilder.buildSprites(resourcePaths);
 		} catch (IOException e) {
@@ -153,40 +180,54 @@ public class CssSmartSpritesGlobalPreprocessor extends
 	/**
 	 * Returns the list of all CSS files defined in the bundles.
 	 * 
-	 * @param bundles the list of bundle
+	 * @param bundles
+	 *            the list of bundle
 	 * @return the list of all CSS files defined in the bundles.
 	 */
 	private Set<String> getResourcePaths(List<JoinableResourceBundle> bundles) {
 
 		Set<String> resourcePaths = new HashSet<String>();
 
-		for (Iterator<JoinableResourceBundle> iterator = bundles.iterator(); iterator.hasNext();) {
+		for (Iterator<JoinableResourceBundle> iterator = bundles.iterator(); iterator
+				.hasNext();) {
 			JoinableResourceBundle bundle = iterator.next();
 			resourcePaths.addAll(bundle.getItemPathList());
 		}
 
 		return resourcePaths;
 	}
-	
+
 	/**
 	 * The log message sink
 	 * 
 	 * @author Ibrahim Chaehoi
 	 */
-	private static class LogMessageSink implements MessageSink{
-		
-		
-		/* (non-Javadoc)
-		 * @see org.carrot2.labs.smartsprites.message.MessageSink#add(org.carrot2.labs.smartsprites.message.Message)
+	private static class LogMessageSink implements MessageSink {
+
+		/**
+		 * The log level
+		 */
+		private final Level logLevel;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param logLevel
+		 *            the log level
+		 */
+		public LogMessageSink(Level logLevel) {
+			this.logLevel = logLevel != null ? logLevel : Level.INFO;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.carrot2.labs.smartsprites.message.MessageSink#add(org.carrot2
+		 * .labs.smartsprites.message.Message)
 		 */
 		public void add(Message message) {
-			
-			Level logLevel = LOGGER.getEffectiveLevel();
-			if(logLevel == null){
-				logLevel = Level.INFO;
-			}
 			LOGGER.log(logLevel, message.getFormattedMessage());
 		}
-		
 	}
 }
