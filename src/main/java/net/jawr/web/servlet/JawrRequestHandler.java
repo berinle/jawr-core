@@ -862,8 +862,13 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			if(JmxUtils.isJmxEnabled()){
 				ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(servletContext, resourceType));
 			}
-			
-			initializeJawrConfig(newConfig);
+			Properties props = propertiesSource.getConfigProperties();
+			// override the properties if needed
+			if(this.overrideProperties != null){
+				props.putAll(overrideProperties);
+			}
+			props.putAll(newConfig);
+			initializeJawrConfig(props);
 		} catch (Exception e) {
 			throw new BundlingProcessException("Error reloading Jawr config: " + e.getMessage(), e);
 		}finally{
