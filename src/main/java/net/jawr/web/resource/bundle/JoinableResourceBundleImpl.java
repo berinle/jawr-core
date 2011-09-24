@@ -120,11 +120,14 @@ public class JoinableResourceBundleImpl implements JoinableResourceBundle {
 		super();
 
 		this.inclusionPattern = inclusionPattern;
-
-		this.id = PathNormalizer.asPath(id);
+		this.generatorRegistry = generatorRegistry;
+		if(generatorRegistry.isPathGenerated(id)){
+			this.id = id;
+		}else{
+			this.id = PathNormalizer.asPath(id);
+		}
 		this.name = name;
 		this.resourceReaderHandler = resourceReaderHandler;
-		this.generatorRegistry = generatorRegistry;
 		this.itemPathList = new CopyOnWriteArrayList<String>();
 		this.licensesPathList = new HashSet<String>();
 		this.fileExtension = fileExtension;
@@ -304,13 +307,7 @@ public class JoinableResourceBundleImpl implements JoinableResourceBundle {
 	 */
 	private String joinPaths(String dirName, String folderName, boolean generatedResource){
 		
-		String result = null;
-		if(generatedResource){
-			result = PathNormalizer.joinDomainToPath(dirName, folderName);
-		}else{
-			result = PathNormalizer.joinPaths(dirName, folderName);
-		}
-		return result;
+		return PathNormalizer.joinPaths(dirName, folderName, generatedResource);
 	}
 	
 	/*

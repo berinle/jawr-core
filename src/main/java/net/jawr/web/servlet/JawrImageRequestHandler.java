@@ -336,13 +336,16 @@ public class JawrImageRequestHandler extends JawrRequestHandler {
 					+ dirName + "] to image bundle");
 		}
 
+		GeneratorRegistry generatorRegistry = imgRsHandler.getJawrConfig().getGeneratorRegistry();
+		
 		// Add remaining resources (remaining after sorting, or all if no sort
 		// file present)
 		List<String> folders = new ArrayList<String>();
+		boolean generatedPath = generatorRegistry.isPathGenerated(dirName);
 		for (Iterator<String> it = resources.iterator(); it.hasNext();) {
 			String resourceName = it.next();
 			String resourcePath = PathNormalizer.joinPaths(dirName,
-					resourceName);
+					resourceName, generatedPath);
 			if (hasImageFileExtension(resourceName)) {
 				addImagePath(imgRsHandler, resourcePath);
 

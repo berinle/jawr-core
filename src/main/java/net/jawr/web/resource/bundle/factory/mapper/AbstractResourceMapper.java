@@ -21,7 +21,6 @@ import java.util.Map;
 
 import net.jawr.web.exception.DuplicateBundlePathException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
-import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 
 import org.apache.log4j.Logger;
@@ -66,7 +65,7 @@ public abstract class AbstractResourceMapper {
 	public AbstractResourceMapper(String baseDir, ResourceReaderHandler rsHandler,
 			List<JoinableResourceBundle> currentBundles, String resourceExtension) {
 		super();
-		this.baseDir = PathNormalizer.asDirPath(baseDir);
+		this.baseDir = baseDir;
 		this.rsHandler = rsHandler;
 		this.currentBundles = new ArrayList<JoinableResourceBundle>();
 		if (null != currentBundles)

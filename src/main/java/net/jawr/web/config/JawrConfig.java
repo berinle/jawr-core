@@ -344,7 +344,7 @@ public class JawrConfig implements Serializable {
 	 * @param props the properties
 	 */
 	public JawrConfig(final Properties props) {
-		
+		this(props, null);
 	}
 	
 	/**

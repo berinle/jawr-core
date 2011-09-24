@@ -399,7 +399,7 @@ public abstract class AbstractResourceBundleHandler implements ResourceBundleHan
 			rootDir += File.separator;
 		}
 		
-		return rootDir + bundleName;
+		return rootDir + PathNormalizer.escapeToPhysicalPath(bundleName);
 	}
 
 	/*
@@ -449,6 +449,7 @@ public abstract class AbstractResourceBundleHandler implements ResourceBundleHan
 
 		try {
 			// Create subdirs if needed
+			bundleName = bundleName.replaceAll(":","_");
 			if (bundleName.indexOf('/') != -1) {
 				StringTokenizer tk = new StringTokenizer(bundleName, "/");
 				StringBuffer pathName = new StringBuffer(rootdir);

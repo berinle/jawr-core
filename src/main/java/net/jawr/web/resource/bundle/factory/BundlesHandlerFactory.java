@@ -148,6 +148,14 @@ public class BundlesHandlerFactory {
 	private boolean scanForOrphans = true;
 
 	/**
+	 * Constructor
+	 * @param config the jawr config
+	 */
+	public BundlesHandlerFactory(JawrConfig config) {
+		this.jawrConfig = config;
+	}
+	
+	/**
 	 * Build a ResourceBundlesHandler. Must be invoked after setting at least the ResourceHandler.
 	 * 
 	 * @param jawrConfig the jawr config
@@ -311,7 +319,12 @@ public class BundlesHandlerFactory {
 					resourceBundles.add(buildResourcebundle(def));
 			}
 		}
-
+		
+		// Normalize the base Dir if needed
+		if(!jawrConfig.getGeneratorRegistry().isPathGenerated(baseDir)){
+			this.baseDir = PathNormalizer.asDirPath(baseDir);
+		}
+		
 		// Use the dirmapper if specified
 		if (useDirMapperFactory) {
 			if (LOGGER.isInfoEnabled())
@@ -630,7 +643,7 @@ public class BundlesHandlerFactory {
 		if(idxExtension != -1){
 			bundleName = bundleName.substring(0, idxExtension);
 		}
-		return bundleName.replaceAll("(/|\\.)", "_");
+		return bundleName.replaceAll("(/|\\.|:)", "_");
 	}
 
 	/**
@@ -700,7 +713,7 @@ public class BundlesHandlerFactory {
 	 * @param baseDir the base directory to set
 	 */
 	public void setBaseDir(String baseDir) {
-		this.baseDir = PathNormalizer.asDirPath(baseDir);
+		this.baseDir = baseDir;
 	}
 
 	/**
@@ -824,13 +837,13 @@ public class BundlesHandlerFactory {
 					.normalizePaths(exludedDirMapperDirs);
 	}
 
-	/**
-	 * Sets the Jawr configuration
-	 * @param jawrConfig the configuration to set
-	 */
-	public void setJawrConfig(JawrConfig jawrConfig) {
-		this.jawrConfig = jawrConfig;
-	}
+//	/**
+//	 * Sets the Jawr configuration
+//	 * @param jawrConfig the configuration to set
+//	 */
+//	public void setJawrConfig(JawrConfig jawrConfig) {
+//		this.jawrConfig = jawrConfig;
+//	}
 
 	/**
 	 * Sets the map of custom post processor 

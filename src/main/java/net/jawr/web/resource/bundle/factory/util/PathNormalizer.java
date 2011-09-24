@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hernández Sellés, Matt Ruby, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Matt Ruby, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -51,6 +51,15 @@ public final class PathNormalizer {
 	 */
 	private PathNormalizer() {
 		
+	}
+	
+	/**
+	 * Converts the bundle path to a physical path
+	 * @param bundlePath the bundle path
+	 * @return the physical path
+	 */
+	public static String escapeToPhysicalPath(String bundlePath){
+		return bundlePath.replaceAll(":", "_");
 	}
 	
 	/**
@@ -157,6 +166,34 @@ public final class PathNormalizer {
 	 */
 	public static String asDirPath(String path) {
 		return(JawrConstant.URL_SEPARATOR + normalizePath(path) + JawrConstant.URL_SEPARATOR);
+	}
+	
+	/**
+	 * Normalizes two paths and joins them as a single path. 
+	 * @param prefix
+	 * @param path
+	 * @return the joined path
+	 */
+	public static String joinPaths(String prefix,String path, GeneratorRegistry generatorRegistry) {
+		
+		return  joinPaths(prefix, path, generatorRegistry.isPathGenerated(prefix));
+	}
+	
+	/**
+	 * Normalizes two paths and joins them as a single path. 
+	 * @param prefix
+	 * @param path
+	 * @return the joined path
+	 */
+	public static String joinPaths(String prefix,String path, boolean generatedPath) {
+		
+		String result = null;
+		if(generatedPath){
+			result = joinDomainToPath(prefix , path);
+		}else{
+			result = joinPaths(prefix, path); 
+		}
+		return  result; 
 	}
 	
 	/**

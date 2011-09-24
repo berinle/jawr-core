@@ -165,8 +165,8 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
 		
-		PropertiesBasedBundlesHandlerFactory propsBundlesHandlerFactory = new PropertiesBasedBundlesHandlerFactory(props, "css", getResourceReaderHandler(), getResourceBundleHandler("css"), generatorRegistry);
-		ResourceBundlesHandler handler = propsBundlesHandlerFactory.buildResourceBundlesHandler(config);
+		PropertiesBasedBundlesHandlerFactory propsBundlesHandlerFactory = new PropertiesBasedBundlesHandlerFactory(props, "css", getResourceReaderHandler(), getResourceBundleHandler("css"), config);
+		ResourceBundlesHandler handler = propsBundlesHandlerFactory.buildResourceBundlesHandler();
 		List bundles = handler.getContextBundles();
 		return bundles;
 	}

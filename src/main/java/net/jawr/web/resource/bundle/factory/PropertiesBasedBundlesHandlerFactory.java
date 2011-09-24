@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -73,11 +73,11 @@ public class PropertiesBasedBundlesHandlerFactory {
 	 */
 	public PropertiesBasedBundlesHandlerFactory(Properties properties,
 			String resourceType, ResourceReaderHandler rsHandler, ResourceBundleHandler rsBundleHandler,
-			GeneratorRegistry generatorRegistry) {
+			JawrConfig jawrConfig) {
 		this.props = new PropertiesConfigHelper(properties, resourceType);
-
+		
 		// Create the BundlesHandlerFactory
-		factory = new BundlesHandlerFactory();
+		factory = new BundlesHandlerFactory(jawrConfig);
 		factory.setResourceReaderHandler(rsHandler);
 		factory.setResourceBundleHandler(rsBundleHandler);
 		factory.setBundlesType(resourceType);
@@ -124,6 +124,7 @@ public class PropertiesBasedBundlesHandlerFactory {
 		// Initialize custom generators
 		Iterator<String> generators = props.getCommonPropertyAsSet(PropertiesBundleConstant.CUSTOM_GENERATORS)
 				.iterator();
+		GeneratorRegistry generatorRegistry = jawrConfig.getGeneratorRegistry();
 		while (generators.hasNext()) {
 			String generatorClass = (String) generators.next();
 			generatorRegistry.registerGenerator(generatorClass);
@@ -202,9 +203,7 @@ public class PropertiesBasedBundlesHandlerFactory {
 	 * @throws DuplicateBundlePathException
 	 * @throws BundleDependencyException  if an error exists in the dependency definition
 	 */
-	public ResourceBundlesHandler buildResourceBundlesHandler(
-			JawrConfig jawrConfig) throws DuplicateBundlePathException, BundleDependencyException {
-		factory.setJawrConfig(jawrConfig);
+	public ResourceBundlesHandler buildResourceBundlesHandler() throws DuplicateBundlePathException, BundleDependencyException {
 		return factory.buildResourceBundlesHandler();
 	}
 

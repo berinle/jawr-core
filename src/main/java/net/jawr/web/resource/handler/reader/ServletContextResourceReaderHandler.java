@@ -209,7 +209,8 @@ public class ServletContextResourceReaderHandler implements ResourceReaderHandle
 		for (Iterator<TextResourceReader> iterator = resourceReaders.iterator(); iterator.hasNext();) {
 			TextResourceReader rsReader = iterator.next();
 			if (!(rsReader instanceof PrefixedResourceGenerator) 
-					|| (resourceName.startsWith(((PrefixedResourceGenerator)rsReader).getMappingPrefix()+GeneratorRegistry.PREFIX_SEPARATOR))){
+					|| (resourceName.startsWith(((PrefixedResourceGenerator)rsReader).getMappingPrefix()+GeneratorRegistry.PREFIX_SEPARATOR)))
+			{
 					
 				rd = rsReader.getResource(resourceName, processingBundle);
 				if(rd != null){

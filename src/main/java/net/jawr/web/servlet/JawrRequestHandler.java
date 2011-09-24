@@ -384,10 +384,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		// Create a resource handler to read files from the WAR archive or exploded dir.
 		rsReaderHandler = initResourceReaderHandler();
 		ResourceBundleHandler rsBundleHandler = initResourceBundleHandler();
-		PropertiesBasedBundlesHandlerFactory factory = new PropertiesBasedBundlesHandlerFactory(props, resourceType, rsReaderHandler, rsBundleHandler, jawrConfig
-				.getGeneratorRegistry());
+		PropertiesBasedBundlesHandlerFactory factory = new PropertiesBasedBundlesHandlerFactory(props, resourceType, rsReaderHandler, rsBundleHandler, jawrConfig);
 		try {
-			bundlesHandler = factory.buildResourceBundlesHandler(jawrConfig);
+			bundlesHandler = factory.buildResourceBundlesHandler();
 		} catch (DuplicateBundlePathException e) {
 			throw new ServletException(e);
 		} catch (BundleDependencyException e) {

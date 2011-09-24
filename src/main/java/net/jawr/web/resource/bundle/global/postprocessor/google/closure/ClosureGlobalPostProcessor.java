@@ -42,6 +42,7 @@ import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.factory.global.postprocessor.GlobalPostProcessingContext;
+import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.global.processor.AbstractChainedGlobalProcessor;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.variant.VariantSet;
@@ -601,9 +602,10 @@ public class ClosureGlobalPostProcessor extends
 				} else if (!"-".equals(filename)) {
 					Reader rd = null;
 					StringWriter swr = new StringWriter();
+					InputStream is = null;
 					try {
 						try {
-							InputStream is = new FileInputStream(new File(tempDir, filename));
+							is = new FileInputStream(new File(tempDir, filename));
 							rd = Channels.newReader(Channels.newChannel(is), ctx.getJawrConfig().getResourceCharset().displayName());
 						} catch (FileNotFoundException e) {
 							// Do nothing
@@ -623,6 +625,7 @@ public class ClosureGlobalPostProcessor extends
 								jsCode);
 						inputs.add(newFile);
 					} finally {
+						IOUtils.close(is);
 						IOUtils.close(rd);
 						IOUtils.close(swr);
 					}
@@ -650,6 +653,7 @@ public class ClosureGlobalPostProcessor extends
 					.substring(2);
 
 			String bundlePath = resultBundleMapping.get(bundleName);
+			bundlePath = PathNormalizer.escapeToPhysicalPath(bundlePath);
 			File outFile = new File(destDir, bundlePath);
 			outFile.getParentFile().mkdirs();
 			return new FileOutputStream(outFile);

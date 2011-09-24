@@ -26,14 +26,13 @@ public class PredefinedBundlesHandlerUtil {
 			ResourceBundleHandler rsBundleHandler, JawrConfig config)
 			throws DuplicateBundlePathException, BundleDependencyException {
 
-		BundlesHandlerFactory factory = new BundlesHandlerFactory();
+		BundlesHandlerFactory factory = new BundlesHandlerFactory(config);
 		factory.setResourceReaderHandler(handler);
 		factory.setResourceBundleHandler(rsBundleHandler);
 		factory.setBaseDir("/js");
 		factory.setUseSingleResourceFactory(true);
 		factory.setSingleFileBundleName("script");
 		factory.setBundlesType("js");
-		factory.setJawrConfig(config);
 		return factory.buildResourceBundlesHandler();
 
 	}
@@ -47,7 +46,7 @@ public class PredefinedBundlesHandlerUtil {
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(type);
 		generatorRegistry.setResourceReaderHandler(handler);
 		config.setGeneratorRegistry(generatorRegistry);
-		BundlesHandlerFactory factory = new BundlesHandlerFactory();
+		BundlesHandlerFactory factory = new BundlesHandlerFactory(config);
 		factory.setResourceReaderHandler(handler);
 		factory.setResourceBundleHandler(rsBundleHandler);
 		factory.setBaseDir(baseDir);
@@ -94,7 +93,6 @@ public class PredefinedBundlesHandlerUtil {
 		excludedPaths.add(baseDir + "/global");
 		excludedPaths.add(baseDir + "/debug");
 		factory.setExludedDirMapperDirs(excludedPaths);
-		factory.setJawrConfig(config);
 		return factory.buildResourceBundlesHandler();
 	}
 
@@ -108,7 +106,7 @@ public class PredefinedBundlesHandlerUtil {
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(type);
 		generatorRegistry.setResourceReaderHandler(handler);
 		config.setGeneratorRegistry(generatorRegistry);
-		BundlesHandlerFactory factory = new BundlesHandlerFactory();
+		BundlesHandlerFactory factory = new BundlesHandlerFactory(config);
 		factory.setResourceReaderHandler(handler);
 		factory.setResourceBundleHandler(rsBundleHandler);
 		factory.setBaseDir(baseDir);
@@ -182,7 +180,6 @@ public class PredefinedBundlesHandlerUtil {
 		excludedPaths.add(baseDir + "/global");
 		excludedPaths.add(baseDir + "/debug");
 		factory.setExludedDirMapperDirs(excludedPaths);
-		factory.setJawrConfig(config);
 		return factory.buildResourceBundlesHandler();
 	}
 }

@@ -80,6 +80,7 @@ public class ResourceBundleDirMapper extends AbstractResourceMapper{
 	 */
 	protected void addBundlesToMapping() throws DuplicateBundlePathException {
 		Set<String> paths = rsHandler.getResourceNames(baseDir);
+		
 		for(Iterator<String> it = paths.iterator(); it.hasNext();) {
 			String path = it.next();
 			path = PathNormalizer.joinPaths(baseDir, path);
