@@ -15,6 +15,7 @@ package net.jawr.web.resource.bundle.locale.message;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -51,6 +52,7 @@ public class GrailsMessageBundleScriptCreator extends MessageBundleScriptCreator
 	private static final Logger LOGGER = Logger.getLogger(GrailsMessageBundleScriptCreator.class);
 	private static final String PROPERTIES_DIR = "/WEB-INF/grails-app/i18n/";
 	private static final String PROPERTIES_EXT =".properties";
+	private static final String CHARSET_ISO_8859_1 = "ISO-8859-1";
 	
 	public GrailsMessageBundleScriptCreator(GeneratorContext context) {
 		super(context);
@@ -100,12 +102,17 @@ public class GrailsMessageBundleScriptCreator extends MessageBundleScriptCreator
 			String key = it.next();
 			if(matchesFilter(key)){
 				try {
-					String msg = messageSource.getMessage(key, new Object[0], locale);
+					// Use the property encoding of the file
+					String msg = new String(messageSource.getMessage(key, new Object[0], locale).getBytes(
+							CHARSET_ISO_8859_1), charset.displayName());
 					props.put(key, msg);
 				} catch (NoSuchMessageException e) {
 					// This is expected, so it's OK to have an empty catch block. 
 					if(LOGGER.isDebugEnabled())
 						LOGGER.debug("Message key [" + key + "] not found.");
+				} catch (UnsupportedEncodingException e) {
+					LOGGER.warn("Unable to convert value of message bundle associated to key '"
+							+ key + "' because the charset is unknown");
 				}
 			}
 		}
@@ -128,9 +135,13 @@ public class GrailsMessageBundleScriptCreator extends MessageBundleScriptCreator
 				try {
 					Properties props = new Properties(); 
 					props.load(servletContext.getResourceAsStream(name));
-					if(LOGGER.isDebugEnabled())
+					if(LOGGER.isDebugEnabled()){
 						LOGGER.debug("Found " + props.keySet().size() + " message keys at " + name + ".");
-					allPropertyNames.addAll(props.stringPropertyNames());
+					}
+					for (Object key : props.keySet()) {
+						allPropertyNames.add((String) key);
+					}
+					
 				} catch (IOException e) {
 					throw new BundlingProcessException("Unexpected error retrieving i18n grails properties file", e);
 				}
