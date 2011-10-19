@@ -168,6 +168,12 @@ public class JawrConstant {
 	/** The variant separator character */
 	public static final char VARIANT_SEPARATOR_CHAR = '@';
 	
+	/** The request parameter to check that the refresh has already been taken in account for the request */
+	public static final String JAWR_BUNDLE_REFRESH_CHECK = "jawr.bundle.refresh.check";
+
+	/** The refresh key parameter */
+	public static final String REFRESH_KEY_PARAM = "refreshKey";
+	
 	// Tag
 	/** The name of the media attribute */
 	public static final String MEDIA_ATTR = "media";
