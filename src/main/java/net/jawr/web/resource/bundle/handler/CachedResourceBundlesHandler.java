@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.jawr.web.cache.AbstractCacheManager;
+import net.jawr.web.cache.CacheManagerFactory;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.exception.ResourceNotFoundException;
@@ -56,6 +58,9 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	 * byteBuffers are not thread safe */
 	private Map<String, byte[]> gzipCache;
 
+	/** The cache manager */
+	private AbstractCacheManager cacheMgr;
+	
 	/**
 	 * Build a cached wrapper around the supplied ResourceBundlesHandler.
 	 * 
@@ -65,8 +70,11 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 		super();
 		this.rsHandler = rsHandler;
 		
-		this.textCache = new ConcurrentHashMap<String, String>();
-		this.gzipCache = new ConcurrentHashMap<String, byte[]>();
+		// TODO check this 
+		cacheMgr = new CacheManagerFactory(rsHandler.getConfig()).getCacheManager();
+		
+		//this.textCache = new ConcurrentHashMap<String, String>();
+		//this.gzipCache = new ConcurrentHashMap<String, byte[]>();
 	}
 
 	/*
@@ -162,7 +170,8 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 			throws ResourceNotFoundException {
 
 		try {
-			byte[] gzip = gzipCache.get(bundlePath);
+			//byte[] gzip = gzipCache.get(bundlePath);
+			byte[] gzip = (byte[]) cacheMgr.get("ZIP."+bundlePath);
 			// If it's not cached yet
 			if (null == gzip) {
 				// Stream the stored data
@@ -174,8 +183,9 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 				bfOs.close();
 				gzip = baOs.toByteArray();
 
-				// Cache the ByteBuffer
-				gzipCache.put(bundlePath, gzip);
+				// Cache the byte array
+				cacheMgr.put("ZIP."+bundlePath, gzip);
+				//gzipCache.put(bundlePath, gzip);
 			}
 
 			// Write bytes to the outputstream
@@ -198,7 +208,8 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	 */
 	public void writeBundleTo(String bundlePath, Writer writer)
 			throws ResourceNotFoundException {
-		String text = (String) textCache.get(bundlePath);
+		//String text = (String) textCache.get(bundlePath);
+		String text = (String) cacheMgr.get("TEXT."+bundlePath);
 		try {
 			// If it's not cached yet
 			if (null == text) {
@@ -209,7 +220,8 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 				Writer tempWriter = Channels.newWriter(wrChannel, charsetName);
 				rsHandler.writeBundleTo(bundlePath, tempWriter);
 				text = baOs.toString(charsetName);
-				textCache.put(bundlePath, text);
+				cacheMgr.put("TEXT."+bundlePath, text);
+				//textCache.put(bundlePath, text);
 			}
 
 			// Write the text to the outputstream

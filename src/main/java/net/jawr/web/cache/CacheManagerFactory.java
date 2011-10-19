@@ -12,18 +12,18 @@ import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
  */
 public class CacheManagerFactory {
 
-	private CacheManager cacheManager;
+	private AbstractCacheManager cacheManager;
 	
 	public CacheManagerFactory(JawrConfig config) {
 	
-		cacheManager = (CacheManager) config.getContext().getAttribute("JAWR.CACHE.MANAGER");
+		cacheManager = (AbstractCacheManager) config.getContext().getAttribute("JAWR.CACHE.MANAGER");
 		if(cacheManager == null){
 			String cacheManagerClass = config.getProperty("jawr.cache.manager");
-			cacheManager = (CacheManager) ClassLoaderResourceUtils.buildObjectInstance(cacheManagerClass, new Object[]{config});	
+			cacheManager = (AbstractCacheManager) ClassLoaderResourceUtils.buildObjectInstance(cacheManagerClass, new Object[]{config});	
 		}
 	}
 	
-	public CacheManager getCacheManager(){
+	public AbstractCacheManager getCacheManager(){
 		return cacheManager;
 	}
 }
