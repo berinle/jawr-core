@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -43,7 +43,12 @@ public class CSSMinPostProcessor extends AbstractChainedResourceBundlePostProces
 	 * @see net.jawr.web.resource.bundle.postprocess.impl.AbstractChainedResourceBundlePostProcessor#doPostProcessBundle(net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus, java.lang.StringBuffer)
 	 */
 	protected StringBuffer doPostProcessBundle(BundleProcessingStatus status, StringBuffer bundleData) throws IOException {
-		return minifier.minifyCSS(bundleData);
+		try{
+			return minifier.minifyCSS(bundleData);
+		}catch(StackOverflowError e){
+			throw new Error("An error occured while processing the bundle '"+status.getCurrentBundle().getName()+"'" ,e);
+		}
+		
 	}
 
 }
