@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hernández Sellés, Matt Ruby, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Matt Ruby, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -271,6 +271,36 @@ public class RendererRequestUtils {
 			contextPathOverride = config.getContextPathOverride();
 		}
 		return contextPathOverride;
+	}
+	
+	/**
+	 * Refresh the Jawr config if a manual reload has been ask using the refresh key parameter from the URL
+	 * 
+	 * @param request the request 
+	 * @param jawrConfig the Jawr config
+	 * 
+	 * @return true if the config has been refreshed
+	 */
+	public static boolean refreshConfigIfNeeded(HttpServletRequest request,
+			JawrConfig jawrConfig) {
+	
+		boolean refreshed = false;
+		if (request.getAttribute(JawrConstant.JAWR_BUNDLE_REFRESH_CHECK) == null) {
+		    
+			request.setAttribute(JawrConstant.JAWR_BUNDLE_REFRESH_CHECK, Boolean.TRUE);
+
+		    if (jawrConfig.getRefreshKey().length() > 0 && null != request.getParameter(JawrConstant.REFRESH_KEY_PARAM)
+				&& jawrConfig.getRefreshKey().equals(request.getParameter(JawrConstant.REFRESH_KEY_PARAM))) {
+			
+				JawrApplicationConfigManager appConfigMgr = (JawrApplicationConfigManager) request.getSession().getServletContext().getAttribute(JawrConstant.JAWR_APPLICATION_CONFIG_MANAGER);
+				if(appConfigMgr == null){
+					throw new IllegalStateException("JawrApplicationConfigManager is not present in servlet context. Initialization of Jawr either failed or never occurred.");
+				}
+				appConfigMgr.refreshConfig();
+				refreshed = true;
+			}
+		}
+		return refreshed;
 	}
 	
 }

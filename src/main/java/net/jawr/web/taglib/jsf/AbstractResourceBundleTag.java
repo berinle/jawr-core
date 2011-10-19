@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import javax.faces.context.ResponseWriter;
 import javax.servlet.http.HttpServletRequest;
 
 import net.jawr.web.config.JawrConfig;
+import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.renderer.BundleRenderer;
 import net.jawr.web.resource.bundle.renderer.BundleRendererContext;
 import net.jawr.web.servlet.RendererRequestUtils;
@@ -52,16 +53,26 @@ public abstract class AbstractResourceBundleTag extends UIOutput {
         
         String src = (String)getAttributes().get("src"); 
         
+        ResponseWriter writer = context.getResponseWriter();
+        HttpServletRequest request = ((HttpServletRequest)context.getExternalContext().getRequest());
+        
+        ResourceBundlesHandler bundler = getResourceBundlesHandler(context);
+        
         // src is mandatory
         if(null == src)
         	throw new IllegalStateException("The src attribute is mandatory for this Jawr tag. ");
+        
+        //Refresh the config if needed
+        if(RendererRequestUtils.refreshConfigIfNeeded(request, bundler.getConfig())){
+        	bundler = getResourceBundlesHandler(context);
+        }
         
         // Get an instance of the renderer. 
         if(null == this.renderer || !this.renderer.getBundler().getConfig().isValid())
              this.renderer = createRenderer(context);		
         
-        ResponseWriter writer = context.getResponseWriter();
-        HttpServletRequest request = ((HttpServletRequest)context.getExternalContext().getRequest());
+        
+        // 
         RendererRequestUtils.setRequestDebuggable(request,renderer.getBundler().getConfig());
         
         BundleRendererContext ctx = RendererRequestUtils.getBundleRendererContext(request, renderer);
@@ -86,9 +97,30 @@ public abstract class AbstractResourceBundleTag extends UIOutput {
 	}
 	
 	/**
-	 * Retrieve the ResourceCollector from context. Each implementation will use a different key
-	 * to retrieve it. 
-	 * @return
+	 * Retrieve the renderer. 
+	 * @param context the FacesContext
+	 * @return the renderer for the tag
 	 */
 	protected abstract BundleRenderer createRenderer(FacesContext context);
+	
+	/**
+	 * Returns the resource handler
+	 * @param context the FacesContext
+	 * @return the resource handler
+	 */
+	protected ResourceBundlesHandler getResourceBundlesHandler(FacesContext context) {
+		Object handler = context.getExternalContext().getApplicationMap().get(getResourceBundlesHandlerAttributeName());
+		if(null == handler)
+			throw new IllegalStateException("ResourceBundlesHandler not present in servlet context. Initialization of Jawr either failed or never occurred.");
+
+		ResourceBundlesHandler rsHandler = (ResourceBundlesHandler) handler;
+		return rsHandler;
+	}
+	
+	/**
+	 * Returns the resource handler of the tag
+	 * @return the resource handler of the tag
+	 */
+	protected abstract String getResourceBundlesHandlerAttributeName();
+	
 }

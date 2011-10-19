@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import net.jawr.web.config.JawrConfig;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.renderer.BundleRenderer;
 import net.jawr.web.resource.bundle.renderer.BundleRendererContext;
@@ -58,6 +59,13 @@ public abstract class AbstractResourceBundleTag extends TagSupport {
 			throw new IllegalStateException("ResourceBundlesHandler not present in servlet context. Initialization of Jawr either failed or never occurred.");
 
 		ResourceBundlesHandler rsHandler = (ResourceBundlesHandler) pageContext.getServletContext().getAttribute(getResourceHandlerAttributeName());
+		JawrConfig jawrConfig = rsHandler.getConfig(); 
+		
+		if(RendererRequestUtils.refreshConfigIfNeeded(request, jawrConfig)){
+			rsHandler = (ResourceBundlesHandler) pageContext.getServletContext().getAttribute(getResourceHandlerAttributeName());
+			jawrConfig = rsHandler.getConfig(); 
+		}
+				
 		Boolean useRandomFlag = null;
 		if(StringUtils.isNotEmpty(useRandomParam)){
 			useRandomFlag = Boolean.valueOf(useRandomParam);
@@ -66,8 +74,7 @@ public abstract class AbstractResourceBundleTag extends TagSupport {
 		BundleRenderer renderer = createRenderer(rsHandler, useRandomFlag);
 		
 		// set the debug override
-		RendererRequestUtils.setRequestDebuggable(request, renderer
-				.getBundler().getConfig());
+		RendererRequestUtils.setRequestDebuggable(request, jawrConfig);
 
 		try {
 			BundleRendererContext ctx = RendererRequestUtils
@@ -81,7 +88,7 @@ public abstract class AbstractResourceBundleTag extends TagSupport {
 
 		return SKIP_BODY;
 	}
-	
+
 	/**
 	 * Set the source of the resource or bundle to retrieve.
 	 * 

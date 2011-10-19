@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2011 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -87,6 +87,11 @@ public abstract class AbstractJawrReference extends WebMarkupContainer {
                 throw new IllegalStateException("ResourceBundlesHandler not present in servlet context. Initialization of Jawr either failed or never occurred.");
             }
 
+            // Refresh the config if needed
+            if(RendererRequestUtils.refreshConfigIfNeeded(request, rsHandler.getConfig())){
+            	rsHandler = (ResourceBundlesHandler) request.getSession().getServletContext().getAttribute(getResourceHandlerAttributeName());
+            }
+            
             Boolean useRandomFlag = null;
     		if(StringUtils.isNotEmpty(useRandomParam)){
     			useRandomFlag = Boolean.valueOf(useRandomParam);

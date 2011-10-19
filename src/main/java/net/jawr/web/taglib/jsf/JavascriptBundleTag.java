@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 Jordi Hernández Sellés
+ * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import net.jawr.web.resource.bundle.renderer.JavascriptHTMLBundleLinkRenderer;
  * Implementation of a facelets taglib AbstractResourceBundleTag used to render javascript bundles. 
  * 
  * @author Jordi Hernández Sellés
- *
+ * @author ibrahim Chaehoi
  */
 public class JavascriptBundleTag extends AbstractResourceBundleTag {
 
@@ -32,12 +32,19 @@ public class JavascriptBundleTag extends AbstractResourceBundleTag {
 	 * @see net.jawr.web.taglib.jsf.AbstractResourceBundleTag#createRenderer(javax.faces.context.FacesContext)
 	 */
 	protected BundleRenderer createRenderer(FacesContext context) {
-		Object handler = context.getExternalContext().getApplicationMap().get(JawrConstant.JS_CONTEXT_ATTRIBUTE);
-		if(null == handler)
-			throw new IllegalStateException("ResourceBundlesHandler not present in servlet context. Initialization of Jawr either failed or never occurred.");
 
-		ResourceBundlesHandler rsHandler = (ResourceBundlesHandler) handler;
+		ResourceBundlesHandler rsHandler = getResourceBundlesHandler(context);
 		return  new JavascriptHTMLBundleLinkRenderer(rsHandler, getUseRandomParamFlag(rsHandler.getConfig()));
 	}
 
+	/* (non-Javadoc)
+	 * @see net.jawr.web.taglib.jsf.AbstractResourceBundleTag#getResourceHandlerAttributeName()
+	 */
+	@Override
+	protected String getResourceBundlesHandlerAttributeName() {
+		
+		return JawrConstant.JS_CONTEXT_ATTRIBUTE;
+	}
+
+	
 }

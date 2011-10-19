@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2010 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2008-2011 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -32,11 +32,9 @@ public class CSSBundleTag extends AbstractResourceBundleTag {
 	 * @see net.jawr.web.taglib.jsf.AbstractResourceBundleTag#createRenderer(javax.faces.context.FacesContext)
 	 */
 	protected BundleRenderer createRenderer(FacesContext context) {
-		Object handler = context.getExternalContext().getApplicationMap().get(JawrConstant.CSS_CONTEXT_ATTRIBUTE);
-		if(null == handler)
-			throw new IllegalStateException("ResourceBundlesHandler not present in servlet context. Initialization of Jawr either failed or never occurred.");
-
-		ResourceBundlesHandler rsHandler = (ResourceBundlesHandler) handler;
+		
+		ResourceBundlesHandler rsHandler = getResourceBundlesHandler(context);
+		
 		String media = (String)getAttributes().get(JawrConstant.MEDIA_ATTR); 
 		boolean alternate = Boolean.valueOf((String) getAttributes().get(JawrConstant.ALTERNATE_ATTR)).booleanValue();
 		boolean displayAlternate = Boolean.valueOf((String) getAttributes().get(JawrConstant.DISPLAY_ALTERNATE_ATTR)).booleanValue();
@@ -45,4 +43,11 @@ public class CSSBundleTag extends AbstractResourceBundleTag {
         return  new CSSHTMLBundleLinkRenderer(rsHandler, getUseRandomParamFlag(rsHandler.getConfig()), media, alternate, displayAlternate, title);
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.taglib.jsf.AbstractResourceBundleTag#getResourceHandlerAttributeName()
+	 */
+	protected String getResourceBundlesHandlerAttributeName(){
+		return JawrConstant.CSS_CONTEXT_ATTRIBUTE;
+	}
+		
 }
