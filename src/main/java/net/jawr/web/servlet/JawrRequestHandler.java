@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009  Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2011  Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -256,6 +256,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			configChangeListenerThread.start();
 		}
 
+		// initialize the cache manager
+		initApplicationCacheManager();
+		
 		// initialize the Application config manager
 		JawrApplicationConfigManager appConfigMgr = initApplicationConfigManager();
 		
@@ -267,6 +270,11 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			long totaltime = System.currentTimeMillis() - initialTime;
 			LOGGER.info("Init method succesful. jawr started in " + (totaltime / 1000) + " seconds....");
 		}
+	}
+
+	private void initApplicationCacheManager() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**

@@ -22,7 +22,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.jawr.web.cache.AbstractCacheManager;
 import net.jawr.web.cache.CacheManagerFactory;
@@ -51,13 +50,6 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	/** The resource bundle handler */
 	private ResourceBundlesHandler rsHandler;
 
-	/** The cache map for text resource */
-	private Map<String, String> textCache;
-
-	/** The cache map for zip resource, we use a byte arrays instead of byteBuffers because 
-	 * byteBuffers are not thread safe */
-	private Map<String, byte[]> gzipCache;
-
 	/** The cache manager */
 	private AbstractCacheManager cacheMgr;
 	
@@ -72,9 +64,6 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 		
 		// TODO check this 
 		cacheMgr = new CacheManagerFactory(rsHandler.getConfig()).getCacheManager();
-		
-		//this.textCache = new ConcurrentHashMap<String, String>();
-		//this.gzipCache = new ConcurrentHashMap<String, byte[]>();
 	}
 
 	/*
