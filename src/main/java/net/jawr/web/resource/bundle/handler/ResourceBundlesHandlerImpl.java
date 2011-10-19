@@ -63,6 +63,7 @@ import net.jawr.web.resource.bundle.variant.VariantUtils;
 import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import net.jawr.web.util.StringUtils;
+import net.jawr.web.util.bom.UnicodeBOMReader;
 
 import org.apache.log4j.Logger;
 
@@ -901,6 +902,8 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 		StringBuffer store = null;
 
 		try {
+			
+			boolean firstPath = true;
 			// Run through all the files belonging to the bundle
 			for (Iterator<String> it = bundle.getItemPathList(variants).iterator(); it
 					.hasNext();) {
@@ -930,17 +933,25 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 				// Update the status.
 				status.setLastPathAdded(path);
 
-				// Copy the content
-				IOUtils.copy(rd, bwriter, true);
+				rd = new UnicodeBOMReader(rd, config.getResourceCharset());
+				if(!firstPath && ((UnicodeBOMReader)rd).hasBOM()){
+					((UnicodeBOMReader)rd).skipBOM();
+				}else{
+					firstPath = false;
+				}
 				
+				IOUtils.copy(rd, bwriter, true);
+								
 				// Add new line at the end if it doesn't exist
-				if(!writer.getBuffer().toString().endsWith(StringUtils.LINE_SEPARATOR)){
-					writer.getBuffer().append(StringUtils.LINE_SEPARATOR);
+				StringBuffer buffer = writer.getBuffer();
+				
+				if(!buffer.toString().endsWith(StringUtils.LINE_SEPARATOR)){
+					buffer.append(StringUtils.LINE_SEPARATOR);
 				}
 				
 				// Do unitary postprocessing.
 				status.setProcessingType(BundleProcessingStatus.FILE_PROCESSING_TYPE);
-				bundleData.append(executeUnitaryPostProcessing(bundle, status, writer.getBuffer(), this.unitaryPostProcessor));
+				bundleData.append(executeUnitaryPostProcessing(bundle, status, buffer, this.unitaryPostProcessor));
 			}
 
 			// Post process bundle as needed
