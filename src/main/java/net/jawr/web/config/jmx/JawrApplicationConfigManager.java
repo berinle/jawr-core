@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.jawr.web.JawrConstant;
 import net.jawr.web.exception.JmxConfigException;
 import net.jawr.web.util.PropertyUtils;
 
@@ -370,6 +371,25 @@ public class JawrApplicationConfigManager implements
 		return debugSessionIdSet.contains(sessionId);
 	}
 
+	/**
+	 * Returns the config manager MBean from the resource type
+	 * @param resourceType the resource type
+	 * @return the config manager MBean from the resource type
+	 */
+	public JawrConfigManagerMBean getConfigMgr(String resourceType){
+	
+		JawrConfigManagerMBean configMgr = null;
+		if(resourceType.equals(JawrConstant.JS_TYPE)){
+			configMgr = jsMBean;
+		}else if(resourceType.equals(JawrConstant.CSS_TYPE)){
+			configMgr = cssMBean;
+		}else if(resourceType.equals(JawrConstant.IMG_TYPE)){
+			configMgr = imgMBean;
+		}
+		
+		return configMgr;
+	}
+	
 	/**
 	 * Returns the string value of the configuration managers
 	 * 

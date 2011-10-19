@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletResponse;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.ConfigPropertyResolver;
 import net.jawr.web.config.JawrConfig;
+import net.jawr.web.config.jmx.JawrApplicationConfigManager;
+import net.jawr.web.config.jmx.JawrConfigManager;
 import net.jawr.web.config.jmx.JmxUtils;
 import net.jawr.web.context.ThreadLocalJawrContext;
 import net.jawr.web.exception.BundleDependencyException;
@@ -254,15 +256,44 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			configChangeListenerThread.start();
 		}
 
-		// initialize the jmx Bean
+		// initialize the Application config manager
+		JawrApplicationConfigManager appConfigMgr = initApplicationConfigManager();
+		
 		if(JmxUtils.isJmxEnabled()){
-				JmxUtils.initJMXBean(this, servletContext, resourceType, jawrConfig.getConfigProperties());
+				JmxUtils.initJMXBean(appConfigMgr, servletContext, resourceType);
 		}
 		
 		if (LOGGER.isInfoEnabled()) {
 			long totaltime = System.currentTimeMillis() - initialTime;
 			LOGGER.info("Init method succesful. jawr started in " + (totaltime / 1000) + " seconds....");
 		}
+	}
+
+	/**
+	 * Initialize the application config manager
+	 * 
+	 * @return the application config manager
+	 */
+	private JawrApplicationConfigManager initApplicationConfigManager() {
+		
+		JawrApplicationConfigManager appConfigMgr = (JawrApplicationConfigManager) servletContext.getAttribute(JawrConstant.JAWR_APPLICATION_CONFIG_MANAGER);
+		if(appConfigMgr == null){
+			appConfigMgr = new JawrApplicationConfigManager();
+			servletContext.setAttribute(JawrConstant.JAWR_APPLICATION_CONFIG_MANAGER, appConfigMgr);
+		}
+		
+		// Create the config manager for the current Request Handler
+		JawrConfigManager configMgr = new JawrConfigManager(this, jawrConfig.getConfigProperties());
+		
+		// Initialize the jawrApplicationConfigManager
+		if(resourceType.equals(JawrConstant.JS_TYPE)){
+			appConfigMgr.setJsMBean(configMgr);
+		}else if(resourceType.equals(JawrConstant.CSS_TYPE)){
+			appConfigMgr.setCssMBean(configMgr);
+		}else{
+			appConfigMgr.setImgMBean(configMgr);
+		}
+		return appConfigMgr;
 	}
 
 	/**
