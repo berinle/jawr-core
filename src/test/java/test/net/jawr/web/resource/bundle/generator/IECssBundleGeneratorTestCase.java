@@ -186,7 +186,6 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 			public ResourceBundlePathsIterator getGlobalResourceBundlePaths(
 					ConditionalCommentCallbackHandler commentCallbackHandler,
 					Map<String, String> variants) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -221,6 +220,10 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 			
 			public List<JoinableResourceBundle> getGlobalBundles() {
 				return new ArrayList<JoinableResourceBundle>();
+			}
+
+			public String getResourceType() {
+				return null;
 			}
 		};
 		return bundlesHandler;

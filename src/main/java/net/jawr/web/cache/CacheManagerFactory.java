@@ -23,28 +23,40 @@ import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
  */
 public class CacheManagerFactory {
 
-	/** The cache manager */
-	private AbstractCacheManager cacheManager;
-	
 	/**
-	 * Constructor
-	 * 
+	 * Retrieves the cache manager for a resource type
 	 * @param config the jawr config
+	 * @param resourceType the resource type
+	 * @return the cache manager for a resource type 
 	 */
-	public CacheManagerFactory(JawrConfig config) {
+	public static AbstractCacheManager getCacheManager(JawrConfig config, String resourceType){
 	
-		cacheManager = (AbstractCacheManager) config.getContext().getAttribute("JAWR.CACHE.MANAGER");
+		String cacheMgrAttributeName = "JAWR."+resourceType.toUpperCase()+".CACHE.MANAGER";
+		AbstractCacheManager cacheManager = (AbstractCacheManager) config.getContext().getAttribute(cacheMgrAttributeName);
 		if(cacheManager == null){
-			String cacheManagerClass = config.getProperty("jawr.cache.manager");
-			cacheManager = (AbstractCacheManager) ClassLoaderResourceUtils.buildObjectInstance(cacheManagerClass, new Object[]{config});	
+			String cacheManagerClass = config.getProperty("jawr.cache.manager", BasicCacheManager.class.getName());
+			cacheManager = (AbstractCacheManager) ClassLoaderResourceUtils.buildObjectInstance(cacheManagerClass, new Object[]{config});
+			config.getContext().setAttribute(cacheMgrAttributeName, cacheManager);
 		}
-	}
-	
-	/**
-	 * Returns the cache manager
-	 * @return
-	 */
-	public AbstractCacheManager getCacheManager(){
 		return cacheManager;
 	}
+	
+	/**
+	 * Resets the cache manager for a resource type
+	 * @param config the jawr config
+	 * @param resourceType the resource type
+	 * @return the cache manager for a resource type
+	 */
+	public static synchronized AbstractCacheManager resetCacheManager(JawrConfig config, String resourceType){
+		
+		String cacheMgrAttributeName = "JAWR."+resourceType.toUpperCase()+".CACHE.MANAGER";
+		AbstractCacheManager cacheManager = (AbstractCacheManager) config.getContext().getAttribute(cacheMgrAttributeName);
+		if(cacheManager != null){
+			cacheManager.clear();
+			config.getContext().removeAttribute(cacheMgrAttributeName);
+		}
+		
+		return getCacheManager(config, resourceType);
+	}
+	
 }

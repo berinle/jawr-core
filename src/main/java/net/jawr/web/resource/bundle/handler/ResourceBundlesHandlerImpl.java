@@ -192,6 +192,14 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 				globalBundles, contextBundles, config);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.handler.ResourceBundlesHandler#getResourceType()
+	 */
+	public String getResourceType() {
+		
+		return resourceBundleHandler.getResourceType();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

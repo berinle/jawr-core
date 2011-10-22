@@ -36,6 +36,12 @@ import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
 public interface ResourceBundlesHandler {
 	
 	/**
+	 * Returns the managed resource type   
+	 * @return the managed resource type
+	 */
+	public String getResourceType();
+	
+	/**
 	 * Determines which bundle corresponds to a path. The path may be
 	 * a directory or file path. This path will not include any prefix, it is intended
 	 * to be the path normally used for a tag library. 

@@ -63,9 +63,17 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 		this.rsHandler = rsHandler;
 		
 		// TODO check this 
-		cacheMgr = new CacheManagerFactory(rsHandler.getConfig()).getCacheManager();
+		cacheMgr = CacheManagerFactory.getCacheManager(rsHandler.getConfig(), rsHandler.getResourceType());
 	}
 
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.handler.ResourceBundlesHandler#getResourceType()
+	 */
+	public String getResourceType() {
+		
+		return rsHandler.getResourceType();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

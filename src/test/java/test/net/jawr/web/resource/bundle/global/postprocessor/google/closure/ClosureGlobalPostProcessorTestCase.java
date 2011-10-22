@@ -342,6 +342,10 @@ public class ClosureGlobalPostProcessorTestCase {
 			public List<JoinableResourceBundle> getGlobalBundles() {
 				return new ArrayList<JoinableResourceBundle>();
 			}
+
+			public String getResourceType() {
+				return null;
+			}
 			
 		};
 		return bundlesHandler;

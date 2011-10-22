@@ -958,6 +958,16 @@ public class JawrConfig implements Serializable {
 	}
 	
 	/**
+	 * Returns the value of the property associated to the key passed in parameter
+	 * @param key the key of the property
+	 * @param defaultValue the default value
+	 * @return the value of the property
+	 */
+	public String getProperty(String key, String defaultValue){
+		return configProperties.getProperty(key, defaultValue);
+	}
+	
+	/**
 	 * Returns true if the Jawr working directory is defined in the web application.
 	 * 
 	 * @return true if the Jawr working directory is defined in the web application.

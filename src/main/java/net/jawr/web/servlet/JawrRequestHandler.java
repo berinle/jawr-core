@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.jawr.web.JawrConstant;
+import net.jawr.web.cache.CacheManagerFactory;
 import net.jawr.web.config.ConfigPropertyResolver;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.config.jmx.JawrApplicationConfigManager;
@@ -242,9 +243,8 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		// Initialize the ConfigPropertyResolver
 		initConfigPropertyResolver(context);
 		
-		// Initialize config
-		initializeJawrConfig(props);
-
+		initializeJawrContext(props);
+		
 		// Initialize the properties reloading checker daemon if specified
 		if(!ThreadLocalJawrContext.isBundleProcessingAtBuildTime() && null != props.getProperty(CONFIG_RELOAD_INTERVAL)) {
 			int interval = Integer.valueOf(props.getProperty(CONFIG_RELOAD_INTERVAL)).intValue();
@@ -256,15 +256,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			configChangeListenerThread.start();
 		}
 
-		// initialize the cache manager
-		initApplicationCacheManager();
 		
-		// initialize the Application config manager
-		JawrApplicationConfigManager appConfigMgr = initApplicationConfigManager();
-		
-		if(JmxUtils.isJmxEnabled()){
-				JmxUtils.initJMXBean(appConfigMgr, servletContext, resourceType);
-		}
 		
 		if (LOGGER.isInfoEnabled()) {
 			long totaltime = System.currentTimeMillis() - initialTime;
@@ -272,9 +264,34 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		}
 	}
 
-	private void initApplicationCacheManager() {
-		// TODO Auto-generated method stub
+	/**
+	 * Initialize the Jawr context (config, cache manager, application config manager...)
+	 * @param props the Jawr properties
+	 * 
+	 * @throws ServletException if an exception occurs
+	 */
+	protected void initializeJawrContext(Properties props) throws ServletException {
 		
+		// Initialize config
+		initializeJawrConfig(props);
+		
+		// initialize the cache manager
+		initializeApplicationCacheManager();
+		
+		// initialize the Application config manager
+		JawrApplicationConfigManager appConfigMgr = initApplicationConfigManager();
+		
+		if(JmxUtils.isJmxEnabled()){
+				JmxUtils.initJMXBean(appConfigMgr, servletContext, resourceType);
+		}
+	}
+
+	/**
+	 * Resets the cache manager 
+	 */
+	private void initializeApplicationCacheManager() {
+		
+		CacheManagerFactory.resetCacheManager(jawrConfig, resourceType);
 	}
 
 	/**
@@ -906,7 +923,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 				props.putAll(overrideProperties);
 			}
 			props.putAll(newConfig);
-			initializeJawrConfig(props);
+			initializeJawrContext(props);
 		} catch (Exception e) {
 			throw new BundlingProcessException("Error reloading Jawr config: " + e.getMessage(), e);
 		}finally{
