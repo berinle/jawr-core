@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
@@ -29,7 +30,7 @@ import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
  * which are served as a single one, and provides methods to generate urls that point to either
  * the full bundle or its individual resources. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  *
  */
@@ -72,7 +73,7 @@ public interface ResourceBundlesHandler {
 	 * @param variants the variant map
 	 * @return the global resource bundle path iterator
 	 */
-	public ResourceBundlePathsIterator getGlobalResourceBundlePaths(boolean debugMode, ConditionalCommentCallbackHandler commentCallbackHandler, Map<String, String> variants);
+	public ResourceBundlePathsIterator getGlobalResourceBundlePaths(DebugMode debugMode, ConditionalCommentCallbackHandler commentCallbackHandler, Map<String, String> variants);
 	
 	/**
 	 * Returns the global resource bundle path iterator for one global bundle
@@ -111,7 +112,7 @@ public interface ResourceBundlesHandler {
 	 * @param variants the variant map
 	 * @return the iterator of bundle paths
 	 */
-	public ResourceBundlePathsIterator getBundlePaths(boolean debugMode, String bundleId, 
+	public ResourceBundlePathsIterator getBundlePaths(DebugMode debugMode, String bundleId, 
 														ConditionalCommentCallbackHandler commentCallbackHandler, 
 														Map<String, String> variants);
 	

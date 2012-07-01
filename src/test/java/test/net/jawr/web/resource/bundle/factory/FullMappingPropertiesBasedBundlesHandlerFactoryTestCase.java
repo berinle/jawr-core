@@ -16,6 +16,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.exception.ResourceNotFoundException;
+import net.jawr.web.resource.bundle.DebugInclusion;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
@@ -52,22 +53,29 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		JoinableResourceBundle globalBundle = getGlobalBundle();
 		JoinableResourceBundlePropertySerializer.serializeInProperties(globalBundle, "js", props);
 		
-		List resourcesBundles = factory.getResourceBundles(props);
+		List<JoinableResourceBundle> resourcesBundles = factory.getResourceBundles(props);
 		assertEquals(1, resourcesBundles.size());
 		JoinableResourceBundle bundle = (JoinableResourceBundle) resourcesBundles.get(0);
 		
 		assertEquals("/bundle/myGlobalBundle.js", bundle.getId());
-		Set expectedMappings = new HashSet(Arrays.asList(new String[]{"/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"}));
-		assertEquals(expectedMappings, new HashSet(bundle.getItemPathList()));
+		Set<String> expectedMappings = new HashSet<String>(Arrays.asList("/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"));
+		assertEquals(expectedMappings, new HashSet<String>(bundle.getItemPathList()));
 		
 		assertEquals(true, bundle.getInclusionPattern().isGlobal());
 		assertEquals(false, bundle.getInclusionPattern().isExcludeOnDebug());
-		assertEquals(false, bundle.getInclusionPattern().isIncludeOnDebug());
+		assertEquals(false, bundle.getInclusionPattern().isIncludeOnlyOnDebug());
 		assertEquals("123456", bundle.getBundleDataHashCode(null));
 	}
 
 	public void testGetStdResourceBundles() {
 		
+		testGetStdResourceBundle(DebugInclusion.ALWAYS);
+		testGetStdResourceBundle(DebugInclusion.ONLY);
+		testGetStdResourceBundle(DebugInclusion.NEVER);
+	}
+
+	protected void testGetStdResourceBundle(DebugInclusion debugInclusion) {
+	
 		ResourceReaderHandler rsHandler = new TestResourceReaderHandler();
 		PostProcessorChainFactory chainFactory = new TestPostProcessorChainFactory();
 		
@@ -76,30 +84,33 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		
 		Properties props = new Properties();
 		
-		JoinableResourceBundle stdBundle = getStdBundle("myBundle");
+		JoinableResourceBundle stdBundle = getStdBundle("myBundle", debugInclusion);
 		JoinableResourceBundlePropertySerializer.serializeInProperties(stdBundle, "js", props);
 		
-		List resourcesBundles = factory.getResourceBundles(props);
+		List<JoinableResourceBundle> resourcesBundles = factory.getResourceBundles(props);
 		assertEquals(1, resourcesBundles.size());
 		
 		JoinableResourceBundle bundle = (JoinableResourceBundle) resourcesBundles.get(0);
 			
 		assertEquals("/bundle/myBundle.js", bundle.getId());
 				
-		Set expectedMappings = new HashSet(Arrays.asList(new String[]{"/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"}));
-		assertEquals(expectedMappings, new HashSet(bundle.getItemPathList()));
+		assertEquals(debugInclusion, bundle.getInclusionPattern().getDebugInclusion());
+		Set<String> expectedMappings = new HashSet<String>(Arrays.asList("/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"));
+		if(debugInclusion.equals(DebugInclusion.ONLY)){
+			assertEquals(expectedMappings, new HashSet<String>(bundle.getItemDebugPathList()));
+		}else{
+			assertEquals(expectedMappings, new HashSet<String>(bundle.getItemPathList()));
+		}
 		
 		assertEquals(true, bundle.getInclusionPattern().isGlobal());
 		assertEquals(3, bundle.getInclusionPattern().getInclusionOrder());
-		assertEquals(false, bundle.getInclusionPattern().isExcludeOnDebug());
-		assertEquals(true, bundle.getInclusionPattern().isIncludeOnDebug());
 		assertEquals("http://hostname/scripts/myBundle.js", bundle.getAlternateProductionURL());
 		assertEquals("if lt IE 6", bundle.getExplorerConditionalExpression());
 		assertEquals("myBundlePostProcessor1,myBundlePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getBundlePostProcessor()).getId());
 		assertEquals("myFilePostProcessor1,myFilePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getUnitaryPostProcessor()).getId());
 		
-		Set expectedLocales = new HashSet(Arrays.asList(new String[]{"", "fr", "en_US"}));
-		assertEquals(expectedLocales, new HashSet(bundle.getVariantKeys()));
+		Set<String> expectedLocales = new HashSet<String>(Arrays.asList("", "fr", "en_US"));
+		assertEquals(expectedLocales, new HashSet<String>(bundle.getVariantKeys()));
 		
 		assertEquals("N123456", bundle.getBundleDataHashCode(null));
 		assertEquals("N123456", bundle.getBundleDataHashCode(""));
@@ -109,6 +120,12 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 
 	public void testGetResourceBundlesWithDependencies() {
 		
+		testGetResourceBundlesWithDependencies(DebugInclusion.ALWAYS);
+		testGetResourceBundlesWithDependencies(DebugInclusion.ONLY);
+		testGetResourceBundlesWithDependencies(DebugInclusion.NEVER);
+	}
+
+	protected void testGetResourceBundlesWithDependencies(DebugInclusion inclusion) {
 		ResourceReaderHandler rsHandler = new TestResourceReaderHandler();
 		PostProcessorChainFactory chainFactory = new TestPostProcessorChainFactory();
 		
@@ -117,27 +134,31 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		
 		Properties props = new Properties();
 		
-		List bundleWithDependencies = getBundleWithDependencies();
-		for (Iterator iterator = bundleWithDependencies.iterator(); iterator
+		List<JoinableResourceBundle> bundleWithDependencies = getBundleWithDependencies(inclusion);
+		for (Iterator<JoinableResourceBundle> iterator = bundleWithDependencies.iterator(); iterator
 				.hasNext();) {
-			JoinableResourceBundle  aBundle = (JoinableResourceBundle ) iterator.next();
+			JoinableResourceBundle  aBundle = iterator.next();
 			JoinableResourceBundlePropertySerializer.serializeInProperties(aBundle, "js", props);
 		}
 		
-		List resourcesBundles = factory.getResourceBundles(props);
+		List<JoinableResourceBundle> resourcesBundles = factory.getResourceBundles(props);
 		assertEquals(3, resourcesBundles.size());
 		
-		for (Iterator iterator = resourcesBundles.iterator(); iterator
+		for (Iterator<JoinableResourceBundle> iterator = resourcesBundles.iterator(); iterator
 				.hasNext();) {
-			JoinableResourceBundle bundle = (JoinableResourceBundle) iterator.next();
+			JoinableResourceBundle bundle = iterator.next();
 			
-			Set expectedMappings = new HashSet(Arrays.asList(new String[]{"/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"}));
-			assertEquals(expectedMappings, new HashSet(bundle.getItemPathList()));
+			assertEquals(inclusion, bundle.getInclusionPattern().getDebugInclusion());
+			
+			Set<String> expectedMappings = new HashSet<String>(Arrays.asList("/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"));
+			if(inclusion.equals(DebugInclusion.ONLY)){
+				assertEquals(expectedMappings, new HashSet<String>(bundle.getItemDebugPathList()));
+			}else{
+				assertEquals(expectedMappings, new HashSet<String>(bundle.getItemPathList()));
+			}
 			
 			assertEquals(true, bundle.getInclusionPattern().isGlobal());
 			assertEquals(3, bundle.getInclusionPattern().getInclusionOrder());
-			assertEquals(false, bundle.getInclusionPattern().isExcludeOnDebug());
-			assertEquals(true, bundle.getInclusionPattern().isIncludeOnDebug());
 			assertEquals("if lt IE 6", bundle.getExplorerConditionalExpression());
 			assertEquals("myBundlePostProcessor1,myBundlePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getBundlePostProcessor()).getId());
 			assertEquals("myFilePostProcessor1,myFilePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getUnitaryPostProcessor()).getId());
@@ -150,8 +171,8 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 				assertNull(bundle.getDependencies());
 			}
 			
-			Set expectedLocales = new HashSet(Arrays.asList(new String[]{"", "fr", "en_US"}));
-			assertEquals(expectedLocales, new HashSet(bundle.getVariantKeys()));
+			Set<String> expectedLocales = new HashSet<String>(Arrays.asList("", "fr", "en_US"));
+			assertEquals(expectedLocales, new HashSet<String>(bundle.getVariantKeys()));
 			
 			assertEquals("N123456", bundle.getBundleDataHashCode(null));
 			assertEquals("123456", bundle.getBundleDataHashCode("fr"));
@@ -169,30 +190,29 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		
 		Properties props = new Properties();
 		
-		JoinableResourceBundle stdBundle = getBundleWithVariants();
+		JoinableResourceBundle stdBundle = getBundleWithVariants(DebugInclusion.ALWAYS);
 		JoinableResourceBundlePropertySerializer.serializeInProperties(stdBundle, "js", props);
 		
-		List resourcesBundles = factory.getResourceBundles(props);
+		List<JoinableResourceBundle> resourcesBundles = factory.getResourceBundles(props);
 		assertEquals(1, resourcesBundles.size());
 		
 		JoinableResourceBundle bundle = (JoinableResourceBundle) resourcesBundles.get(0);
 			
 		assertEquals("/bundle/myBundle.js", bundle.getId());
 				
-		Set expectedMappings = new HashSet(Arrays.asList(new String[]{"/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"}));
-		assertEquals(expectedMappings, new HashSet(bundle.getItemPathList()));
+		Set<String> expectedMappings = new HashSet<String>(Arrays.asList("/bundle/content/script1.js", "/bundle/content/script2.js", "/bundle/myScript.js"));
+		assertEquals(expectedMappings, new HashSet<String>(bundle.getItemPathList()));
 		
 		assertEquals(true, bundle.getInclusionPattern().isGlobal());
 		assertEquals(3, bundle.getInclusionPattern().getInclusionOrder());
-		assertEquals(false, bundle.getInclusionPattern().isExcludeOnDebug());
-		assertEquals(true, bundle.getInclusionPattern().isIncludeOnDebug());
+		assertEquals(DebugInclusion.ALWAYS, bundle.getInclusionPattern().getDebugInclusion());
 		assertEquals("http://hostname/scripts/myBundle.js", bundle.getAlternateProductionURL());
 		assertEquals("if lt IE 6", bundle.getExplorerConditionalExpression());
 		assertEquals("myBundlePostProcessor1,myBundlePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getBundlePostProcessor()).getId());
 		assertEquals("myFilePostProcessor1,myFilePostProcessor2", ((AbstractChainedResourceBundlePostProcessor) bundle.getUnitaryPostProcessor()).getId());
 		
-		Set expectedVariants = new HashSet(Arrays.asList(new String[]{"@summer","@winter","fr@summer", "fr@winter","en_US@summer","en_US@winter"}));
-		assertEquals(expectedVariants, new HashSet(bundle.getVariantKeys()));
+		Set<String> expectedVariants = new HashSet<String>(Arrays.asList("@summer","@winter","fr@summer", "fr@winter","en_US@summer","en_US@winter"));
+		assertEquals(expectedVariants, new HashSet<String>(bundle.getVariantKeys()));
 		
 		assertEquals("N123456", bundle.getBundleDataHashCode(null));
 		assertEquals("178456", bundle.getBundleDataHashCode("@summer"));
@@ -205,32 +225,32 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 
 	private JoinableResourceBundle getGlobalBundle(){
 		String bundleName = "myGlobalBundle";
-		List mappings = Arrays.asList(new String[]{"/bundle/content/**", "/bundle/myScript.js"});
+		List<String> mappings = Arrays.asList("/bundle/content/**", "/bundle/myScript.js");
 		
 		ResourceReaderHandler handler = new TestResourceReaderHandler();
 		InclusionPattern inclusionPattern = new InclusionPattern(true, 0);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-		JoinableResourceBundle bundle = new JoinableResourceBundleImpl("/bundle/myGlobalBundle.js", bundleName, ".js", inclusionPattern, handler, generatorRegistry);
+		JoinableResourceBundle bundle = new JoinableResourceBundleImpl("/bundle/myGlobalBundle.js", bundleName, "js", inclusionPattern, handler, generatorRegistry);
 		bundle.setMappings(mappings);
 		bundle.setBundleDataHashCode(null, "123456");
 		
 		return bundle;
 	}
 	
-	private JoinableResourceBundleImpl getStdBundle(String bundleName){
-		
-		List mappings = Arrays.asList(new String[]{"/bundle/content/**", "/bundle/myScript.js"});
+	private JoinableResourceBundleImpl getStdBundle(String bundleName, DebugInclusion inclusion){		
+		List<String> mappings = Arrays.asList("/bundle/content/**", "/bundle/myScript.js");
 		
 		ResourceReaderHandler handler = new TestResourceReaderHandler();
-		InclusionPattern inclusionPattern = new InclusionPattern(true, 3, true, false);
+		InclusionPattern inclusionPattern = new InclusionPattern(true, 3, inclusion);
+				
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-		JoinableResourceBundleImpl bundle = new JoinableResourceBundleImpl("/bundle/"+bundleName+".js", bundleName, ".js", inclusionPattern, handler, generatorRegistry);
+		JoinableResourceBundleImpl bundle = new JoinableResourceBundleImpl("/bundle/"+bundleName+".js", bundleName, "js", inclusionPattern, handler, generatorRegistry);
 		bundle.setMappings(mappings);
 		bundle.setAlternateProductionURL("http://hostname/scripts/"+bundleName+".js");
 		bundle.setExplorerConditionalExpression("if lt IE 6");
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "", Arrays.asList(new String[]{"", "fr", "en_US"})));
+		Map<String, VariantSet> variants = new HashMap<String, VariantSet>();
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "", Arrays.asList("", "fr", "en_US")));
 		bundle.setVariants(variants);
 		bundle.setBundleDataHashCode(null, "N123456");
 		bundle.setBundleDataHashCode("", "N123456");
@@ -260,12 +280,12 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		return bundle;
 	}
 	
-	private List getBundleWithDependencies(){
+	private List<JoinableResourceBundle> getBundleWithDependencies(DebugInclusion inclusion){
 		
-		List bundles = new ArrayList();
-		JoinableResourceBundleImpl bundle = getStdBundle("myBundle");
-		JoinableResourceBundleImpl bundle1 = getStdBundle("myBundle1");
-		JoinableResourceBundleImpl bundle2 = getStdBundle("myBundle2");
+		List<JoinableResourceBundle> bundles = new ArrayList<JoinableResourceBundle>();
+		JoinableResourceBundleImpl bundle = getStdBundle("myBundle", inclusion);
+		JoinableResourceBundleImpl bundle1 = getStdBundle("myBundle1", inclusion);
+		JoinableResourceBundleImpl bundle2 = getStdBundle("myBundle2", inclusion);
 		
 		bundle.setDependencies(Arrays.asList(new JoinableResourceBundle[]{bundle1, bundle2}));
 		bundles.add(bundle);
@@ -274,22 +294,22 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 		return bundles;
 	}
 	
-	private JoinableResourceBundleImpl getBundleWithVariants(){
+	private JoinableResourceBundleImpl getBundleWithVariants(DebugInclusion inclusion){
 		
 		String bundleName = "myBundle";
-		List mappings = Arrays.asList(new String[]{"/bundle/content/**", "/bundle/myScript.js"});
+		List<String> mappings = Arrays.asList("/bundle/content/**", "/bundle/myScript.js");
 		
 		ResourceReaderHandler handler = new TestResourceReaderHandler();
-		InclusionPattern inclusionPattern = new InclusionPattern(true, 3, true, false);
+		InclusionPattern inclusionPattern = new InclusionPattern(true, 3, inclusion);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-		JoinableResourceBundleImpl bundle = new JoinableResourceBundleImpl("/bundle/myBundle.js", bundleName, ".js", inclusionPattern, handler, generatorRegistry);
+		JoinableResourceBundleImpl bundle = new JoinableResourceBundleImpl("/bundle/myBundle.js", bundleName, "js", inclusionPattern, handler, generatorRegistry);
 		bundle.setMappings(mappings);
 		bundle.setAlternateProductionURL("http://hostname/scripts/myBundle.js");
 		bundle.setExplorerConditionalExpression("if lt IE 6");
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "summer", Arrays.asList(new String[]{"summer", "winter"})));
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "", Arrays.asList(new String[]{"","fr", "en_US"})));
+		Map<String, VariantSet> variants = new HashMap<String, VariantSet>();
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "summer", Arrays.asList("summer", "winter")));
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "", Arrays.asList("","fr", "en_US")));
 		bundle.setVariants(variants);
 		bundle.setBundleDataHashCode(null, "N123456");
 		bundle.setBundleDataHashCode("@summer", "178456");
@@ -338,7 +358,7 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 			return new TestChainedResourceBundlePostProcessor(processorKeys);
 		}
 
-		public void setCustomPostprocessors(Map keysClassNames) {
+		public void setCustomPostprocessors(Map<String, String> keysClassNames) {
 			
 		}
 
@@ -366,10 +386,10 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 	
 	private static class TestResourceReaderHandler implements ResourceReaderHandler{
 
-		public Set getResourceNames(String path) {
+		public Set<String> getResourceNames(String path) {
 			
-			List paths = Arrays.asList(new String[]{"script1.js", "script2.js"});
-			return new HashSet(paths);
+			List<String> paths = Arrays.asList("script1.js", "script2.js");
+			return new HashSet<String>(paths);
 		}
 
 		public boolean isDirectory(String path) {
@@ -411,6 +431,13 @@ public class FullMappingPropertiesBasedBundlesHandlerFactoryTestCase extends
 
 		public void setWorkingDirectory(String workingDir) {
 
+		}
+
+		@Override
+		public Reader getResource(String resourceName,
+				boolean processingBundle, List<Class<?>> excludedReader)
+				throws ResourceNotFoundException {
+			return null;
 		}
 		
 	}

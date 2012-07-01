@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -31,6 +31,9 @@ public class PostProcessFactoryConstant {
 	
 	/** The ID of the CSS charset filter post processor */
 	public static final String CSS_CHARSET_FILTER = "csscharset";
+	
+	/** The ID of the LESS CSS post processor */
+	public static final String LESS = "less";
 	
 	/** The ID of the CSS import post processor */
 	public static final String CSS_IMPORT = "cssimport";

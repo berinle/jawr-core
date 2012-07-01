@@ -40,7 +40,7 @@ public class ResourceBundleMessageGeneratorTestCase {
 		// Force default locale
 		Locale.setDefault(Locale.FRENCH);
 
-		JawrConfig config = new JawrConfig(new Properties());
+		JawrConfig config = new JawrConfig("js", new Properties());
 		GeneratorContext ctx = new GeneratorContext(config, "bundleLocale.messages");
 		ctx.setLocale(null);
 		Reader rd = generator.createResource(ctx);
@@ -76,7 +76,7 @@ public class ResourceBundleMessageGeneratorTestCase {
 		
 		Properties prop = new Properties();
 		prop.put("jawr.locale.generator.fallbackToSystemLocale", "false");
-		JawrConfig config = new JawrConfig(prop);
+		JawrConfig config = new JawrConfig("js", prop);
 		
 		GeneratorContext ctx = new GeneratorContext(config, "bundleLocale.messages");
 		ctx.setLocale(null);
@@ -101,7 +101,7 @@ public class ResourceBundleMessageGeneratorTestCase {
 		
 		Properties prop = new Properties();
 		prop.put("jawr.locale.generator.fallbackToSystemLocale", "false");
-		JawrConfig config = new JawrConfig(prop);
+		JawrConfig config = new JawrConfig("js", prop);
 		
 		GeneratorContext ctx = new GeneratorContext(config, "bundleLocale.messages|bundleLocale.errors[ui|error]");
 		ctx.setLocale(null);
@@ -130,7 +130,7 @@ public class ResourceBundleMessageGeneratorTestCase {
 		
 		Properties prop = new Properties();
 		prop.put("jawr.locale.generator.fallbackToSystemLocale", "false");
-		JawrConfig config = new JawrConfig(prop);
+		JawrConfig config = new JawrConfig("js", prop);
 		
 		GeneratorContext ctx = new GeneratorContext(config, "bundleLocale.messages|bundleLocale.errors(myMessages)");
 		ctx.setLocale(null);

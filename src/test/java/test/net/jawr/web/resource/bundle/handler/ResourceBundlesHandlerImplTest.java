@@ -13,6 +13,7 @@ import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
 import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import test.net.jawr.web.resource.bundle.PredefinedBundlesHandlerUtil;
+import test.net.jawr.web.servlet.mock.MockServletContext;
 
 
 
@@ -29,15 +30,15 @@ public class ResourceBundlesHandlerImplTest  extends  ResourceHandlerBasedTest {
 		try {
 			Charset charsetUtf = Charset.forName("UTF-8"); 
 			
-			ResourceReaderHandler handler = createResourceReaderHandler(ROOT_DEFAULT_FOLDER,charsetUtf);
-			ResourceReaderHandler handlerSimple = createResourceReaderHandler(ROOT_SIMPLE_FOLDER,charsetUtf);
-			ResourceReaderHandler handlerDebug = createResourceReaderHandler(ROOT_DEFAULT_DEBUG_FOLDER,charsetUtf);
+			ResourceReaderHandler handler = createResourceReaderHandler(ROOT_DEFAULT_FOLDER,"js",charsetUtf);
+			ResourceReaderHandler handlerSimple = createResourceReaderHandler(ROOT_SIMPLE_FOLDER,"js",charsetUtf);
+			ResourceReaderHandler handlerDebug = createResourceReaderHandler(ROOT_DEFAULT_DEBUG_FOLDER,"js",charsetUtf);
 			
 			ResourceBundleHandler bundleHandler = createResourceBundleHandler(ROOT_DEFAULT_FOLDER,charsetUtf);
 			ResourceBundleHandler bundleHandlerSimple = createResourceBundleHandler(ROOT_SIMPLE_FOLDER,charsetUtf);
 			ResourceBundleHandler bundleHandlerDebug = createResourceBundleHandler(ROOT_DEFAULT_DEBUG_FOLDER,charsetUtf);
 			
-			JawrConfig config = new JawrConfig(new Properties());
+			JawrConfig config = new JawrConfig("js", new Properties());
 			config.setCharsetName("UTF-8");
 			config.setDebugModeOn(false);
 			config.setGzipResourcesModeOn(false);
@@ -45,12 +46,14 @@ public class ResourceBundlesHandlerImplTest  extends  ResourceHandlerBasedTest {
 			GeneratorRegistry generatorRegistry = new GeneratorRegistry();
 			config.setGeneratorRegistry(generatorRegistry);
 			generatorRegistry.setConfig(config);
+			config.setContext(new MockServletContext());
 			
-			JawrConfig configDebug = new JawrConfig(new Properties());
+			JawrConfig configDebug = new JawrConfig("js",new Properties());
 			configDebug.setCharsetName("UTF-8");
 			configDebug.setDebugModeOn(true);
 			GeneratorRegistry debugGeneratorRegistry = new GeneratorRegistry();
 			configDebug.setGeneratorRegistry(debugGeneratorRegistry);
+			configDebug.setContext(new MockServletContext());
 			debugGeneratorRegistry.setConfig(configDebug);
 			//configDebug.setURLPrefix(RESOURCES_PREFIX);
 			

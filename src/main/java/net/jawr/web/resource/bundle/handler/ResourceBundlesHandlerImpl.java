@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.GZIPOutputStream;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.context.ThreadLocalJawrContext;
@@ -53,6 +54,7 @@ import net.jawr.web.resource.bundle.global.processor.GlobalProcessor;
 import net.jawr.web.resource.bundle.hashcode.BundleHashcodeGenerator;
 import net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler;
 import net.jawr.web.resource.bundle.iterator.DebugModePathsIteratorImpl;
+import net.jawr.web.resource.bundle.iterator.IECssDebugPathsIteratorImpl;
 import net.jawr.web.resource.bundle.iterator.PathsIteratorImpl;
 import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
@@ -70,7 +72,7 @@ import org.apache.log4j.Logger;
 /**
  * Default implementation of ResourceBundlesHandler
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
@@ -235,12 +237,12 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			JoinableResourceBundle bundle = it.next();
 
 			// Exclude/include debug only scripts
-			if (config.isDebugModeOn()
-					&& bundle.getInclusionPattern().isExcludeOnDebug())
-				continue;
-			else if (!config.isDebugModeOn()
-					&& bundle.getInclusionPattern().isIncludeOnDebug())
-				continue;
+//			if (config.isDebugModeOn()
+//					&& bundle.getInclusionPattern().isExcludeOnDebug())
+//				continue;
+//			else if (!config.isDebugModeOn()
+//					&& bundle.getInclusionPattern().isIncludeOnDebug())
+//				continue;
 
 			if (bundle.getInclusionPattern().isGlobal())
 				tmpGlobal.add(bundle);
@@ -286,7 +288,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 	 * java.lang.String)
 	 */
 	public ResourceBundlePathsIterator getGlobalResourceBundlePaths(
-			boolean debugMode,
+			DebugMode debugMode,
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
 
@@ -306,7 +308,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
 
-		return getBundleIterator(getConfig().isDebugModeOn(), globalBundles,
+		return getBundleIterator(getDebugMode(), globalBundles,
 				commentCallbackHandler, variants);
 	}
 
@@ -331,7 +333,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 				break;
 			}
 		}
-		return getBundleIterator(getConfig().isDebugModeOn(), bundles,
+		return getBundleIterator(getDebugMode(), bundles,
 				commentCallbackHandler, variants);
 	}
 
@@ -346,7 +348,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
 
-		return getBundlePaths(getConfig().isDebugModeOn(), bundleId,
+		return getBundlePaths(getDebugMode(), bundleId,
 				commentCallbackHandler, variants);
 	}
 
@@ -359,7 +361,7 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 	 * net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler,
 	 * java.lang.String)
 	 */
-	public ResourceBundlePathsIterator getBundlePaths(boolean debugMode,
+	public ResourceBundlePathsIterator getBundlePaths(DebugMode debugMode,
 			String bundleId,
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
@@ -394,13 +396,16 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 	 *            the variant map
 	 * @return the bundle iterator
 	 */
-	private ResourceBundlePathsIterator getBundleIterator(boolean debugMode,
+	private ResourceBundlePathsIterator getBundleIterator(DebugMode debugMode,
 			List<JoinableResourceBundle> bundles,
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
 		ResourceBundlePathsIterator bundlesIterator;
-		if (debugMode) {
+		if (debugMode.equals(DebugMode.DEBUG)) {
 			bundlesIterator = new DebugModePathsIteratorImpl(bundles,
+					commentCallbackHandler, variants);
+		}else if (debugMode.equals(DebugMode.FORCE_NON_DEBUG_IN_IE)) {
+			bundlesIterator = new IECssDebugPathsIteratorImpl(bundles,
 					commentCallbackHandler, variants);
 		} else
 			bundlesIterator = new PathsIteratorImpl(bundles,
@@ -526,6 +531,14 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 		return config;
 	}
 
+	/**
+	 * Returns the current debug mode
+	 * @return the current debug mode
+	 */
+	private DebugMode getDebugMode(){
+		return config.isDebugModeOn() ? DebugMode.DEBUG : DebugMode.NO_DEBUG;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -897,14 +910,14 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 
 		JoinableResourceBundleContent bundleContent = new JoinableResourceBundleContent();
 
-		// Don't bother with the bundle if it is excluded because of the
-		// inclusion pattern
-		// or if we don't process the bundle at start up
-		if ((bundle.getInclusionPattern().isExcludeOnDebug() && config
-				.isDebugModeOn())
-				|| (bundle.getInclusionPattern().isIncludeOnDebug() && !config
-						.isDebugModeOn()) || !processBundle)
-			return bundleContent;
+//		// Don't bother with the bundle if it is excluded because of the
+//		// inclusion pattern
+//		// or if we don't process the bundle at start up
+//		if ((bundle.getInclusionPattern().isExcludeOnDebug() && config
+//				.isDebugModeOn())
+//				|| (bundle.getInclusionPattern().isIncludeOnlyOnDebug() && !config
+//						.isDebugModeOn()) || !processBundle)
+//			return bundleContent;
 
 		StringBuffer bundleData = new StringBuffer();
 		StringBuffer store = null;
@@ -913,7 +926,14 @@ public class ResourceBundlesHandlerImpl implements ResourceBundlesHandler {
 			
 			boolean firstPath = true;
 			// Run through all the files belonging to the bundle
-			for (Iterator<String> it = bundle.getItemPathList(variants).iterator(); it
+			Iterator<String> pathIterator = null;
+			if(bundle.getInclusionPattern().isIncludeOnlyOnDebug()){
+				pathIterator = bundle.getItemDebugPathList(variants).iterator();
+			}else{
+				pathIterator = bundle.getItemPathList(variants).iterator();
+			}
+			
+			for (Iterator<String> it = pathIterator; it
 					.hasNext();) {
 
 				// File is first created in memory using a stringwriter.

@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,6 +15,7 @@ package net.jawr.web.resource.handler.reader;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.List;
 
 import net.jawr.web.exception.ResourceNotFoundException;
 
@@ -64,6 +65,16 @@ public interface ResourceReaderHandler extends WorkingDirectoryLocationAware, Re
 	public Reader getResource(String resourceName, boolean processingBundle) throws ResourceNotFoundException ;
 	
 	/**
+	 * Retrieves a single resource. 
+	 * @param resourceName String Name of the resource.  
+	 * @param processingBundle the flag indicating that we are currently processing the bundles
+	 * @param excludes the list of excluded reader
+	 * @return the reader to the resource
+	 * @throws ResourceNotFoundException if the resource is not found
+	 */
+	public Reader getResource(String resourceName, boolean processingBundle, List<Class<?>> excludedReader) throws ResourceNotFoundException;
+
+   /**
 	 * Retrieves the input stream of a resource defined in the web application. 
 	 * @param resourceName the name of the resource.  
 	 * @return a input stream of the resource

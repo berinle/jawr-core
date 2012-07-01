@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -30,6 +30,7 @@ import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.exception.DuplicateBundlePathException;
 import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.bundle.CompositeResourceBundle;
+import net.jawr.web.resource.bundle.DebugInclusion;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
@@ -59,7 +60,7 @@ import org.apache.log4j.Logger;
 /**
  * Factory to create a ResourceBundlesHandler as per configuration options set by the user.
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  * 
  */
@@ -425,8 +426,7 @@ public class BundlesHandlerFactory {
 		validateBundleId(definition);
 		
 		InclusionPattern include = new InclusionPattern(definition.isGlobal(),
-				definition.getInclusionOrder(), definition.isDebugOnly(),
-				definition.isDebugNever());
+				definition.getInclusionOrder(), DebugInclusion.get(definition.isDebugOnly(), definition.isDebugNever()));
 
 		CompositeResourceBundle composite = new CompositeResourceBundle(
 				definition.getBundleId(), definition.getBundleName(), 
@@ -474,9 +474,15 @@ public class BundlesHandlerFactory {
 
 		validateBundleId(definition);
 		
+		DebugInclusion inclusion = DebugInclusion.ALWAYS; 
+		if(definition.isDebugOnly()){
+			inclusion = DebugInclusion.ONLY;
+		}
+		if(definition.isDebugNever()){
+			inclusion = DebugInclusion.NEVER;
+		}
 		InclusionPattern include = new InclusionPattern(definition.isGlobal(),
-				definition.getInclusionOrder(), definition.isDebugOnly(),
-				definition.isDebugNever());
+				definition.getInclusionOrder(), inclusion);
 
 		JoinableResourceBundleImpl newBundle = new JoinableResourceBundleImpl(
 				definition.getBundleId(), definition.getBundleName(), 

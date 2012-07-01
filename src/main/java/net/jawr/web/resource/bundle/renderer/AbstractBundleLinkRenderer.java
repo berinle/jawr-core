@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hern·ndez SellÈs, Matt Ruby, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Matt Ruby, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.context.ThreadLocalJawrContext;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
@@ -31,11 +32,14 @@ import net.jawr.web.servlet.RendererRequestUtils;
 /**
  * Abstract base class for implementations of a link renderer.
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Matt Ruby
  * @author Ibrahim Chaehoi
  */
 public abstract class AbstractBundleLinkRenderer implements BundleRenderer {
+
+	/** The serial version UID */
+	private static final long serialVersionUID = 7440895269616865487L;
 
 	/** The resource bundles handler */
 	protected ResourceBundlesHandler bundler;
@@ -188,11 +192,20 @@ public abstract class AbstractBundleLinkRenderer implements BundleRenderer {
 	protected void performGlobalBundleLinksRendering(BundleRendererContext ctx,
 			Writer out, boolean debugOn) throws IOException {
 		
-		ResourceBundlePathsIterator resourceBundleIterator = bundler.getGlobalResourceBundlePaths(new ConditionalCommentRenderer(out), ctx.getVariants());
+		ResourceBundlePathsIterator resourceBundleIterator = bundler.getGlobalResourceBundlePaths(getDebugMode(debugOn), new ConditionalCommentRenderer(out), ctx.getVariants());
 		renderBundleLinks(resourceBundleIterator,
 				ctx, debugOn, out);
 	}
 
+	/**
+	 * Returns the debug mode
+	 * @param debugOn the flag indicating if we are in debug or not
+	 * @return the debug mode
+	 */
+	protected DebugMode getDebugMode(boolean debugOn){
+		return debugOn ? DebugMode.DEBUG : DebugMode.NO_DEBUG;
+	}
+	
 	/**
 	 * Renders the bundle links for the bundle dependencies
 	 * @param requestedPath the request path

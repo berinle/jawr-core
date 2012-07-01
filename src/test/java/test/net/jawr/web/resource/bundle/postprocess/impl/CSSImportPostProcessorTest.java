@@ -43,7 +43,7 @@ public class CSSImportPostProcessorTest extends TestCase {
 		final String urlPrefix = "/v00";
 
 		bundle = buildFakeBundle(bundlePath, urlPrefix);
-		config = new JawrConfig(new Properties());
+		config = new JawrConfig("css", new Properties());
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/js");
@@ -53,7 +53,7 @@ public class CSSImportPostProcessorTest extends TestCase {
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
 		
-		JawrConfig imgConfig = new JawrConfig(new Properties());
+		JawrConfig imgConfig = new JawrConfig("img", new Properties());
 		GeneratorRegistry imgGeneratorRegistry = new GeneratorRegistry(JawrConstant.IMG_TYPE);
 		generatorRegistry.setConfig(imgConfig);
 		imgConfig.setGeneratorRegistry(imgGeneratorRegistry);
@@ -192,6 +192,7 @@ public class CSSImportPostProcessorTest extends TestCase {
 		
 		ImageResourcesHandler imgRsHandler = (ImageResourcesHandler) config.getContext().getAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE);
 		imgRsHandler.getJawrConfig().getGeneratorRegistry().setResourceReaderHandler(rsHandler);
+		imgRsHandler.getJawrConfig().setContext(config.getContext());
 		BundleProcessingStatus status = new BundleProcessingStatus(BundleProcessingStatus.FILE_PROCESSING_TYPE,bundle, rsHandler, config);
 		status.setLastPathAdded(filePath);
 		return status;
@@ -206,7 +207,7 @@ public class CSSImportPostProcessorTest extends TestCase {
 				return id;
 			}
 
-			public String getURLPrefix(Map variants) {
+			public String getURLPrefix(Map<String, String> variants) {
 				return urlPrefix;
 			}
 		};

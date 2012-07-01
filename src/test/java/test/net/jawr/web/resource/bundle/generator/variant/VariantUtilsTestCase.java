@@ -33,14 +33,14 @@ public class VariantUtilsTestCase extends TestCase {
 
 	public void testConcatVariantsBasic(){
 		
-		Map variantSet1 = new HashMap();
-		Map variantSet2 = new HashMap();
-		variantSet2.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR",asSet(new String[]{"fr_FR", "es_ES"})));
-		variantSet2.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet(new String[]{"default", "summer"})));
-		Map result = VariantUtils.concatVariants(variantSet1, variantSet2);
-		Map expectedResult = new HashMap();
-		expectedResult.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR",asSet(new String[]{"fr_FR", "es_ES"})));
-		expectedResult.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet(new String[]{"default", "summer"})));
+		Map<String, VariantSet> variantSet1 = new HashMap<String, VariantSet>();
+		Map<String, VariantSet> variantSet2 = new HashMap<String, VariantSet>();
+		variantSet2.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR",asSet("fr_FR", "es_ES")));
+		variantSet2.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet("default", "summer")));
+		Map<String, VariantSet> result = VariantUtils.concatVariants(variantSet1, variantSet2);
+		Map<String, VariantSet> expectedResult = new HashMap<String, VariantSet>();
+		expectedResult.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR",asSet("fr_FR", "es_ES")));
+		expectedResult.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet("default", "summer")));
 		assertEquals(expectedResult, result);
 		
 		result = VariantUtils.concatVariants(variantSet2, variantSet1);
@@ -56,28 +56,28 @@ public class VariantUtilsTestCase extends TestCase {
 
 	public void testConcatVariants(){
 		
-		Map variantSet1 = new HashMap();
-		variantSet1.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet(new String[]{"fr_FR", "en_US"})));
-		variantSet1.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet(new String[]{"default", "winter"})));
-		Map variantSet2 = new HashMap();
-		variantSet2.put(JawrConstant.LOCALE_VARIANT_TYPE,  new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet(new String[]{"fr_FR", "es_ES"})));
-		variantSet2.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet(new String[]{"default", "summer"})));
-		Map result = VariantUtils.concatVariants(variantSet1, variantSet2);
-		Map expectedResult = new HashMap();
-		expectedResult.put(JawrConstant.LOCALE_VARIANT_TYPE,  new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet(new String[]{"fr_FR", "en_US", "es_ES"})));
-		expectedResult.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet(new String[]{"winter", "default", "summer"})));
+		Map<String, VariantSet> variantSet1 = new HashMap<String, VariantSet>();
+		variantSet1.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet("fr_FR", "en_US")));
+		variantSet1.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet("default", "winter")));
+		Map<String, VariantSet> variantSet2 = new HashMap<String, VariantSet>();
+		variantSet2.put(JawrConstant.LOCALE_VARIANT_TYPE,  new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet("fr_FR", "es_ES")));
+		variantSet2.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet("default", "summer")));
+		Map<String, VariantSet> result = VariantUtils.concatVariants(variantSet1, variantSet2);
+		Map<String, VariantSet> expectedResult = new HashMap<String, VariantSet>();
+		expectedResult.put(JawrConstant.LOCALE_VARIANT_TYPE,  new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR", asSet("fr_FR", "en_US", "es_ES")));
+		expectedResult.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", asSet("winter", "default", "summer")));
 		assertEquals(expectedResult, result);
 		
 	}
 	
 	public void testGetAllVariantKeys(){
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(new String[]{"", "fr_FR", "en_US"}));
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet(new String[]{"winter", "summer"}));
-		variants.put("browser", asSet(new String[]{null, "ie", "firefox"}));
-		List variantKeys = VariantUtils.getAllVariantKeys(variants);
-		Set expectedResult = asSet(new String[]{"@@winter", "@@summer", 
+		Map<String, Set<String>> variants = new HashMap<String, Set<String>>();
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet("", "fr_FR", "en_US"));
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet("winter", "summer"));
+		variants.put("browser", asSet(null, "ie", "firefox"));
+		List<String> variantKeys = VariantUtils.getAllVariantKeys(variants);
+		Set<String> expectedResult = asSet("@@winter", "@@summer", 
 				"ie@@winter", "ie@@summer",
 				"firefox@@winter", "firefox@@summer",
 				"@fr_FR@winter", "@fr_FR@summer",
@@ -85,32 +85,32 @@ public class VariantUtilsTestCase extends TestCase {
 				"ie@fr_FR@winter", "ie@fr_FR@summer",
 				"ie@en_US@winter", "ie@en_US@summer", 
 				"firefox@fr_FR@winter", "firefox@fr_FR@summer",
-				"firefox@en_US@winter", "firefox@en_US@summer"});
+				"firefox@en_US@winter", "firefox@en_US@summer");
 		
-		assertEquals(expectedResult, new HashSet(variantKeys));
+		assertEquals(expectedResult, new HashSet<String>(variantKeys));
 		
 	}
 	
 	public void testGetAllVariantKeysWithNullValues(){
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(new String[]{null, "fr_FR", "en_US"}));
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet(new String[]{"winter", "summer"}));
-		List variantKeys = VariantUtils.getAllVariantKeys(variants);
-		Set expectedResult = asSet(new String[]{"@winter", "@summer", "fr_FR@winter", "fr_FR@summer", "en_US@winter",
-				"en_US@summer"});
-		assertEquals(expectedResult, new HashSet(variantKeys));
+		Map<String, Set<String>> variants = new HashMap<String, Set<String>>();
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(null, "fr_FR", "en_US"));
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet("winter", "summer"));
+		List<String> variantKeys = VariantUtils.getAllVariantKeys(variants);
+		Set<String> expectedResult = asSet("@winter", "@summer", "fr_FR@winter", "fr_FR@summer", "en_US@winter",
+				"en_US@summer");
+		assertEquals(expectedResult, new HashSet<String>(variantKeys));
 	}
 	
 	public void testGetAllVariantsWithNullValues(){
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(new String[]{null, "fr_FR", "en_US"}));
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet(new String[]{"winter", "summer"}));
-		List variantMaps = VariantUtils.getAllVariants(variants);
+		Map<String, Set<String>> variants = new HashMap<String, Set<String>>();
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(null, "fr_FR", "en_US"));
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet("winter", "summer"));
+		List<Map<String, String>> variantMaps = VariantUtils.getAllVariants(variants);
 		
-		Set expectedResult = new HashSet();
-		Map aMap = asMap(new String[]{JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE},
+		Set<Map<String, String>> expectedResult = new HashSet<Map<String, String>>();
+		Map<String, String> aMap = asMap(new String[]{JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE},
 				new String[]{null, "winter"});
 		expectedResult.add(aMap);
 		
@@ -134,20 +134,20 @@ public class VariantUtilsTestCase extends TestCase {
 				new String[]{"en_US", "summer"});
 		expectedResult.add(aMap);
 		
-		assertEquals(expectedResult, new HashSet(variantMaps));
+		assertEquals(expectedResult, new HashSet<Map<String, String>>(variantMaps));
 	}
 
 	
 	public void testGetAllVariants(){
 		
-		Map variants = new HashMap();
-		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet(new String[]{"", "fr_FR", "en_US"}));
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet(new String[]{"winter", "summer"}));
-		variants.put("browser", asSet(new String[]{null, "ie", "firefox"}));
-		List variantMaps = VariantUtils.getAllVariants(variants);
+		Map<String, Set<String>> variants = new HashMap<String, Set<String>>();
+		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, asSet("", "fr_FR", "en_US"));
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, asSet("winter", "summer"));
+		variants.put("browser", asSet(null, "ie", "firefox"));
+		List<Map<String, String>> variantMaps = VariantUtils.getAllVariants(variants);
 		
-		Set expectedResult = new HashSet();
-		Map aMap = asMap(new String[]{"browser",JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE},
+		Set<Map<String, String>> expectedResult = new HashSet<Map<String, String>>();
+		Map<String, String> aMap = asMap(new String[]{"browser",JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE},
 				new String[]{null, "", "winter"});
 		expectedResult.add(aMap);
 		
@@ -219,18 +219,18 @@ public class VariantUtilsTestCase extends TestCase {
 				new String[]{"firefox", "en_US", "summer"});
 		expectedResult.add(aMap);
 		
-		assertEquals(expectedResult, new HashSet(variantMaps));
+		assertEquals(expectedResult, new HashSet<Map<String, String>>(variantMaps));
 		
 	}
 	
 	public void testGetVariantBundleNameFromVariantMap(){
 		
-		Map variants = null;
+		Map<String, String> variants = null;
 		String result = VariantUtils.getVariantBundleName("myBundle.js", variants);
 		String expected = "myBundle.js";
 		assertEquals(expected, result);
 		
-		variants = new HashMap();
+		variants = new HashMap<String, String>();
 		result = VariantUtils.getVariantBundleName("myBundle.js", variants);
 		expected = "myBundle.js";
 		assertEquals(expected, result);
@@ -285,12 +285,12 @@ public class VariantUtilsTestCase extends TestCase {
 	
 	public void testGetVariantKey(){
 		
-		Map variants = null;
+		Map<String, String> variants = null;
 		String result = VariantUtils.getVariantKey(variants);
 		String expected = "";
 		assertEquals(expected, result);
 		
-		variants = new HashMap();
+		variants = new HashMap<String, String>();
 		result = VariantUtils.getVariantKey(variants);
 		expected = "";
 		assertEquals(expected, result);
@@ -319,13 +319,13 @@ public class VariantUtilsTestCase extends TestCase {
 	
 	public void testGetVariantKeyFromVariantType(){
 		
-		Map variants = null;
-		Set variantTypes = asSet(new String[]{"browser",JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE});
+		Map<String, String> variants = null;
+		Set<String> variantTypes = asSet("browser",JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE);
 		String result = VariantUtils.getVariantKey(variants, variantTypes);
 		String expected = "";
 		assertEquals(expected, result);
 		
-		variants = new HashMap();
+		variants = new HashMap<String, String>();
 		result = VariantUtils.getVariantKey(variants, variantTypes);
 		expected = "";
 		assertEquals(expected, result);
@@ -351,17 +351,17 @@ public class VariantUtilsTestCase extends TestCase {
 		expected = "ie@fr_FR@summer";
 		assertEquals(expected, result);
 		
-		variantTypes = asSet(new String[]{"browser", JawrConstant.SKIN_VARIANT_TYPE});
+		variantTypes = asSet("browser", JawrConstant.SKIN_VARIANT_TYPE);
 		result = VariantUtils.getVariantKey(variants, variantTypes);
 		expected = "ie@summer";
 		assertEquals(expected, result);
 		
-		variantTypes = asSet(new String[]{JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE});
+		variantTypes = asSet(JawrConstant.LOCALE_VARIANT_TYPE, JawrConstant.SKIN_VARIANT_TYPE);
 		result = VariantUtils.getVariantKey(variants, variantTypes);
 		expected = "fr_FR@summer";
 		assertEquals(expected, result);
 		
-		variantTypes = asSet(new String[]{JawrConstant.LOCALE_VARIANT_TYPE});
+		variantTypes = asSet(JawrConstant.LOCALE_VARIANT_TYPE);
 		result = VariantUtils.getVariantKey(variants, variantTypes);
 		expected = "fr_FR";
 		assertEquals(expected, result);
@@ -377,14 +377,14 @@ public class VariantUtilsTestCase extends TestCase {
 		
 	}
 
-	private Map asMap(String[] keys, String[] values){
-		Map map = new HashMap();
+	private Map<String, String> asMap(String[] keys, String[] values){
+		Map<String, String> map = new HashMap<String, String>();
 		for (int i = 0; i < keys.length; i++) {
 			map.put(keys[i], values[i]);
 		}
 		return map;
 	}
-	private Set asSet(String[] values){
-		return new HashSet(Arrays.asList(values));
+	private Set<String> asSet(String... values){
+		return new HashSet<String>(Arrays.asList(values));
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import net.jawr.web.resource.bundle.variant.VariantResourceReaderStrategy;
 import net.jawr.web.resource.bundle.variant.VariantSet;
 
 /**
- * This class defines the resource provider strategy for Css skin
+ * This class defines the resource provider strategy for CSS skin
  * 
  * @author Ibrahim Chaehoi
  *
@@ -91,7 +91,11 @@ public class CssSkinVariantResourceProviderStrategy implements
 	 */
 	public Map<String, String> nextVariantMapConbination() {
 		
-		return variantMapStrategyIterator.next();
+		Map<String, String> variantMap = null; 
+		if(variantMapStrategyIterator.hasNext()){
+			variantMap = variantMapStrategyIterator.next();
+		}
+		return variantMap;
 	}
 
 }

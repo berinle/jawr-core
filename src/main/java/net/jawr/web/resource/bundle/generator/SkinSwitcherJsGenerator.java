@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,8 @@ import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 
 import org.apache.log4j.Logger;
 
@@ -40,6 +42,24 @@ public class SkinSwitcherJsGenerator extends AbstractJavascriptGenerator {
 	/** The script template */
 	private static final String SCRIPT_TEMPLATE = "/net/jawr/web/resource/bundle/skin/skinSwitcher.js";
 	
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
+	
+	/**
+	 * Constructor 
+	 */
+	public SkinSwitcherJsGenerator() {
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.SKIN_SWTICHER_GENERATOR_PREFIX);
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
+	 */
+	public ResourceGeneratorResolver getResolver() {
+		
+		return resolver;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#createResource(net.jawr.web.resource.bundle.generator.GeneratorContext)
 	 */
@@ -70,11 +90,5 @@ public class SkinSwitcherJsGenerator extends AbstractJavascriptGenerator {
 		return sw.getBuffer().toString().replaceAll("\\{JAWR_SKIN_COOKIE_NAME\\}", skinCookieName);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.PrefixedResourceGenerator#getMappingPrefix()
-	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.SKIN_SWTICHER_GENERATOR_PREFIX;
-	}
-
+	
 }

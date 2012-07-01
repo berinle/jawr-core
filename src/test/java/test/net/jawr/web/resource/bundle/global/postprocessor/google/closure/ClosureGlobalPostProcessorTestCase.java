@@ -17,6 +17,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
@@ -101,7 +102,7 @@ public class ClosureGlobalPostProcessorTestCase {
 		String bundleDirPath = FileUtils.getClasspathRootDir()+"/global/postprocessor/google/closure/bundle/";
 		ResourceBundlesHandler rsBundlesHandler = getResourceBundlesHandler(bundleDirPath);
 		
-		config = new JawrConfig(props);
+		config = new JawrConfig("js",props);
 		ServletContext servletContext = new MockServletContext();
 		servletContext.setAttribute(JawrConstant.JS_CONTEXT_ATTRIBUTE, rsBundlesHandler);
 		config.setContext(servletContext);
@@ -112,7 +113,7 @@ public class ClosureGlobalPostProcessorTestCase {
 		when(rsHandler.getWorkingDirectory()).thenReturn(FileUtils.getClasspathRootDir()+"/global/postprocessor/google/closure/");
 		when(rsHandler.getResource("extern.js")).thenReturn(new StringReader(FileUtils.readClassPathFile("global/postprocessor/google/closure/externs/extern.js")));
 		
-		ctx = new GlobalPostProcessingContext(config, rsBundlesHandler, rsHandler, false);
+		ctx = new GlobalPostProcessingContext(config, rsBundlesHandler, rsHandler, true);
 	}
 
 	private GeneratorRegistry addGeneratorRegistryToConfig(JawrConfig config, String type) {
@@ -126,7 +127,7 @@ public class ClosureGlobalPostProcessorTestCase {
 	public void testPostProcessingBasic() throws Exception {
 		
 		Properties props = new Properties();
-		props.put("jawr.js.closure.modules", "bundle01:bundle02");
+		//props.put("jawr.js.closure.modules", "bundle01:bundle02");
 		props.put("jawr.js.closure.externs", "extern.js");
 		initProcessingContext(props);
 		List<JoinableResourceBundle> bundles = new ArrayList<JoinableResourceBundle>();
@@ -286,7 +287,7 @@ public class ClosureGlobalPostProcessorTestCase {
 				
 			}
 			
-			public List getContextBundles() {
+			public List<JoinableResourceBundle> getContextBundles() {
 				return null;
 			}
 			
@@ -305,7 +306,7 @@ public class ClosureGlobalPostProcessorTestCase {
 			}
 
 			public ResourceBundlePathsIterator getGlobalResourceBundlePaths(
-					boolean debugMode,
+					DebugMode debugMode,
 					ConditionalCommentCallbackHandler commentCallbackHandler,
 					Map<String, String> variants) {
 				return null;
@@ -325,7 +326,7 @@ public class ClosureGlobalPostProcessorTestCase {
 			}
 
 			public ResourceBundlePathsIterator getBundlePaths(
-					boolean debugMode, String bundleId,
+					DebugMode debugMode, String bundleId,
 					ConditionalCommentCallbackHandler commentCallbackHandler,
 					Map<String, String> variants) {
 				return null;

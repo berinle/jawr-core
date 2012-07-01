@@ -19,7 +19,7 @@ public class PropertiesConfigHelperTestCase extends TestCase {
 		prop.load(is);
 
 		PropertiesConfigHelper helper = new PropertiesConfigHelper(prop, "js");
-		Set bundleNames = helper.getPropertyBundleNameSet();
+		Set<String> bundleNames = helper.getPropertyBundleNameSet();
 		assertEquals(3, bundleNames.size());
 		IOUtils.close(is);
 	}
@@ -32,7 +32,7 @@ public class PropertiesConfigHelperTestCase extends TestCase {
 		prop.load(is);
 
 		PropertiesConfigHelper helper = new PropertiesConfigHelper(prop, "css");
-		Set bundleNames = helper.getPropertyBundleNameSet();
+		Set<String> bundleNames = helper.getPropertyBundleNameSet();
 		assertEquals(2, bundleNames.size());
 		IOUtils.close(is);
 	}

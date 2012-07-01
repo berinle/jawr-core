@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.jawr.web.JawrConstant;
 import net.jawr.web.exception.DuplicateBundlePathException;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
  * Instances of this class will find all the resources which don't belong to 
  * any defined bundle. Will return a mapping for each of them. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  *
  */
@@ -54,7 +55,7 @@ public class OrphanResourceBundlesMapper {
 	/** The list of current bundles */
 	protected List<JoinableResourceBundle> currentBundles;
 	
-	/** The resourcefile extension */
+	/** The resource file extension */
 	protected String resourceExtension;
 	
 	/** The bundle mapping */
@@ -142,11 +143,16 @@ public class OrphanResourceBundlesMapper {
 				throw new DuplicateBundlePathException(filePath);
 			}
 		}
-		if(LOGGER.isDebugEnabled())
-			LOGGER.debug("Adding orphan resource: " + filePath);
 		
-		// If we got here, the resource belongs to no other bundle.  
-		bundleMapping.add(filePath);		
+		if(!filePath.startsWith(JawrConstant.WEB_INF_DIR_PREFIX) &&
+				!filePath.startsWith(JawrConstant.META_INF_DIR_PREFIX)){
+			
+			if(LOGGER.isDebugEnabled())
+				LOGGER.debug("Adding orphan resource: " + filePath);
+			
+			// If we got here, the resource belongs to no other bundle.  
+			bundleMapping.add(filePath);
+		}
 	}
 	
 	

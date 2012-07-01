@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -39,16 +39,16 @@ public class ResourceGeneratorReaderProxyFactory {
 	 * @param generator the resource generator, which can be a text or an image resource generator.
 	 * @param rsReaderHandler the resourceReaderHandler
 	 * @param config the jawr config
-	 * @return
+	 * @return the Resource reader
 	 */
-	public static ResourceReader getResourceReaderProxy(PrefixedResourceGenerator generator, ResourceReaderHandler rsReaderHandler, JawrConfig config){
+	public static ResourceReader getResourceReaderProxy(BaseResourceGenerator generator, ResourceReaderHandler rsReaderHandler, JawrConfig config){
 		
 		ResourceReader proxy = null;
 		
 		// Defines the interfaces to be implemented by the ResourceReader 
 		int nbExtraInterface = 0;
 		Class<?>[] extraInterfaces = new Class<?>[2];
-		boolean isResourceGenerator = generator instanceof ResourceGenerator;
+		boolean isResourceGenerator = generator instanceof BaseResourceGenerator;
 		boolean isStreamResourceGenerator= generator instanceof StreamResourceGenerator;
 		
 		if(isResourceGenerator){
@@ -83,7 +83,7 @@ public class ResourceGeneratorReaderProxyFactory {
 	 * @return the array of interfaces implemented by the PrefixedResourceGenerator
 	 */
 	private static Class<?>[] getGeneratorInterfaces(
-			PrefixedResourceGenerator generator) {
+			BaseResourceGenerator generator) {
 		
 		Set<Class<?>> interfaces = new HashSet<Class<?>>();
 		addInterfaces(generator, interfaces);
@@ -125,7 +125,7 @@ public class ResourceGeneratorReaderProxyFactory {
 	private static class ResourceGeneratorReaderWrapperInvocationHandler implements InvocationHandler {
 		
 		/** The resource generator wrapped */
-		private PrefixedResourceGenerator generator;
+		private BaseResourceGenerator generator;
 		
 		/** The resource readre wrapper */
 		private ResourceGeneratorReaderWrapper rsReaderWrapper;
@@ -146,10 +146,10 @@ public class ResourceGeneratorReaderProxyFactory {
 		 * @param config the jawr config
 		 */
 		public ResourceGeneratorReaderWrapperInvocationHandler(
-				PrefixedResourceGenerator generator, ResourceReaderHandler rsReaderHandler, JawrConfig config) {
+				BaseResourceGenerator generator, ResourceReaderHandler rsReaderHandler, JawrConfig config) {
 			this.generator = generator;
-			if(generator instanceof ResourceGenerator){
-				this.rsReaderWrapper = new ResourceGeneratorReaderWrapper((ResourceGenerator)generator, rsReaderHandler, config);
+			if(generator instanceof TextResourceGenerator){
+				this.rsReaderWrapper = new ResourceGeneratorReaderWrapper((TextResourceGenerator) generator, rsReaderHandler, config);
 			}
 			if(generator instanceof StreamResourceGenerator){
 				this.streamRsReaderWrapper = new StreamResourceGeneratorReaderWrapper((StreamResourceGenerator)generator, rsReaderHandler, config);

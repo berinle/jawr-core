@@ -44,17 +44,17 @@ public class LicensesIncluderPostProcessorTest  extends  ResourceHandlerBasedTes
 	public LicensesIncluderPostProcessorTest() {
 	    try {			
 		Charset charsetUtf = Charset.forName("UTF-8"); 
-		rsHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
+		rsHandler = createResourceReaderHandler(ROOT_TESTDIR,"js",charsetUtf);
 		rsBundleHandler = createResourceBundleHandler(ROOT_TESTDIR,charsetUtf);
-		jeesConfig = new JawrConfig(new Properties());
+		jeesConfig = new JawrConfig("js", new Properties());
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.JS_TYPE);
 		generatorRegistry.setConfig(jeesConfig);
 		jeesConfig.setGeneratorRegistry(generatorRegistry);
 		jeesConfig.setCharsetName("UTF-8");
 		
-		List c = Collections.singletonList("js/**");
+		List<String> c = Collections.singletonList("js/**");
 		resourcebundle = new JoinableResourceBundleImpl("script.js","script",
-										".js",
+										"js",
 										new InclusionPattern(true,0),
 										c,
 										rsHandler, generatorRegistry);
@@ -73,7 +73,7 @@ public class LicensesIncluderPostProcessorTest  extends  ResourceHandlerBasedTes
 	 * @throws Exception 
 	 */
 	public void testDoPostProcessBundle() throws Exception {
-	    List cols = new ArrayList();
+	    List<JoinableResourceBundle> cols = new ArrayList<JoinableResourceBundle>();
 	    cols.add(resourcebundle);
 	    
 	    ResourceBundlesHandler collector = new ResourceBundlesHandlerImpl(cols, rsHandler, rsBundleHandler, jeesConfig);

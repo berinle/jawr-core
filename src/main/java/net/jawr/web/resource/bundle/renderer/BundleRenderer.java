@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 Jordi Hern·ndez SellÈs
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 package net.jawr.web.resource.bundle.renderer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
@@ -21,9 +22,10 @@ import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 /**
  * This interface defines operations to generate import tags for bundled resources. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
+ * @author ibrahim Chaehoi
  */
-public interface BundleRenderer {
+public interface BundleRenderer extends Serializable {
     
     /**
      * Prefix to append to every URL that points to a gzipped version of a resource. 

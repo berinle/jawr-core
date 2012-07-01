@@ -16,7 +16,7 @@ import test.net.jawr.web.resource.bundle.handler.ResourceHandlerBasedTest;
 
 /**
  * @author jordi
- *
+ * @author ibrahim Chaehoi
  */
 public class ResourceBundleDirMapperTest extends  ResourceHandlerBasedTest {
 	private static final String ROOT_TESTDIR = "/resourcebundledirmapper/";
@@ -28,13 +28,13 @@ public class ResourceBundleDirMapperTest extends  ResourceHandlerBasedTest {
 		try {			
 			Charset charsetUtf = Charset.forName("UTF-8"); 
 			
-			ResourceReaderHandler rdHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
-			Set exclude = new HashSet();
+			ResourceReaderHandler rdHandler = createResourceReaderHandler(ROOT_TESTDIR,"js",charsetUtf);
+			Set<String> exclude = new HashSet<String>();
 			exclude.add("/js/global");
 			exclude.add("/js/lib//");
 			exclude.add("/js//debug");
 			exclude.add("/js/excluded.js");
-			factory = new ResourceBundleDirMapper("/js/",rdHandler,null,".js",exclude);
+			factory = new ResourceBundleDirMapper("/js/",rdHandler,null, ".js",exclude);
 		} catch (Exception e) {
 			System.out.println("Error in test constructor");
 			e.printStackTrace();
@@ -45,7 +45,7 @@ public class ResourceBundleDirMapperTest extends  ResourceHandlerBasedTest {
 	 * Test method for {@link net.jawr.web.resource.bundle.factory.mapper.ResourceBundleDirMapper#getMappings()}.
 	 */
 	public void testGetMappings() {
-		Map mappings = null;
+		Map<String, String> mappings = null;
 		try {
 			mappings = factory.getBundleMapping();
 		} catch (DuplicateBundlePathException e) {

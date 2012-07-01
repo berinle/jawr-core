@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@ package net.jawr.web.resource.bundle.generator.variant;
 
 import java.util.Map;
 
-import net.jawr.web.resource.bundle.generator.PrefixedResourceGenerator;
+import net.jawr.web.resource.bundle.generator.BaseResourceGenerator;
 import net.jawr.web.resource.bundle.variant.VariantSet;
 
 /**
@@ -24,7 +24,7 @@ import net.jawr.web.resource.bundle.variant.VariantSet;
  * @author Ibrahim Chaehoi
  *
  */
-public interface VariantResourceGenerator extends PrefixedResourceGenerator{
+public interface VariantResourceGenerator extends BaseResourceGenerator{
 
 	/**
 	 * Returns the map of available variant for a resource.

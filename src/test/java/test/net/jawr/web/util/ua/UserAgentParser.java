@@ -29,6 +29,7 @@ public class UserAgentParser {
 		}
 		
 		
+		@SuppressWarnings("unused")
 		public String[] matchSpan(String strUserAgent){
 			
 			String[] result = new String[0];
@@ -46,6 +47,7 @@ public class UserAgentParser {
 			return result;
 		}
 		
+		@SuppressWarnings("unused")
 		public String[] parse(String strUserAgent){
 			
 			String[] result = new String[0];
@@ -97,6 +99,7 @@ public class UserAgentParser {
 		    "iCab|NetNewsWire|Iron|Space Bison|Stainless|Orca|Dolfin|BOLT";
 	
 	
+	@SuppressWarnings("unused")
 	private UserAgentParserInfo[] USER_AGENT_PARSERS = new UserAgentParserInfo[]{
 			  // #### SPECIAL CASES TOP ####
 			  // # must go before Opera

@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2008-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -28,12 +28,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
+import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
 import net.jawr.web.resource.bundle.generator.classpath.ClassPathCSSGenerator;
 import net.jawr.web.resource.bundle.generator.classpath.ClassPathImgResourceGenerator;
 import net.jawr.web.resource.bundle.generator.classpath.ClasspathJSGenerator;
+import net.jawr.web.resource.bundle.generator.css.less.LessCssGenerator;
 import net.jawr.web.resource.bundle.generator.dwr.DWRGeneratorFactory;
 import net.jawr.web.resource.bundle.generator.img.SpriteGenerator;
+import net.jawr.web.resource.bundle.generator.js.CoffeeScriptGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.PrefixedPathResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverWrapper;
+import net.jawr.web.resource.bundle.generator.resolver.SuffixedPathResourceGeneratorResolver;
 import net.jawr.web.resource.bundle.generator.validator.CommonsValidatorGenerator;
 import net.jawr.web.resource.bundle.generator.variant.VariantResourceGenerator;
 import net.jawr.web.resource.bundle.generator.variant.css.CssSkinGenerator;
@@ -42,6 +49,7 @@ import net.jawr.web.resource.bundle.variant.VariantResolver;
 import net.jawr.web.resource.bundle.variant.VariantSet;
 import net.jawr.web.resource.handler.reader.ResourceReader;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
+import net.jawr.web.resource.handler.reader.WorkingDirectoryLocationAware;
 import net.jawr.web.servlet.JawrRequestHandler;
 import net.jawr.web.util.StringUtils;
 
@@ -55,7 +63,7 @@ import net.jawr.web.util.StringUtils;
  * a colon, such as 'messages:'). 
  * Generators provided with Jawr will be automatically mapped. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class GeneratorRegistry {
@@ -84,20 +92,29 @@ public class GeneratorRegistry {
 	/** The skin switcher generator prefix */
 	public static final String SKIN_SWTICHER_GENERATOR_PREFIX = "skinSwitcher";
 	
+	/** The coffee script suffix */
+	public static final String COFEESCRIPT_GENERATOR_SUFFIX = "coffee";
+	
+	/** The coffee script suffix */
+	public static final String LESS_GENERATOR_SUFFIX = "less";
+	
 	/** The generator prefix separator */
 	public static final String PREFIX_SEPARATOR = ":";
 	
-	/** The generator prefix registry */
-	private final List<String> prefixRegistry = new CopyOnWriteArrayList<String>();
-	
-	/** The CSS image resource prefix registry */
-	private final List<String> cssImageResourceGeneratorPrefixRegistry = new CopyOnWriteArrayList<String>();
-	
-	/** The image resource prefix registry */
-	private final List<String> imageResourceGeneratorPrefixRegistry = new CopyOnWriteArrayList<String>();
+	/** The common generators */
+	private final Map<ResourceGeneratorResolver, Class<?>> commonGenerators = new ConcurrentHashMap<ResourceGeneratorResolver, Class<?>>();
 	
 	/** The generator registry */
-	private final Map<String, PrefixedResourceGenerator> registry = new ConcurrentHashMap<String, PrefixedResourceGenerator>();
+	private final List<BaseResourceGenerator> resourceGeneratorRegistry = new CopyOnWriteArrayList<BaseResourceGenerator>();
+	
+	/** The generator resolver registry */
+	private final List<ResourceGeneratorResolverWrapper> resolverRegistry = new CopyOnWriteArrayList<ResourceGeneratorResolverWrapper>();
+	
+	/** The CSS image resource prefix registry */
+	private final List<BaseResourceGenerator> cssImageResourceGeneratorRegistry = new CopyOnWriteArrayList<BaseResourceGenerator>();
+	
+	/** The image resource prefix registry */
+	private final List<BaseResourceGenerator> imageResourceGeneratorRegistry = new CopyOnWriteArrayList<BaseResourceGenerator>();
 	
 	/** The resource type */
 	private String resourceType;
@@ -123,16 +140,46 @@ public class GeneratorRegistry {
 	 */
 	public GeneratorRegistry(String resourceType){
 		this.resourceType = resourceType;
-		prefixRegistry.add(MESSAGE_BUNDLE_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(CLASSPATH_RESOURCE_BUNDLE_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(DWR_BUNDLE_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(COMMONS_VALIDATOR_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(MESSAGE_BUNDLE_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(IE_CSS_GENERATOR_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(SPRITE_GENERATOR_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(SKIN_GENERATOR_PREFIX + PREFIX_SEPARATOR);
-		prefixRegistry.add(SKIN_SWTICHER_GENERATOR_PREFIX + PREFIX_SEPARATOR);
 		
+		commonGenerators.put(new PrefixedPathResourceGeneratorResolver(MESSAGE_BUNDLE_PREFIX), ResourceBundleMessagesGenerator.class);
+		Class<?> generatorClass = null;
+		if(resourceType.equals(JawrConstant.JS_TYPE)){
+			generatorClass = ClasspathJSGenerator.class;
+		}else if(resourceType.equals(JawrConstant.CSS_TYPE)){
+			generatorClass = ClassPathCSSGenerator.class;
+		}else{
+			generatorClass = ClassPathImgResourceGenerator.class;
+		}
+		
+		commonGenerators.put(new PrefixedPathResourceGeneratorResolver(CLASSPATH_RESOURCE_BUNDLE_PREFIX), generatorClass);
+		
+		if(resourceType.equals(JawrConstant.JS_TYPE)){
+			commonGenerators.put(new PrefixedPathResourceGeneratorResolver(COMMONS_VALIDATOR_PREFIX), CommonsValidatorGenerator.class);
+			commonGenerators.put(new PrefixedPathResourceGeneratorResolver(SKIN_SWTICHER_GENERATOR_PREFIX), SkinSwitcherJsGenerator.class);
+			commonGenerators.put(new SuffixedPathResourceGeneratorResolver(COFEESCRIPT_GENERATOR_SUFFIX), CoffeeScriptGenerator.class);
+			
+			boolean dwrDependencyExists = false;
+			try{
+				ClassLoaderResourceUtils.getClass("org.directwebremoting.util.VersionUtil");
+				dwrDependencyExists = true;
+			}catch(BundlingProcessException e){
+				// Nothing to do
+			}
+			if(dwrDependencyExists){
+				commonGenerators.put(new PrefixedPathResourceGeneratorResolver(DWR_BUNDLE_PREFIX), DWRGeneratorFactory.getDWRGeneratorClass());
+			}
+		}
+		
+		if(resourceType.equals(JawrConstant.CSS_TYPE)){
+			commonGenerators.put(new PrefixedPathResourceGeneratorResolver(IE_CSS_GENERATOR_PREFIX), IECssBundleGenerator.class);
+			commonGenerators.put(new PrefixedPathResourceGeneratorResolver(SKIN_GENERATOR_PREFIX), CssSkinGenerator.class);
+			commonGenerators.put(new SuffixedPathResourceGeneratorResolver(LESS_GENERATOR_SUFFIX), LessCssGenerator.class);
+		}
+		
+		if((resourceType.equals(JawrConstant.CSS_TYPE) ||
+				resourceType.equals(JawrConstant.IMG_TYPE))){
+			commonGenerators.put(new PrefixedPathResourceGeneratorResolver(SPRITE_GENERATOR_PREFIX), SpriteGenerator.class);
+		}
 	}
 	
 	/**
@@ -156,60 +203,56 @@ public class GeneratorRegistry {
 	 * Lazy loads generators, to avoid the need for undesired dependencies. 
 	 * 
 	 * @param generatorKey the generator key
+	 * 
+	 * @return the resource generator
 	 */
-	private void loadGenerator(String generatorKey) {
-		PrefixedResourceGenerator generator = null;
-		if((MESSAGE_BUNDLE_PREFIX + PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new ResourceBundleMessagesGenerator();
-		}
-		else if((CLASSPATH_RESOURCE_BUNDLE_PREFIX + PREFIX_SEPARATOR).equals(generatorKey)){
-			if(resourceType.equals(JawrConstant.JS_TYPE)){
-				generator = new ClasspathJSGenerator();
-			}else if(resourceType.equals(JawrConstant.CSS_TYPE)){
-				generator = new ClassPathCSSGenerator(config.isCssClasspathImageHandledByClasspathCss());
-			}else{
-				generator = new ClassPathImgResourceGenerator();
+	private BaseResourceGenerator loadCommonGenerator(String resourcePath) {
+		BaseResourceGenerator generator = null;
+		
+		for (Iterator<Entry<ResourceGeneratorResolver, Class<?>>> iterator = commonGenerators.entrySet().iterator(); iterator.hasNext();) {
+			Entry<ResourceGeneratorResolver, Class<?>> entry = iterator.next();
+			ResourceGeneratorResolver resolver = entry.getKey();
+			if(resolver.matchPath(resourcePath)){
+				generator = (BaseResourceGenerator) ClassLoaderResourceUtils.buildObjectInstance(entry.getValue());
+				if(!generator.getResolver().isSameAs(resolver)){
+					throw new BundlingProcessException("The resolver defined for "+generator.getClass().getName()+" is different from the one expected by Jawr.");
+				}
 			}
-		}
-		else if((DWR_BUNDLE_PREFIX + PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = DWRGeneratorFactory.createDWRGenerator();
-		}
-		else if((COMMONS_VALIDATOR_PREFIX + PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new CommonsValidatorGenerator();
-		}else if(resourceType.equals(JawrConstant.CSS_TYPE) && (IE_CSS_GENERATOR_PREFIX + PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new IECssBundleGenerator();
-		}else if((resourceType.equals(JawrConstant.CSS_TYPE) ||
-				resourceType.equals(JawrConstant.IMG_TYPE)) && (SPRITE_GENERATOR_PREFIX+PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new SpriteGenerator(rsHandler, config);
-		}else if(resourceType.equals(JawrConstant.CSS_TYPE) && (SKIN_GENERATOR_PREFIX+PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new CssSkinGenerator(rsHandler, config);
-		}else if(resourceType.equals(JawrConstant.JS_TYPE) && (SKIN_SWTICHER_GENERATOR_PREFIX+PREFIX_SEPARATOR).equals(generatorKey)){
-			generator = new SkinSwitcherJsGenerator();
 		}
 		
 		if(generator != null){
-			initializeGeneratorProperties(generator);
-			updateRegistries(generator, generatorKey);
-			ResourceReader proxy = ResourceGeneratorReaderProxyFactory.getResourceReaderProxy(generator, rsHandler, config);
-			rsHandler.addResourceReaderToEnd(proxy);
+			initGenerator(generator);
 		}
+		
+		return generator;
+	}
+	
+	/**
+	 * Initialize the generator
+	 * @param generator the generator to intialize
+	 */
+	private void initGenerator(BaseResourceGenerator generator){
+		
+		initializeGeneratorProperties(generator);
+		updateRegistries(generator);
+		ResourceReader proxy = ResourceGeneratorReaderProxyFactory.getResourceReaderProxy(generator, rsHandler, config);
+		rsHandler.addResourceReaderToStart(proxy);
 	}
 
 	/**
 	 * Update the registries with the generator given in parameter
 	 * @param generator the generator
-	 * @param generatorKey the generator key
 	 */
-	private void updateRegistries(PrefixedResourceGenerator generator, String generatorKey) {
+	private void updateRegistries(BaseResourceGenerator generator) {
 		
-		registry.put(generatorKey, generator);
-
+		resolverRegistry.add(new ResourceGeneratorResolverWrapper(generator, generator.getResolver()));
+		
 		if(generator instanceof StreamResourceGenerator){
-			imageResourceGeneratorPrefixRegistry.add(generatorKey);
+			imageResourceGeneratorRegistry.add(generator);
 		}
 		if(generator instanceof CssResourceGenerator){
 			if(((CssResourceGenerator) generator).isHandlingCssImage()){
-				cssImageResourceGeneratorPrefixRegistry.add(generatorKey);
+				cssImageResourceGeneratorRegistry.add(generator);
 			}
 		}
 	}
@@ -258,30 +301,28 @@ public class GeneratorRegistry {
 	 * @param clazz the classname of the generator
 	 */
 	public void registerGenerator(String clazz){
-		PrefixedResourceGenerator generator = (PrefixedResourceGenerator) ClassLoaderResourceUtils.buildObjectInstance(clazz);
 		
-		if(null == generator.getMappingPrefix() || "".equals(generator.getMappingPrefix()) )
-			throw new IllegalStateException("The getMappingPrefix() method must return something at " + clazz);
+		BaseResourceGenerator generator = (BaseResourceGenerator) ClassLoaderResourceUtils.buildObjectInstance(clazz);
 		
-		String fullPrefix = generator.getMappingPrefix() + PREFIX_SEPARATOR;
+		if(null == generator.getResolver()){
+			throw new IllegalStateException("The getResolver() method must return something at " + clazz);
+		}
 		
-		// Verify this prefix is unused
-		if(prefixRegistry.contains(fullPrefix)) {
-			String generatorName = registry.get(fullPrefix).getClass().getName();
-			if(!clazz.equals(generatorName)) {
-				String errorMsg = "Cannot register the generator of class " 
-								+ generator.getClass().getName()
-								+ " using the prefix " + generator.getMappingPrefix() + " since such prefix is being used by "
-								+ generatorName + ". Please pecify a different return value at the getMappingPrefix() method.";
-				throw new IllegalStateException(errorMsg);
+		ResourceGeneratorResolver resolver = generator.getResolver();
+		for (ResourceGeneratorResolver resourceGeneratorResolver : resolverRegistry) {
+			if(resourceGeneratorResolver.isSameAs(resolver)){
+				String generatorName = generator.getClass().getName();
+				if(!clazz.equals(generatorName)) {
+					String errorMsg = "Cannot register the generator of class " 
+									+ generator.getClass().getName()
+									+ " since the same resolver is being used by "
+									+ generatorName + ". Please specify a different resolver in the getResolver() method.";
+					throw new IllegalStateException(errorMsg);
+				}
 			}
 		}
 		
-		initializeGeneratorProperties(generator);
-		
-		prefixRegistry.add(generator.getMappingPrefix() + PREFIX_SEPARATOR);
-		updateRegistries(generator, generator.getMappingPrefix() + PREFIX_SEPARATOR);
-		rsHandler.addResourceReaderToEnd(ResourceGeneratorReaderProxyFactory.getResourceReaderProxy(generator, rsHandler, config));
+		initGenerator(generator);
 	}
 
 	/**
@@ -290,7 +331,7 @@ public class GeneratorRegistry {
 	 * @param generator the generator
 	 */
 	private void initializeGeneratorProperties(
-			PrefixedResourceGenerator generator) {
+			BaseResourceGenerator generator) {
 		// Initialize the generator
 		if(generator instanceof InitializingResourceGenerator){
 			if(generator instanceof ConfigurationAwareResourceGenerator){
@@ -298,6 +339,12 @@ public class GeneratorRegistry {
 			}
 			if(generator instanceof TypeAwareResourceGenerator){
 				((TypeAwareResourceGenerator) generator).setResourceType(resourceType);
+			}
+			if(generator instanceof ResourceReaderHandlerAwareResourceGenerator){
+				((ResourceReaderHandlerAwareResourceGenerator) generator).setResourceReaderHandler(rsHandler);
+			}
+			if(generator instanceof WorkingDirectoryLocationAware){
+				((WorkingDirectoryLocationAware) generator).setWorkingDirectory(rsHandler.getWorkingDirectory());
 			}
 			if(generator instanceof PostInitializationAwareResourceGenerator){
 				((PostInitializationAwareResourceGenerator) generator).afterPropertiesSet();
@@ -311,7 +358,7 @@ public class GeneratorRegistry {
 	 * @return true if the path could be handled by a generator
 	 */
 	public boolean isPathGenerated(String path) {
-		return null != matchPath(path);
+		return null != resolveResourceGenerator(path);
 	}
 	
 	/**
@@ -320,8 +367,9 @@ public class GeneratorRegistry {
 	 * @return the path to use in the generation URL for debug mode. 
 	 */
 	public String getDebugModeGenerationPath(String path) {
-		String key = matchPath(path);
-		return ((ResourceGenerator)registry.get(key)).getDebugModeRequestPath();
+		
+		BaseResourceGenerator resourceGenerator = resolveResourceGenerator(path);
+		return resourceGenerator.getDebugModeRequestPath();
 	}
 	
 	/**
@@ -337,8 +385,7 @@ public class GeneratorRegistry {
 		
 		int jawrGenerationParamIdx = path.indexOf(JawrRequestHandler.GENERATION_PARAM);
 		String parameter = path.substring(jawrGenerationParamIdx+JawrRequestHandler.GENERATION_PARAM.length()+1); // Add 1 for the '=' character 
-		String key = matchPath(parameter);
-		ResourceGenerator resourceGenerator = (ResourceGenerator)registry.get(key);
+		BaseResourceGenerator resourceGenerator = resolveResourceGenerator(parameter);
 		String suffixPath = null;
 		if(resourceGenerator instanceof SpecificCDNDebugPathResourceGenerator){
 			suffixPath = ((SpecificCDNDebugPathResourceGenerator)resourceGenerator).getDebugModeBuildTimeGenerationPath(parameter);
@@ -349,23 +396,71 @@ public class GeneratorRegistry {
 	}
 	
 	/**
-	 * Get the key from the mappings that corresponds to the specified path. 
+	 * Finds the resource generator which will handle the resource, whose the path is given in parameter
 	 * @param path the resource path
-	 * @return the registry key corresponding to the path
+	 * @return the resource generator
 	 */
-	private String matchPath(String path) {
-		String generatorKey = null;
-		for(Iterator<String> it = prefixRegistry.iterator();it.hasNext() && generatorKey == null;) {
-			String prefix = it.next();
-			if(path.startsWith(prefix))
-				generatorKey = prefix;			
-		}	
-		// Lazy load generator
-		if(null != generatorKey && !registry.containsKey(generatorKey))
-			loadGenerator(generatorKey);
+	private BaseResourceGenerator resolveResourceGenerator(String path) {
 		
-		return generatorKey;
+		BaseResourceGenerator resourceGenerator = null;
+		for (Iterator<ResourceGeneratorResolverWrapper> iterator = resolverRegistry.iterator(); iterator.hasNext();) {
+			ResourceGeneratorResolverWrapper resolver = iterator.next();
+			if(resolver.matchPath(path)){
+				resourceGenerator = resolver.getResourceGenerator();
+				break;
+			}
+		}
+		
+		// Lazy load generator
+		if(resourceGenerator == null){
+			resourceGenerator = loadCommonGenerator(path);
+		}
+		
+		return resourceGenerator;
 	}
+
+	/**
+	 * Returns the resource generator for the path given in parameter
+	 * @param path the path
+	 * @return the resource generator for the path given in parameter
+	 */
+	public BaseResourceGenerator getResourceGenerator(String path){
+		
+		BaseResourceGenerator resourceGenerator = null;
+		for (Iterator<BaseResourceGenerator> iterator = resourceGeneratorRegistry.iterator(); iterator.hasNext();) {
+			BaseResourceGenerator rsGenerator = (BaseResourceGenerator) iterator.next();
+			if(rsGenerator.getResolver().matchPath(path)){
+				resourceGenerator = rsGenerator;
+				break;
+			}
+		}
+		if(resourceGenerator == null){
+			throw new BundlingProcessException("No ResourceGenerator found for the path :"+path);
+		}
+		return resourceGenerator;
+	}
+	
+//	/**
+//	 * Get the key from the mappings that corresponds to the specified path. 
+//	 * @param path the resource path
+//	 * @return the registry key corresponding to the path
+//	 */
+//	private String matchPath(String path) {
+//		
+//		
+//		
+//		String generatorKey = null;
+//		for(Iterator<String> it = prefixRegistry.iterator();it.hasNext() && generatorKey == null;) {
+//			String prefix = it.next();
+//			if(path.startsWith(prefix))
+//				generatorKey = prefix;			
+//		}	
+//		// Lazy load generator
+//		if(null != generatorKey && !registry.containsKey(generatorKey))
+//			loadGenerator(generatorKey);
+//		
+//		return generatorKey;
+//	}
 
 	/**
 	 * Loads the generator which corresponds to the specified path. 
@@ -373,7 +468,7 @@ public class GeneratorRegistry {
 	 */
 	public void loadGeneratorIfNeeded(String path) {
 		
-		matchPath(path);
+		resolveResourceGenerator(path);
 	}
 	
 	/**
@@ -384,17 +479,16 @@ public class GeneratorRegistry {
 	public Map<String, VariantSet> getAvailableVariants(String bundle) {
 		
 		Map<String, VariantSet> availableVariants = new TreeMap<String, VariantSet>();
-		String generatorKey = matchPath(bundle);
-		if(generatorKey != null){
-			ResourceGenerator generator = (ResourceGenerator) registry.get(generatorKey);
+		BaseResourceGenerator generator = resolveResourceGenerator(bundle);
+		if(generator != null){
 			if(generator instanceof VariantResourceGenerator){
 				
-				Map<String, VariantSet> tempResult = ((VariantResourceGenerator)generator).getAvailableVariants(bundle.substring(generatorKey.length()));
+				Map<String, VariantSet> tempResult = ((VariantResourceGenerator)generator).getAvailableVariants(generator.getResolver().getResourcePath(bundle));
 				if(tempResult != null){
 					availableVariants = tempResult;
 				}
 			}else if(generator instanceof LocaleAwareResourceGenerator){
-				List<String> availableLocales = ((LocaleAwareResourceGenerator)generator).getAvailableLocales(bundle.substring(generatorKey.length()));
+				List<String> availableLocales = ((LocaleAwareResourceGenerator)generator).getAvailableLocales(generator.getResolver().getResourcePath(bundle));
 				if(availableLocales != null){
 					VariantSet variantSet = new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "", availableLocales);
 					availableVariants.put(JawrConstant.LOCALE_VARIANT_TYPE, variantSet);
@@ -413,12 +507,11 @@ public class GeneratorRegistry {
 	public Set<String> getGeneratedResourceVariantTypes(String path) {
 		
 		Set<String> variantTypes = new HashSet<String>();
-		String generatorKey = matchPath(path);
-		if(generatorKey != null){
-			ResourceGenerator generator = (ResourceGenerator) registry.get(generatorKey);
+		BaseResourceGenerator generator = resolveResourceGenerator(path);
+		if(generator != null){
 			if(generator instanceof VariantResourceGenerator){
 				
-				Set<String> tempResult = ((VariantResourceGenerator)generator).getAvailableVariants(path.substring(generatorKey.length())).keySet();
+				Set<String> tempResult = ((VariantResourceGenerator)generator).getAvailableVariants(generator.getResolver().getResourcePath(path)).keySet();
 				if(tempResult != null){
 					variantTypes = tempResult;
 				}
@@ -440,8 +533,8 @@ public class GeneratorRegistry {
 	
 		boolean isHandlingCssImage = false;
 		
-		String generatorKey = matchPath(cssResourcePath);
-		if(generatorKey != null && cssImageResourceGeneratorPrefixRegistry.contains(generatorKey)){
+		BaseResourceGenerator generator = resolveResourceGenerator(cssResourcePath);
+		if(generator != null && cssImageResourceGeneratorRegistry.contains(generator)){
 			isHandlingCssImage = true;
 		}
 		
@@ -457,8 +550,8 @@ public class GeneratorRegistry {
 	
 		boolean isGeneratedImage = false;
 		
-		String generatorKey = matchPath(imgResourcePath);
-		if(generatorKey != null && imageResourceGeneratorPrefixRegistry.contains(generatorKey)){
+		BaseResourceGenerator generator = resolveResourceGenerator(imgResourcePath);
+		if(generator != null && imageResourceGeneratorRegistry.contains(generator)){
 			isGeneratedImage = true;
 		}
 		

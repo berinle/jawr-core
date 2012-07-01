@@ -5,17 +5,17 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import net.jawr.web.resource.handler.reader.ServletContextResourceReaderHandler;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import test.net.jawr.web.FileUtils;
 import test.net.jawr.web.servlet.mock.MockServletContext;
 
@@ -84,7 +84,7 @@ public class ServletContextResourceBundleHandlerTest {
 	private void initRsReader(Properties properties) throws IOException {
 		MockServletContext ctx = new MockServletContext(workDir, tmpDir);
 	    GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-	    JawrConfig config = new JawrConfig(properties);
+	    JawrConfig config = new JawrConfig("js", properties);
 	    config.setGeneratorRegistry(generatorRegistry);
 	    generatorRegistry.setConfig(config);
 	    rsHandler = new ServletContextResourceReaderHandler(ctx, config, generatorRegistry);

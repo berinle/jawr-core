@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import net.jawr.web.resource.bundle.renderer.JavascriptHTMLBundleLinkRenderer;
 /**
  * Implementation of a jsp taglib AbstractResourceBundleTag used to render javascript bundles. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class JavascriptBundleTag extends AbstractResourceBundleTag {
@@ -29,6 +29,9 @@ public class JavascriptBundleTag extends AbstractResourceBundleTag {
 	/** The serial version UID */
 	private static final long serialVersionUID = 5087323727715427593L;
 
+	/** The defer attribute */
+	protected boolean defer;
+	
 	/* (non-Javadoc)
 	 * @see net.jawr.web.taglib.AbstractResourceBundleTag#getResourceHandlerAttributeName()
 	 */
@@ -44,7 +47,7 @@ public class JavascriptBundleTag extends AbstractResourceBundleTag {
 	protected BundleRenderer createRenderer(ResourceBundlesHandler rsHandler,
 			Boolean useRandomParam) {
 		
-		return  new JavascriptHTMLBundleLinkRenderer(rsHandler, useRandomParam);
+		return  new JavascriptHTMLBundleLinkRenderer(rsHandler, useRandomParam, defer);
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,10 @@ import java.io.InputStream;
 import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
+import net.jawr.web.resource.bundle.generator.ResourceGenerator;
 import net.jawr.web.resource.bundle.generator.StreamResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 
 /**
  * This class defines the resource generator which loads image resources from the classpath.
@@ -28,6 +31,9 @@ import net.jawr.web.resource.bundle.generator.StreamResourceGenerator;
  */
 public class ClassPathImgResourceGenerator implements StreamResourceGenerator {
 
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
+	
 	/** The classpath generator helper */
 	private ClassPathGeneratorHelper helper;
 	
@@ -36,6 +42,23 @@ public class ClassPathImgResourceGenerator implements StreamResourceGenerator {
 	 */
 	public ClassPathImgResourceGenerator() {
 		helper = new ClassPathGeneratorHelper();
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.CLASSPATH_RESOURCE_BUNDLE_PREFIX);
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
+	 */
+	public ResourceGeneratorResolver getResolver() {
+		
+		return resolver;
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getDebugModeRequestPath()
+	 */
+	public String getDebugModeRequestPath() {
+		
+		return ResourceGenerator.IMG_DEBUGPATH;
 	}
 	
 	/* (non-Javadoc)
@@ -50,12 +73,5 @@ public class ClassPathImgResourceGenerator implements StreamResourceGenerator {
 		
 		return is;
 	}
-
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.StreamResourceGenerator#getMappingPrefix()
-	 */
-	public String getMappingPrefix() {
-		
-		return GeneratorRegistry.CLASSPATH_RESOURCE_BUNDLE_PREFIX;
-	}
+	
 }

@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import junit.framework.TestCase;
+import net.jawr.web.DebugMode;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
@@ -35,6 +36,7 @@ import net.jawr.web.resource.bundle.handler.ClientSideHandlerGenerator;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler;
 import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
+import net.jawr.web.resource.bundle.variant.VariantSet;
 import net.jawr.web.resource.handler.reader.ResourceReader;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import test.net.jawr.web.FileUtils;
@@ -57,7 +59,7 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 		// Bundle path (full url would be: /servletMapping/prefix/css/bundle.css
 		final String bundlePath = "/css/bundle.css";
 		
-		config = new JawrConfig(new Properties());
+		config = new JawrConfig("css", new Properties());
 		ServletContext servletContext = new MockServletContext();
 		
 		String[] paths = new String[]{"/temp.css", "jar:/style.css"};
@@ -72,7 +74,7 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 		generatorRegistry.setResourceReaderHandler(ctx.getResourceReaderHandler());
 		
 		// Set up the Image servlet Jawr config
-		JawrConfig imgServletJawrConfig = new JawrConfig(new Properties());
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", new Properties());
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		ResourceReaderHandler imgHandler = getResourceReaderHandler();
 		generatorRegistry.setResourceReaderHandler(imgHandler);
@@ -128,8 +130,8 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 					/* (non-Javadoc)
 					 * @see test.net.jawr.web.resource.bundle.MockJoinableResourceBundle#getVariants()
 					 */
-					public Map getVariants() {
-						return new HashMap();
+					public Map<String, VariantSet> getVariants() {
+						return new HashMap<String, VariantSet>();
 					}
 				};
 				
@@ -144,7 +146,8 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 				
 			}
 			
-			public List getContextBundles() {
+			@Override
+			public List<JoinableResourceBundle> getContextBundles() {
 				return null;
 			}
 			
@@ -190,7 +193,7 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 			}
 
 			public ResourceBundlePathsIterator getGlobalResourceBundlePaths(
-					boolean debugMode,
+					DebugMode debugMode,
 					ConditionalCommentCallbackHandler commentCallbackHandler,
 					Map<String, String> variants) {
 				return null;
@@ -204,7 +207,7 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 			}
 
 			public ResourceBundlePathsIterator getBundlePaths(
-					boolean debugMode, String bundleId,
+					DebugMode debugMode, String bundleId,
 					ConditionalCommentCallbackHandler commentCallbackHandler,
 					Map<String, String> variants) {
 				return null;
@@ -245,7 +248,7 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 				return null;
 			}
 			
-			public Set getResourceNames(String dirPath) {
+			public Set<String> getResourceNames(String dirPath) {
 				return null;
 			}
 			
@@ -291,6 +294,14 @@ public class IECssBundleGeneratorTestCase extends TestCase {
 			
 			public void addResourceReaderToEnd(ResourceReader rd) {
 				
+			}
+
+			@Override
+			public Reader getResource(String resourceName,
+					boolean processingBundle, List<Class<?>> excludedReader)
+					throws ResourceNotFoundException {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}

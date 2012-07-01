@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -16,47 +16,111 @@ package net.jawr.web.resource.bundle.generator.img;
 import java.io.InputStream;
 
 import net.jawr.web.config.JawrConfig;
+import net.jawr.web.resource.bundle.generator.ConfigurationAwareResourceGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
+import net.jawr.web.resource.bundle.generator.PostInitializationAwareResourceGenerator;
+import net.jawr.web.resource.bundle.generator.ResourceGenerator;
 import net.jawr.web.resource.bundle.generator.StreamResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 import net.jawr.web.resource.bundle.global.preprocessor.css.smartsprites.CssSmartSpritesResourceReader;
-import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import net.jawr.web.resource.handler.reader.StreamResourceReader;
+import net.jawr.web.resource.handler.reader.WorkingDirectoryLocationAware;
 
 /**
  * The sprite generator.
  * 
  * @author Ibrahim CHAEHOI
- *
+ * 
  */
-public class SpriteGenerator implements StreamResourceGenerator {
+public class SpriteGenerator implements StreamResourceGenerator,
+		ConfigurationAwareResourceGenerator,
+		WorkingDirectoryLocationAware,
+		PostInitializationAwareResourceGenerator {
 
 	/** The stream resource handle for image sprite */
-	private final StreamResourceReader rd;
+	private StreamResourceReader rd;
+
+	/** The working directory */
+	private String workingDirectory;
+	
+	/** The resource generator resolver */
+	private ResourceGeneratorResolver resolver;
+
+	/** The jawr config */
+	private JawrConfig config;
 	
 	/**
 	 * Constructor
-	 * @param rsHandler the resource handler
-	 * @param config the config
+	 * 
+	 * @param rsHandler
+	 *            the resource handler
+	 * @param config
+	 *            the config
 	 */
-	public SpriteGenerator(ResourceReaderHandler rsHandler, JawrConfig config) {
-		rd = new CssSmartSpritesResourceReader(rsHandler.getWorkingDirectory(), config); // TODO does it work with the build time feature??
+	public SpriteGenerator() {
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.SPRITE_GENERATOR_PREFIX);
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.StreamResourceGenerator#createResourceAsStream(net.jawr.web.resource.bundle.generator.GeneratorContext)
+	 * @see net.jawr.web.resource.handler.reader.WorkingDirectoryLocationAware#setWorkingDirectory(java.lang.String)
+	 */
+	public void setWorkingDirectory(String workingDir) {
+		workingDirectory = workingDir;
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.ConfigurationAwareResourceGenerator#setConfig(net.jawr.web.config.JawrConfig)
+	 */
+	public void setConfig(JawrConfig config) {
+		
+		this.config = config;
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.PostInitializationAwareResourceGenerator#afterPropertiesSet()
+	 */
+	public void afterPropertiesSet() {
+		
+		rd = new CssSmartSpritesResourceReader(workingDirectory, config);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.jawr.web.resource.bundle.generator.StreamResourceGenerator#
+	 * createResourceAsStream
+	 * (net.jawr.web.resource.bundle.generator.GeneratorContext)
 	 */
 	public InputStream createResourceAsStream(GeneratorContext context) {
-		
+
 		String path = context.getPath();
 		return rd.getResourceAsStream(path);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.PrefixedResourceGenerator#getMappingPrefix()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher
+	 * ()
 	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.SPRITE_GENERATOR_PREFIX;
+	public ResourceGeneratorResolver getResolver() {
+
+		return resolver;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#
+	 * getDebugModeRequestPath()
+	 */
+	public String getDebugModeRequestPath() {
+
+		return ResourceGenerator.IMG_DEBUGPATH;
+	}
+
 	
 }

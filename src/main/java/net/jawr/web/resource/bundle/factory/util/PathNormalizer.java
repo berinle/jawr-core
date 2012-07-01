@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Matt Ruby, Ibrahim Chaehoi
+ * Copyright 2007-2011 Jordi Hern√°ndez Sell√©s, Matt Ruby, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import net.jawr.web.util.StringUtils;
 /**
  * Utility class to work with relative paths. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Matt Ruby
  * @author Ibrahim Chaehoi
  *
@@ -130,6 +130,11 @@ public final class PathNormalizer {
 			resultPath = resultPath.substring(realPathStartIdx);
 		}
 		
+		// Remove leading slash if it's a bundle containing a generator prefix
+		if(resultPath.startsWith("/") && resultPath.contains(":")){
+			resultPath = resultPath.substring(1);
+		}
+		
 		result[0] = resultPath;
 		result[1] = variantPrefix;
 		result[2] = hashcode;
@@ -165,7 +170,11 @@ public final class PathNormalizer {
 	 * @return the normalized path
 	 */
 	public static String asDirPath(String path) {
-		return(JawrConstant.URL_SEPARATOR + normalizePath(path) + JawrConstant.URL_SEPARATOR);
+		String dirPath = path;
+		if(!path.equals(JawrConstant.URL_SEPARATOR)){
+			dirPath = JawrConstant.URL_SEPARATOR + normalizePath(path) + JawrConstant.URL_SEPARATOR;  
+		}
+		return dirPath;
 	}
 	
 	/**

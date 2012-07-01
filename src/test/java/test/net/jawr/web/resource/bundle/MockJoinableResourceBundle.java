@@ -199,4 +199,14 @@ public class MockJoinableResourceBundle implements JoinableResourceBundle {
 		
 	}
 
+	@Override
+	public List<String> getItemDebugPathList() {
+		return null;
+	}
+
+	@Override
+	public List<String> getItemDebugPathList(Map<String, String> variants) {
+		return null;
+	}
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Jordi Hern·ndez SellÈs
+ * Copyright 2008-2012 Jordi Hern√°ndez Sell√©s
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -20,23 +20,37 @@ import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.bundle.generator.AbstractJavascriptGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
-import net.jawr.web.resource.bundle.generator.ResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 
 /**
  * This class defines the resource generator, which loads Javascript resources from the classpath.  
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
+ * @author Ibrahim Chaehoi
  */
-public class ClasspathJSGenerator extends AbstractJavascriptGenerator implements ResourceGenerator {
+public class ClasspathJSGenerator extends AbstractJavascriptGenerator {
 
 	/** The classpath generator helper */
 	private ClassPathGeneratorHelper helper;
+	
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
 	
 	/**
 	 * Constructor
 	 */
 	public ClasspathJSGenerator() {
 		helper = new ClassPathGeneratorHelper();
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.CLASSPATH_RESOURCE_BUNDLE_PREFIX);
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
+	 */
+	public ResourceGeneratorResolver getResolver() {
+		
+		return resolver;
 	}
 	
 	/* (non-Javadoc)
@@ -49,13 +63,6 @@ public class ClasspathJSGenerator extends AbstractJavascriptGenerator implements
 			rd = helper.createResource(context);
 		}
 		return rd;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getMappingPrefix()
-	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.CLASSPATH_RESOURCE_BUNDLE_PREFIX;
 	}
 
 }

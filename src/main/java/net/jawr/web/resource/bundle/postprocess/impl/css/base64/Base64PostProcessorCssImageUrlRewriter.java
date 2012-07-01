@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -26,6 +26,7 @@ import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.ImageResourcesHandler;
 import net.jawr.web.resource.bundle.IOUtils;
+import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.factory.util.RegexUtil;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
@@ -181,6 +182,7 @@ public class Base64PostProcessorCssImageUrlRewriter extends
 			while (urlMatcher.find()) {
 				
 				String url = urlMatcher.group();
+		
 				
 				// Skip sprite encoding if it is configured so
 				if(!encodeSprite && url.indexOf(GeneratorRegistry.SPRITE_GENERATOR_PREFIX+GeneratorRegistry.PREFIX_SEPARATOR) != -1){
@@ -223,8 +225,13 @@ public class Base64PostProcessorCssImageUrlRewriter extends
 		String imgUrl = url;
 		String browser = status.getVariant(JawrConstant.BROWSER_VARIANT_TYPE);
 
-		// Skip base64 encoding if it has ben deactivated
-		if (skipBase64Encoding) {
+		if(BundleProcessingStatus.FILE_PROCESSING_TYPE.equals(status.getProcessingType())){
+			GeneratorRegistry imgRsGeneratorRegistry = imgRsHandler.getJawrConfig().getGeneratorRegistry();
+			if(!imgRsGeneratorRegistry.isGeneratedImage(url)){
+				imgUrl = PathNormalizer.getRelativeWebPath(PathNormalizer
+						.getParentPath(newCssPath), url);
+			}
+		}else if (skipBase64Encoding) { // Skip base64 encoding if it has ben deactivated
 			imgUrl = super.rewriteURL(status, imgUrl, imgServletPath,
 					newCssPath, imgRsHandler);
 		} else {

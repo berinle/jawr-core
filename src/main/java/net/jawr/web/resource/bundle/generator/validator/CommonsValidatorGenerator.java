@@ -1,5 +1,5 @@
 /**
- * Copyright 2008  Jordi Hern·ndez SellÈs
+ * Copyright 2008-2012  Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundlingProcessException;
@@ -36,7 +36,8 @@ import net.jawr.web.resource.bundle.generator.AbstractJavascriptGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.generator.JavascriptStringUtil;
-import net.jawr.web.resource.bundle.generator.ResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 import net.jawr.web.resource.bundle.locale.message.MessageBundleScriptCreator;
 
 import org.apache.commons.validator.Arg;
@@ -53,17 +54,22 @@ import org.xml.sax.SAXException;
 /**
  * Generates validation javascript using the apache commons validator. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
+ * @author Ibrahim Chaehoi
  *
  */
-public class CommonsValidatorGenerator extends AbstractJavascriptGenerator implements ResourceGenerator {
+public class CommonsValidatorGenerator extends AbstractJavascriptGenerator {
 	private static final Logger LOGGER = Logger.getLogger(CommonsValidatorGenerator.class.getName());
 	private static final String STATIC_JAVASCRIPT_KEY = "_static";
 
 	private Map<String, ValidatorResources> validatorResourcesMap;
 	
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
+	
 	public CommonsValidatorGenerator() {
 		validatorResourcesMap = new HashMap<String, ValidatorResources>();
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.COMMONS_VALIDATOR_PREFIX);
 	}
 	
 	/* (non-Javadoc)
@@ -106,10 +112,11 @@ public class CommonsValidatorGenerator extends AbstractJavascriptGenerator imple
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getMappingPrefix()
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
 	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.COMMONS_VALIDATOR_PREFIX;
+	public ResourceGeneratorResolver getResolver() {
+	
+		return resolver;
 	}
 	
 	/**
@@ -439,4 +446,6 @@ public class CommonsValidatorGenerator extends AbstractJavascriptGenerator imple
                 }
             }
         };
+
+	
 }

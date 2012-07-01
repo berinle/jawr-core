@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2009 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
  * Each subdir will generate a RasourceBundle that includes every file and directory
  * below it. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  *
  */
@@ -50,7 +50,7 @@ public class ResourceBundleDirMapper extends AbstractResourceMapper{
 	 * @param resourceExtension Expected resource extension
 	 * @param excludedPaths Paths to exclude from the mappings. 
 	 */
-	public ResourceBundleDirMapper(String baseDir, ResourceReaderHandler rsHandler, List<JoinableResourceBundle> currentBundles,String resourceExtension, Set<String> excludedPaths) {
+	public ResourceBundleDirMapper(String baseDir, ResourceReaderHandler rsHandler, List<JoinableResourceBundle> currentBundles, String resourceExtension, Set<String> excludedPaths) {
 		super(baseDir,rsHandler,currentBundles,resourceExtension);
 		this.excludedPaths = initExcludedPathList(excludedPaths);
 	}

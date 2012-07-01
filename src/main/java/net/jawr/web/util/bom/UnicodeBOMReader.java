@@ -1,3 +1,16 @@
+/**
+ * Copyright 2012 Ibrahim Chaehoi
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ * 
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package net.jawr.web.util.bom;
 
 import java.io.IOException;
@@ -65,24 +78,23 @@ import java.security.InvalidParameterException;
  * <code>Reader</code> object.
  * </p>
  * 
- * @author Ibrahim CHAEHOI Inspired from UnicodeBOMInputStream from Gregory
+ * @author Ibrahim CHAEHOI inspired from UnicodeBOMInputStream from Gregory
  *         Pakosz
  */
 public class UnicodeBOMReader extends Reader {
-	
+
 	private final PushbackReader in;
 	private final Charset charset;
 	private final BOM bom;
 	private boolean skipped = false;
 
-	
 	/**
 	 * Constructs a new <code>UnicodeBOMInputStream</code> that wraps the
 	 * specified <code>InputStream</code>.
 	 * 
 	 * @param inputStream
 	 *            an <code>InputStream</code>.
-	 *            
+	 * 
 	 * @param strCharset
 	 *            a charset.
 	 * 
@@ -90,12 +102,13 @@ public class UnicodeBOMReader extends Reader {
 	 *             on reading from the specified <code>InputStream</code> when
 	 *             trying to detect the Unicode BOM.
 	 */
-	public UnicodeBOMReader(final Reader reader, final String strCharset) throws IOException
+	public UnicodeBOMReader(final Reader reader, final String strCharset)
+			throws IOException
 
 	{
 		this(reader, Charset.forName(strCharset));
 	}
-	
+
 	/**
 	 * Constructs a new <code>UnicodeBOMInputStream</code> that wraps the
 	 * specified <code>InputStream</code>.
@@ -105,13 +118,13 @@ public class UnicodeBOMReader extends Reader {
 	 * 
 	 * @param strCharset
 	 *            a charset.
-	 *            
-     * @throws IOException
+	 * 
+	 * @throws IOException
 	 *             on reading from the specified <code>InputStream</code> when
 	 *             trying to detect the Unicode BOM.
 	 */
-	public UnicodeBOMReader(final Reader reader, final Charset pCharset) throws
-			IOException
+	public UnicodeBOMReader(final Reader reader, final Charset pCharset)
+			throws IOException
 
 	{
 		if (reader == null)
@@ -121,17 +134,17 @@ public class UnicodeBOMReader extends Reader {
 		if (pCharset == null)
 			throw new InvalidParameterException(
 					"invalid charset: null is not allowed");
-		
+
 		in = new PushbackReader(reader, 4);
 		charset = pCharset;
-		
+
 		final char[] chBom = new char[4];
 		final int read = in.read(chBom);
 
 		CharBuffer cbuf = CharBuffer.wrap(chBom);
 		ByteBuffer bbuf = charset.encode(cbuf);
 		final byte[] bom = bbuf.array();
-		
+
 		switch (read) {
 		case 4:
 			if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)
@@ -192,13 +205,13 @@ public class UnicodeBOMReader extends Reader {
 	 */
 	public final synchronized UnicodeBOMReader skipBOM() throws IOException {
 		if (!skipped) {
-			
+
 			ByteBuffer bbuf = ByteBuffer.wrap(bom.getBytes());
 			CharBuffer cbuf = charset.decode(bbuf);
 			char[] bom = cbuf.array();
 			int length = 0;
 			for (int i = 0; i < bom.length; i++) {
-				if(bom[i] == 0){
+				if (bom[i] == 0) {
 					break;
 				}
 				length++;
@@ -214,22 +227,22 @@ public class UnicodeBOMReader extends Reader {
 	 * 
 	 * @return true if a BOM has been detected
 	 */
-	public boolean hasBOM(){
-		
+	public boolean hasBOM() {
+
 		return !bom.equals(BOM.NONE);
 	}
-	
+
 	@Override
 	public int read(char[] cbuf, int off, int len) throws IOException {
-		return in.read(cbuf,off,len);
+		return in.read(cbuf, off, len);
 	}
-	
+
 	public int read(CharBuffer target) throws IOException {
 		return in.read(target);
 	}
 
 	public int read() throws IOException {
-		
+
 		return in.read();
 	}
 
@@ -260,8 +273,5 @@ public class UnicodeBOMReader extends Reader {
 	public void close() throws IOException {
 		in.close();
 	}
-
-	
-	
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2010 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -28,7 +28,8 @@ import net.jawr.web.resource.bundle.generator.AbstractJavascriptGenerator;
 import net.jawr.web.resource.bundle.generator.ConfigurationAwareResourceGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
-import net.jawr.web.resource.bundle.generator.ResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 import net.jawr.web.resource.bundle.generator.variant.VariantResourceGenerator;
 import net.jawr.web.resource.bundle.locale.message.MessageBundleScriptCreator;
 import net.jawr.web.resource.bundle.variant.VariantSet;
@@ -39,11 +40,11 @@ import org.apache.log4j.Logger;
  * A generator that creates a script from message bundles.
  * The generated script can be used to reference the message literals easily from javascript.  
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  *
  */
-public class ResourceBundleMessagesGenerator extends AbstractJavascriptGenerator implements ResourceGenerator, VariantResourceGenerator, ConfigurationAwareResourceGenerator {
+public class ResourceBundleMessagesGenerator extends AbstractJavascriptGenerator implements VariantResourceGenerator, ConfigurationAwareResourceGenerator {
 	
 	/** The logger */
 	private static final Logger LOGGER = Logger.getLogger(ResourceBundleMessagesGenerator.class);
@@ -62,6 +63,17 @@ public class ResourceBundleMessagesGenerator extends AbstractJavascriptGenerator
 	
 	/** The flag indicating if we are in a grails war is deployed */
 	private boolean grailsWarDeployed;
+	
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
+	
+	/** 
+	 * Constructor
+	 */
+	public ResourceBundleMessagesGenerator() {
+		
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.MESSAGE_BUNDLE_PREFIX);
+	}
 	
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.generator.ConfigurationAwareResourceGenerator#setConfig(net.jawr.web.config.JawrConfig)
@@ -97,11 +109,13 @@ public class ResourceBundleMessagesGenerator extends AbstractJavascriptGenerator
 	}
 
 	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getMappingPrefix()
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
 	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.MESSAGE_BUNDLE_PREFIX;
+	public ResourceGeneratorResolver getResolver() {
+		
+		return resolver;
 	}
+	
 	
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getDebugModeBuildTimeGenerationPath(java.lang.String)
@@ -147,4 +161,5 @@ public class ResourceBundleMessagesGenerator extends AbstractJavascriptGenerator
 		return variants;
 	}
 
+	
 }

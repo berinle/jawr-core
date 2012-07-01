@@ -48,10 +48,10 @@ public class MockServletContext implements ServletContext {
 	private String baseDir;
 
 	/** The map attributes */
-	private Map initParameters = new HashMap();
+	private Map<String, String> initParameters = new HashMap<String, String>();
 
 	/** The map attributes */
-	private Map attributes = new HashMap();
+	private Map<String, Object> attributes = new HashMap<String, Object>();
 
 	/**
 	 * Constructor
@@ -86,7 +86,8 @@ public class MockServletContext implements ServletContext {
 	 * 
 	 * @see javax.servlet.ServletContext#getAttributeNames()
 	 */
-	public Enumeration getAttributeNames() {
+	@SuppressWarnings("unchecked")
+	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration(attributes.keySet().iterator());
 	}
 
@@ -113,7 +114,8 @@ public class MockServletContext implements ServletContext {
 	 * 
 	 * @see javax.servlet.ServletContext#getInitParameterNames()
 	 */
-	public Enumeration getInitParameterNames() {
+	@SuppressWarnings("unchecked")
+	public Enumeration<String> getInitParameterNames() {
 		return new IteratorEnumeration(attributes.keySet().iterator());
 	}
 
@@ -210,7 +212,7 @@ public class MockServletContext implements ServletContext {
 	 * 
 	 * @see javax.servlet.ServletContext#getResourcePaths(java.lang.String)
 	 */
-	public Set getResourcePaths(String path) {
+	public Set<String> getResourcePaths(String path) {
 
 		path = path.replace('/', File.separatorChar);
 		File resource = new File(baseDir, path);
@@ -231,7 +233,7 @@ public class MockServletContext implements ServletContext {
 			if (isDirectory(resArray[i]))
 				resArray[i] += '/';
 		}
-		Set ret = new HashSet();
+		Set<String> ret = new HashSet<String>();
 		ret.addAll(Arrays.asList(resArray));
 
 		return ret;
@@ -279,7 +281,7 @@ public class MockServletContext implements ServletContext {
 	 * 
 	 * @see javax.servlet.ServletContext#getServletNames()
 	 */
-	public Enumeration getServletNames() {
+	public Enumeration<String> getServletNames() {
 		throw new RuntimeException("operation not supported");
 	}
 
@@ -288,7 +290,7 @@ public class MockServletContext implements ServletContext {
 	 * 
 	 * @see javax.servlet.ServletContext#getServlets()
 	 */
-	public Enumeration getServlets() {
+	public Enumeration<?> getServlets() {
 		throw new RuntimeException("operation not supported");
 	}
 

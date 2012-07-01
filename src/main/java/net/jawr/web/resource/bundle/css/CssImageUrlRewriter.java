@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -19,8 +19,10 @@ import java.util.regex.Pattern;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
+import net.jawr.web.resource.ImageResourcesHandler;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.factory.util.RegexUtil;
+import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.util.StringUtils;
 
 /**
@@ -55,6 +57,9 @@ public class CssImageUrlRewriter {
 	public static final Pattern URL_PATTERN = Pattern.compile(URL_REGEXP, // Any number of whitespaces, then ')'
 			Pattern.CASE_INSENSITIVE); // works with 'URL('
 
+	/** The image resource handler */
+	protected ImageResourcesHandler imgRsHandler;
+	
 	/** The context path */
 	protected String contextPath;
 	
@@ -71,6 +76,9 @@ public class CssImageUrlRewriter {
 	 */
 	public CssImageUrlRewriter(JawrConfig config) {
 		setContextPath(config.getProperty(JawrConstant.JAWR_CSS_URL_REWRITER_CONTEXT_PATH));
+		// Retrieve the image servlet mapping
+		imgRsHandler = (ImageResourcesHandler) config.getContext().getAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE);
+		
 	}
 
 	/**
@@ -182,12 +190,23 @@ public class CssImageUrlRewriter {
 	protected String getRewrittenImagePath(String originalCssPath, String newCssPath, String url)
 			throws IOException {
 
-		// Here we generate the full path of the CSS image
-		// to be able to define the relative path from the full bundle path
-		String fullImgPath = PathNormalizer.concatWebPath(originalCssPath, url);
+		String imgUrl = null;
 		
-		String imgUrl = PathNormalizer.getRelativeWebPath(PathNormalizer
-				.getParentPath(newCssPath), fullImgPath);
+		// Retrieve the current CSS file from which the CSS image is referenced
+		boolean generatedImg = false;
+		if(imgRsHandler != null){
+			GeneratorRegistry imgRsGeneratorRegistry = imgRsHandler.getJawrConfig().getGeneratorRegistry();
+			generatedImg = imgRsGeneratorRegistry.isGeneratedImage(url);
+		}
+		
+		String fullImgPath = PathNormalizer.concatWebPath(originalCssPath, url);
+		if(!generatedImg){
+			imgUrl = PathNormalizer.getRelativeWebPath(PathNormalizer
+					.getParentPath(newCssPath), fullImgPath);
+				
+		}else{
+			imgUrl = url;
+		}
 		
 		return imgUrl;
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2010  Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2008-2010  Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 /**
  * Utilities to access resources from the classpath
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class ClassLoaderResourceUtils {
@@ -170,14 +170,24 @@ public class ClassLoaderResourceUtils {
 	 * @return
 	 */
 	public static Object buildObjectInstance(String classname) {
-		Object rets = null;
+		
 		Class<?> clazz = getClass(classname);
+		return buildObjectInstance(clazz);
+	}
+	
+	/**
+	 * Builds a class instance using reflection, by using its class. The class must have a zero-arg constructor. 
+	 * @param clazz the class to build an instance of. 
+	 * @return
+	 */
+	public static Object buildObjectInstance(Class<?> clazz) {
+		Object rets = null;
 		try {
 			rets = clazz.newInstance();
 		}catch(Exception e) {
 				throw new BundlingProcessException(e.getMessage() 
 											+ " [The custom class " 
-											+ classname 
+											+ clazz.getName() 
 											+ " could not be instantiated, check wether it is available on the classpath and" 
 											+ " verify that it has a zero-arg constructor].\n" 
 											+ " The specific error message is: " + e.getClass().getName() + ":" + e.getMessage(),e);			

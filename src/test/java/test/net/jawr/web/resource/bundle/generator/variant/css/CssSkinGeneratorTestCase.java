@@ -46,20 +46,22 @@ import test.net.jawr.web.servlet.mock.MockServletContext;
  */
 public class CssSkinGeneratorTestCase extends TestCase {
 
+	private String resourceType = "css";
+	
 	public void testCssSkinGeneratorBasic() throws Exception {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ResourceBrowser rsBrowser = new FileSystemResourceReader(baseDir, config);
 		CssSkinGenerator generator = new CssSkinGenerator(rsBrowser, config);
-		Map variantMap = generator.getAvailableVariants("/css/panel/basic/default/temp1.css");
+		Map<String, VariantSet> variantMap = generator.getAvailableVariants("/css/panel/basic/default/temp1.css");
 		assertFalse(variantMap.isEmpty());
-		Set skinVariants = (Set) variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
+		Set<String> skinVariants = variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
 		assertNotNull(skinVariants);
 		assertEquals(3, skinVariants.size());
 		assertTrue(skinVariants.contains("default"));
@@ -71,7 +73,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -79,9 +81,9 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ResourceBrowser rsBrowser = new FileSystemResourceReader(baseDir, config);
 		CssSkinGenerator generator = new CssSkinGenerator(rsBrowser, config);
-		Map variantMap = generator.getAvailableVariants("/css/panel/basic/default/border/squareBorder/borderSquare1.css");
+		Map<String, VariantSet> variantMap = generator.getAvailableVariants("/css/panel/basic/default/border/squareBorder/borderSquare1.css");
 		assertFalse(variantMap.isEmpty());
-		Set skinVariants = (Set) variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
+		Set<String> skinVariants = variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
 		assertNotNull(skinVariants);
 		assertEquals(3, skinVariants.size());
 		assertTrue(skinVariants.contains("default"));
@@ -93,7 +95,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -101,11 +103,11 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ResourceBrowser rsBrowser = new FileSystemResourceReader(baseDir, config);
 		CssSkinGenerator generator = new CssSkinGenerator(rsBrowser, config);
-		Map variantMap = generator.getAvailableVariants("/css/panel/skin_locale/default/en_US/temp1.css");
+		Map<String, VariantSet> variantMap = generator.getAvailableVariants("/css/panel/skin_locale/default/en_US/temp1.css");
 		assertFalse(variantMap.isEmpty());
 		
 		// check skin variants 
-		Set skinVariants = (Set) variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
+		Set<String> skinVariants = variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
 		assertNotNull(skinVariants);
 		assertEquals(3, skinVariants.size());
 		assertTrue(skinVariants.contains("default"));
@@ -113,7 +115,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		assertTrue(skinVariants.contains("summer"));
 		
 		// check locale variants
-		Set localeVariants = (Set) variantMap.get(JawrConstant.LOCALE_VARIANT_TYPE);
+		Set<String> localeVariants = variantMap.get(JawrConstant.LOCALE_VARIANT_TYPE);
 		assertNotNull(localeVariants);
 		assertEquals(3, localeVariants.size());
 		assertTrue(localeVariants.contains("en_US"));
@@ -127,7 +129,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/locale_skin/en_US/default/");
 		props.setProperty("jawr.css.skin.type.mapping", "locale_skin");
 		
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -135,11 +137,11 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ResourceBrowser rsBrowser = new FileSystemResourceReader(baseDir, config);
 		CssSkinGenerator generator = new CssSkinGenerator(rsBrowser, config);
-		Map variantMap = generator.getAvailableVariants("/css/panel/locale_skin/en_US/default/temp1.css");
+		Map<String, VariantSet> variantMap = generator.getAvailableVariants("/css/panel/locale_skin/en_US/default/temp1.css");
 		assertFalse(variantMap.isEmpty());
 		
 		// check skin variants 
-		Set skinVariants = (Set) variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
+		Set<String> skinVariants = variantMap.get(JawrConstant.SKIN_VARIANT_TYPE);
 		assertNotNull(skinVariants);
 		assertEquals(3, skinVariants.size());
 		assertTrue(skinVariants.contains("default"));
@@ -147,7 +149,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		assertTrue(skinVariants.contains("summer"));
 		
 		// check locale variants
-		Set localeVariants = (Set) variantMap.get(JawrConstant.LOCALE_VARIANT_TYPE);
+		Set<String> localeVariants = variantMap.get(JawrConstant.LOCALE_VARIANT_TYPE);
 		assertNotNull(localeVariants);
 		assertEquals(3, localeVariants.size());
 		assertTrue(localeVariants.contains("en_US"));
@@ -159,7 +161,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/,/css/panel/basic/default/border/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -178,7 +180,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US,/css/panel/skin_locale/default/fr_FR");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -197,7 +199,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -208,11 +210,11 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/basic/default/temp1.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "default");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -226,7 +228,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -236,11 +238,11 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/basic/default/temp2.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -254,7 +256,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/basic/default/");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -265,11 +267,11 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/basic/default/temp1.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -283,7 +285,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -294,13 +296,13 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/skin_locale/default/en_US/temp1.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "default");
 		variantMap.put(JawrConstant.LOCALE_VARIANT_TYPE, "en_US");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
-		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet(Arrays.asList(new String[]{"en_US","fr_FR","es_ES"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
+		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet<String>(Arrays.asList("en_US","fr_FR","es_ES"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -314,24 +316,24 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
-		
+				
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ServletContextResourceReaderHandler rsHandler = createResourceReaderHandler(baseDir, config);
 		
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/skin_locale/default/en_US/temp2.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variantMap.put(JawrConstant.LOCALE_VARIANT_TYPE, "en_US");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
-		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet(Arrays.asList(new String[]{"en_US","fr_FR","es_ES"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
+		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet<String>(Arrays.asList("en_US","fr_FR","es_ES"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -345,24 +347,24 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
-		
+				
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ServletContextResourceReaderHandler rsHandler = createResourceReaderHandler(baseDir, config);
 		
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/skin_locale/default/en_US/temp1.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variantMap.put(JawrConstant.LOCALE_VARIANT_TYPE, "en_US");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
-		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet(Arrays.asList(new String[]{"en_US","fr_FR","es_ES"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
+		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet<String>(Arrays.asList("en_US","fr_FR","es_ES"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -376,24 +378,24 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
-		
+				
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ServletContextResourceReaderHandler rsHandler = createResourceReaderHandler(baseDir, config);
 		
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/skin_locale/default/en_US/temp2.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variantMap.put(JawrConstant.LOCALE_VARIANT_TYPE, "es_ES");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
-		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet(Arrays.asList(new String[]{"en_US","fr_FR","es_ES"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
+		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet<String>(Arrays.asList("en_US","fr_FR","es_ES"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -407,24 +409,24 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		
 		Properties props = new Properties();
 		props.setProperty("jawr.css.skin.default.root.dirs", "/css/panel/skin_locale/default/en_US");
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.CSS_TYPE);
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
-		
+				
 		String baseDir = FileUtils.getClasspathRootDir()+"/generator/variant";
 		ServletContextResourceReaderHandler rsHandler = createResourceReaderHandler(baseDir, config);
 		
 		CssSkinGenerator generator = new CssSkinGenerator(rsHandler, config);
 		
 		GeneratorContext context = new GeneratorContext(config, "/css/panel/skin_locale/default/en_US/temp2.css");
-		Map variantMap = new HashMap();
+		Map<String, String> variantMap = new HashMap<String, String>();
 		variantMap.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variantMap.put(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR");
 		context.setVariantMap(variantMap);
-		Map variantSets = new HashMap();
-		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet(Arrays.asList(new String[]{"default","winter","summer"}))));
-		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet(Arrays.asList(new String[]{"en_US","fr_FR","es_ES"}))));
+		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();
+		variantSets.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", new HashSet<String>(Arrays.asList("default","winter","summer"))));
+		variantSets.put(JawrConstant.LOCALE_VARIANT_TYPE, new VariantSet(JawrConstant.LOCALE_VARIANT_TYPE, "en_US", new HashSet<String>(Arrays.asList("en_US","fr_FR","es_ES"))));
 		context.setVariantSets(variantSets);
 		context.setResourceReaderHandler(rsHandler);
 		Reader rd = generator.createResource(context);
@@ -438,6 +440,7 @@ public class CssSkinGeneratorTestCase extends TestCase {
 		try {
 		    
 		    MockServletContext ctx = new MockServletContext(rootDir, rootDir + "/temp/");
+		    config.setContext(ctx);
 		    GeneratorRegistry generatorRegistry = new GeneratorRegistry();
 		    return new ServletContextResourceReaderHandler(ctx, config, generatorRegistry);
 		} catch (Exception ex) {

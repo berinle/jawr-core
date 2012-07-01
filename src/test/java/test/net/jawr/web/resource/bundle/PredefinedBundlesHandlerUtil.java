@@ -52,7 +52,7 @@ public class PredefinedBundlesHandlerUtil {
 		factory.setBaseDir(baseDir);
 		factory.setBundlesType(type);
 
-		Set customBundles = new HashSet();
+		Set<ResourceBundleDefinition> customBundles = new HashSet<ResourceBundleDefinition>();
 
 		ResourceBundleDefinition def = new ResourceBundleDefinition();
 		def.setMappings(Collections.singletonList(baseDir + "/lib/**"));
@@ -88,7 +88,7 @@ public class PredefinedBundlesHandlerUtil {
 
 		factory.setBundleDefinitions(customBundles);
 		factory.setUseDirMapperFactory(true);
-		Set excludedPaths = new HashSet();
+		Set<String> excludedPaths = new HashSet<String>();
 		excludedPaths.add(baseDir + "/lib");
 		excludedPaths.add(baseDir + "/global");
 		excludedPaths.add(baseDir + "/debug");
@@ -103,16 +103,22 @@ public class PredefinedBundlesHandlerUtil {
 			BundleDependencyException {
 
 		config.getConfigProperties().setProperty("jawr.css.skin.default.root.dirs", "/css/themes/default/");
-		GeneratorRegistry generatorRegistry = new GeneratorRegistry(type);
-		generatorRegistry.setResourceReaderHandler(handler);
-		config.setGeneratorRegistry(generatorRegistry);
-		BundlesHandlerFactory factory = new BundlesHandlerFactory(config);
+		if(config.getGeneratorRegistry() == null){
+			GeneratorRegistry generatorRegistry = new GeneratorRegistry(type);
+			generatorRegistry.setResourceReaderHandler(handler);
+			config.setGeneratorRegistry(generatorRegistry);
+		}
+		
+		// Load the skin generator
+		config.getGeneratorRegistry().loadGeneratorIfNeeded("skin:/temp.css");
+	    
+	    BundlesHandlerFactory factory = new BundlesHandlerFactory(config);
 		factory.setResourceReaderHandler(handler);
 		factory.setResourceBundleHandler(rsBundleHandler);
 		factory.setBaseDir(baseDir);
 		factory.setBundlesType(type);
 
-		Set customBundles = new HashSet();
+		Set<ResourceBundleDefinition> customBundles = new HashSet<ResourceBundleDefinition>();
 
 		ResourceBundleDefinition def = new ResourceBundleDefinition();
 		def.setBundleName("library");
@@ -154,8 +160,8 @@ public class PredefinedBundlesHandlerUtil {
 		def.setBundleName("theme");
 		def.setMappings(Collections.singletonList("skin:/css/themes/default/**"));
 		def.setBundleId("/theme." + type);
-		Map variants = new HashMap();
-		variants.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", Arrays.asList(new String[]{"default", "winter", "summer"})));
+		Map<String, VariantSet> variants = new HashMap<String, VariantSet>();
+		variants.put(JawrConstant.SKIN_VARIANT_TYPE, new VariantSet(JawrConstant.SKIN_VARIANT_TYPE, "default", Arrays.asList("default", "winter", "summer")));
 		def.setVariants(variants);
 		def.setInclusionOrder(2);
 		customBundles.add(def);
@@ -175,7 +181,7 @@ public class PredefinedBundlesHandlerUtil {
 		
 		factory.setBundleDefinitions(customBundles);
 		factory.setUseDirMapperFactory(true);
-		Set excludedPaths = new HashSet();
+		Set<String> excludedPaths = new HashSet<String>();
 		excludedPaths.add(baseDir + "/lib");
 		excludedPaths.add(baseDir + "/global");
 		excludedPaths.add(baseDir + "/debug");

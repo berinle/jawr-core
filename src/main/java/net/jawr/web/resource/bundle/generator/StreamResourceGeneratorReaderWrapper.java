@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -58,7 +58,7 @@ public class StreamResourceGeneratorReaderWrapper implements StreamResourceReade
 	public InputStream getResourceAsStream(String resourceName,
 			boolean processingBundle) {
 		
-		GeneratorContext context = new GeneratorContext(config, resourceName.substring((generator.getMappingPrefix()+GeneratorRegistry.PREFIX_SEPARATOR).length()));
+		GeneratorContext context = new GeneratorContext(config, generator.getResolver().getResourcePath(resourceName));
 		context.setResourceReaderHandler(rsHandler);
 		context.setProcessingBundle(processingBundle);
 		

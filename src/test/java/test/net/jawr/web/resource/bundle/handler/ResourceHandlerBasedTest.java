@@ -29,26 +29,31 @@ public abstract class ResourceHandlerBasedTest  extends  TestCase {
 	
 	protected JawrConfig config;
 	
-	protected ResourceReaderHandler createResourceReaderHandler(String rootDir,Charset charset) {
+	protected ResourceReaderHandler createResourceReaderHandler(String rootDir,String resourceType,Charset charset) {
+
+		    GeneratorRegistry generatorRegistry = new GeneratorRegistry(resourceType);
+		    JawrConfig config = new JawrConfig(resourceType, new Properties());
+		    config.setCharsetName(charset.name());
+		    config.setGeneratorRegistry(generatorRegistry);
+		    generatorRegistry.setConfig(config);
+		    return createResourceReaderHandler(rootDir, resourceType, charset, config);
+	}
+	
+	protected ResourceReaderHandler createResourceReaderHandler(String rootDir,String resourceType,Charset charset, JawrConfig config) {
 		try {
 		    FileUtils.createDir(rootDir);
 
 		    String work = FileUtils.createDir(rootDir + WORK_DIR).getCanonicalPath().replaceAll("%20", " ");
 		    MockServletContext ctx = new MockServletContext(work, rootDir + TMP_DIR);
-		    
-		    GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-		    config = new JawrConfig(new Properties());
-		    config.setCharsetName(charset.name());
-		    config.setGeneratorRegistry(generatorRegistry);
-		    generatorRegistry.setConfig(config);
-			return new ServletContextResourceReaderHandler(ctx, config, generatorRegistry);
+		    this.config = config; 
+		    return new ServletContextResourceReaderHandler(ctx, config, config.getGeneratorRegistry());
 		} catch (Exception ex) {
 		     ex.printStackTrace();
 		   throw new RuntimeException(ex);
 		}
 	}
 	
-	protected ResourceBundleHandler createResourceBundleHandler(String rootDir,Charset charset) {
+	protected ResourceBundleHandler createResourceBundleHandler(String rootDir, Charset charset) {
 	
 		return createResourceBundleHandler(rootDir, charset, "js");
 	}
@@ -62,7 +67,7 @@ public abstract class ResourceHandlerBasedTest  extends  TestCase {
 		    MockServletContext ctx = new MockServletContext(work, temp);
 		    
 		    GeneratorRegistry generatorRegistry = new GeneratorRegistry();
-		    JawrConfig config = new JawrConfig(new Properties());
+		    JawrConfig config = new JawrConfig(resourceType, new Properties());
 		    config.setCharsetName(charset.name());
 			return new ServletContextResourceBundleHandler(ctx, charset, generatorRegistry, resourceType);
 		} catch (Exception ex) {

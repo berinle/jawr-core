@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011  Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012  Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -73,7 +73,7 @@ import org.apache.log4j.Logger;
 /**
  * Request handling class. Any jawr enabled servlet delegates to this class to handle requests.
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class JawrRequestHandler implements ConfigChangeListener, Serializable {
@@ -514,7 +514,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 	 * @param props the properties
 	 */
 	protected JawrConfig createJawrConfig(Properties props) {
-		jawrConfig = new JawrConfig(props, configPropResolver);
+		jawrConfig = new JawrConfig(resourceType, props, configPropResolver);
 		
 		// Override properties which are incompatible with the build time bundle processing
 		if(ThreadLocalJawrContext.isBundleProcessingAtBuildTime()){
@@ -802,6 +802,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		if(rd == null){
 			throw new ResourceNotFoundException(requestedPath);
 		}
+		
 		IOUtils.copy(rd, writer);
 		String content = writer.toString();
 
@@ -810,9 +811,11 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		if (imageServletMapping == null) {
 			imageServletMapping = "";
 		}
-
+		
+		String requestPath = getRequestPath(request);
+		
 		// Define the replacement pattern for the generated image (like jar:img/myImg.png)
-		String relativeRootUrlPath = PathNormalizer.getRootRelativePath(getRequestPath(request));
+		String relativeRootUrlPath = PathNormalizer.getRootRelativePath(requestPath);
 		String replacementPattern = PathNormalizer.normalizePath("$1" + relativeRootUrlPath + imageServletMapping + "/$4_cbDebug/$7$8");
 		
 		Matcher matcher = GENERATED_IMG_PATTERN.matcher(content);

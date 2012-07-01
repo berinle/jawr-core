@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Jordi Hern·ndez SellÈs
+ * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,12 @@
 package net.jawr.web.resource.bundle.generator.dwr;
 
 import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
-import net.jawr.web.resource.bundle.generator.ResourceGenerator;
 
 import org.directwebremoting.util.VersionUtil;
 
 /**
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
+ * @author Ibrahim Chaehoi
  */
 public class DWRGeneratorFactory {
 
@@ -27,7 +27,8 @@ public class DWRGeneratorFactory {
 	private static boolean isV2 = true;
 	private static boolean isVersionDetermined = false;
 	
-	public static ResourceGenerator createDWRGenerator() {
+	public static Class<?> getDWRGeneratorClass() {
+		
 		if(!isVersionDetermined) {
 			String versionLabel = VersionUtil.getVersion();
 			versionLabel = versionLabel.substring(0,versionLabel.indexOf('.'));
@@ -35,9 +36,10 @@ public class DWRGeneratorFactory {
 			isVersionDetermined = true;
 		}
 		if(isV2)
-			return new DWRBeanGenerator();
+			return DWRBeanGenerator.class;
 		else {
-			return (ResourceGenerator) ClassLoaderResourceUtils.buildObjectInstance(V3_GENERATOR_CLASS);
+			return ClassLoaderResourceUtils.getClass(V3_GENERATOR_CLASS);
 		}
 	}
+	
 }

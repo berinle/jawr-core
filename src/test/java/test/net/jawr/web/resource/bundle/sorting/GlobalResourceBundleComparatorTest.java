@@ -21,7 +21,7 @@ public class GlobalResourceBundleComparatorTest extends TestCase {
 	
 	public void testSortGlobalResourceBundles() {
 		
-		List unsorted = new ArrayList();
+		List<JoinableResourceBundle> unsorted = new ArrayList<JoinableResourceBundle>();
 		unsorted.add(createMockBundle("four",4));
 		unsorted.add(createMockBundle("two",2));
 		unsorted.add(createMockBundle("one",1));

@@ -15,6 +15,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletContext;
+
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundleDependencyException;
 import net.jawr.web.exception.DuplicateBundlePathException;
@@ -26,8 +28,12 @@ import net.jawr.web.resource.bundle.renderer.JavascriptHTMLBundleLinkRenderer;
 import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import net.jawr.web.util.StringUtils;
+
+import org.junit.Test;
+
 import test.net.jawr.web.resource.bundle.PredefinedBundlesHandlerUtil;
 import test.net.jawr.web.resource.bundle.handler.ResourceHandlerBasedTest;
+import test.net.jawr.web.servlet.mock.MockServletContext;
 /**
  *
  * @author jhernandez
@@ -39,23 +45,26 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 	
 	private static final String JS_PRE_TAG = "<script type=\"text/javascript\" src=\"";
     private static final String JS_POST_TAG = "\" ></script>";
+    private static final String JS_WITH_DEFER_POST_TAG = "\" defer=\"defer\" ></script>";
 	
 	private JavascriptHTMLBundleLinkRenderer jsRenderer;
 	private JawrConfig jawrConfig;
 	
 	private BundleRendererContext bundleRendererCtx = null;
-	
+	private ResourceBundlesHandler jsHandler = null;
 	public BundleLinkRendererTest() {
 	     
 	    Charset charsetUtf = Charset.forName("UTF-8"); 
 			
-	    ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
+	    ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,"js",charsetUtf);
 	    ResourceBundleHandler rsBundleHandler = createResourceBundleHandler(ROOT_TESTDIR,charsetUtf);
-	    jawrConfig = new JawrConfig(new Properties());
+	    jawrConfig = new JawrConfig("js", new Properties());
 	    jawrConfig.setCharsetName("UTF-8");
 	    jawrConfig.setServletMapping("/srvMapping");
 	    jawrConfig.setCssLinkFlavor(CSSHTMLBundleLinkRenderer.FLAVORS_XHTML);
-	    ResourceBundlesHandler jsHandler = null;
+	    ServletContext servletCtx = new MockServletContext();
+	    jawrConfig.setContext(servletCtx);
+	    
 	    try {
 	    	jsHandler = PredefinedBundlesHandlerUtil.buildSimpleBundles(rsHandler,rsBundleHandler,JS_BASEDIR,"js", jawrConfig);
 	    } catch (DuplicateBundlePathException e) {
@@ -64,7 +73,14 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		} catch (BundleDependencyException e) {
 			throw new RuntimeException(e);
 		}
-	    jsRenderer = new JavascriptHTMLBundleLinkRenderer(jsHandler,true);
+	    //jsRenderer = new JavascriptHTMLBundleLinkRenderer(jsHandler,true, false);
+	}
+	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	public void setUp(){
+		jsRenderer = new JavascriptHTMLBundleLinkRenderer(jsHandler,true, false);
 	}
 	
 	private String renderToString(BundleRenderer renderer, String path, BundleRendererContext ctx){
@@ -82,6 +98,7 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 	    return ret;
 	}
 	
+	@Test
 	public void testWriteJSBundleLinks()
 	{
 		jawrConfig.setDebugModeOn(false);
@@ -132,11 +149,66 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		
 	}
 	
+	
+	@Test
+	public void testWriteJSBundleLinksWithDeferAttributes()
+	{
+		jsRenderer = new JavascriptHTMLBundleLinkRenderer(jsHandler,true, true);
+		
+		jawrConfig.setDebugModeOn(false);
+		
+		// Test regular link creation
+	    bundleRendererCtx = new BundleRendererContext(JS_CTX_PATH, null, false, false);
+	    String result = renderToString(jsRenderer,"/js/one/one2.js", bundleRendererCtx);
+		
+		assertNotSame("No script tag written ", "", result.trim());
+			
+		String libTag = JS_PRE_TAG + "/ctxPathJs/srvMapping/libPfx/library.js" + JS_POST_TAG;
+		String globalTag = JS_PRE_TAG + "/ctxPathJs/srvMapping/globalPfx/global.js" + JS_POST_TAG;
+		String debOffTag = JS_PRE_TAG + "/ctxPathJs/srvMapping/pfx/debugOff.js" + JS_POST_TAG;
+		String oneTag = JS_PRE_TAG + "/ctxPathJs/srvMapping/pfx/js/one.js" + JS_WITH_DEFER_POST_TAG;
+		StringTokenizer tk = new StringTokenizer(result,"\n");
+		
+		
+		assertEquals("Invalid number of tags written. ",4, tk.countTokens());
+		assertTrue("Unexpected tag added at position 0", assertStartEndSimmilarity(libTag,"libPfx",tk.nextToken()));
+		assertTrue("Unexpected tag added at position 1", assertStartEndSimmilarity(globalTag,"globalPfx",tk.nextToken()));
+		assertTrue("Unexpected tag added at position 2",assertStartEndSimmilarity(debOffTag,"pfx",tk.nextToken()) );
+		assertTrue("Unexpected tag added at position 3", assertStartEndSimmilarity(oneTag,"pfx",tk.nextToken()) );
+		
+		// Reusing the set, we test that no repeats are allowed. 
+		result = renderToString(jsRenderer,"/js/one/one2.js", bundleRendererCtx);
+		assertTrue("Tags were repeated", StringUtils.isEmpty(result));
+		
+
+		// Test gzipped link creation
+		String libZTag = JS_PRE_TAG+ "/ctxPathJs/srvMapping" + BundleRenderer.GZIP_PATH_PREFIX + "libPfx/library.js" + JS_POST_TAG;
+		String globalZTag = JS_PRE_TAG + "/ctxPathJs/srvMapping" + BundleRenderer.GZIP_PATH_PREFIX + "globalPfx/global.js" + JS_POST_TAG;
+		String debOffZTag = JS_PRE_TAG + "/ctxPathJs/srvMapping" + BundleRenderer.GZIP_PATH_PREFIX + "pfx/debugOff.js" + JS_POST_TAG;
+		String debOffoneTag = JS_PRE_TAG + "/ctxPathJs/srvMapping" + BundleRenderer.GZIP_PATH_PREFIX + "pfx/js/one.js" + JS_WITH_DEFER_POST_TAG;
+		bundleRendererCtx = new BundleRendererContext(JS_CTX_PATH, null, true, false);
+	    //globalBundleAdded = false;
+		result = renderToString(jsRenderer,"/js/one/one2.js", bundleRendererCtx);
+		assertNotSame("No gzip script tags written ", "", result.trim());
+		tk = new StringTokenizer(result,"\n");
+		assertEquals("Invalid number of gzip script tags written. ",4, tk.countTokens());
+		assertTrue("Unexpected tag added at position 0", assertStartEndSimmilarity(libZTag,"libPfx",tk.nextToken()));
+		assertTrue("Unexpected tag added at position 1",assertStartEndSimmilarity(globalZTag,"globalPfx",tk.nextToken()));
+		assertTrue("Unexpected tag added at position 2",assertStartEndSimmilarity(debOffZTag,"pfx",tk.nextToken()) );
+		assertTrue("Unexpected tag added at position 3",assertStartEndSimmilarity(debOffoneTag,"pfx",tk.nextToken()) );
+		
+		// Reusing the set, we test that no repeats are allowed. 
+		result = renderToString(jsRenderer,"/js/one/one2.js", bundleRendererCtx);
+		assertTrue("Tags were repeated", StringUtils.isEmpty(result));
+		
+	}
+	
 	private boolean assertStartEndSimmilarity(String toCompare, String splitter, String toMatch) {
 		String[] parts = toCompare.split(splitter);
 		return toMatch.startsWith(parts[0]) && toMatch.endsWith(parts[1]);
 	}
 	
+	@Test
 	public void testWriteJSDebugLinks() 
 	{
 		jawrConfig.setDebugModeOn(true);
@@ -178,8 +250,8 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		assertFalse("Repeated already included tag ", Pattern.matches(regX, repeated));
 		
 		// Even though we set dbug to off, the handler was initialized in non-debug mode, thus we still get the debugoff.js file. 
-		regX = JS_PRE_TAG + "/ctxPathJs/srvMapping/js/debug/off/debugOff.js\\?d=\\d*" + JS_POST_TAG;
-		assertTrue("No match for /debug/off/debugOff.js", Pattern.matches(regX, tk.nextToken()));
+		regX = JS_PRE_TAG + "/ctxPathJs/srvMapping/js/debug/on/debugOn.js\\?d=\\d*" + JS_POST_TAG;
+		assertTrue("No match for /debug/on/debugOn.js", Pattern.matches(regX, tk.nextToken()));
 		
 		regX = JS_PRE_TAG + "/ctxPathJs/srvMapping/js/one/one.js\\?d=\\d*" + JS_POST_TAG;
 		assertTrue("comment expected",comment.matcher(tk.nextToken()).matches());
@@ -197,6 +269,7 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		
 	}
 
+	@Test
 	public void testWriteJSBundleLinksWithHttpCdn()
 	{
 		jawrConfig.setDebugModeOn(false);
@@ -254,6 +327,7 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		
 	}
 	
+	@Test
 	public void testWriteJSBundleLinksWithHttpsCdn()
 	{
 		jawrConfig.setDebugModeOn(false);
@@ -308,6 +382,7 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		assertTrue("Gzip tags were repeated", StringUtils.isEmpty(result));
 	}
 	
+	@Test
 	public void testWriteJSBundleLinksWithHttpsRelativePath()
 	{
 		jawrConfig.setDebugModeOn(false);
@@ -363,6 +438,7 @@ public class BundleLinkRendererTest  extends ResourceHandlerBasedTest{
 		assertTrue("Gzip tags were repeated", StringUtils.isEmpty(result));
 	}
 	
+	@Test
 	public void testWriteJSBundleLinksWithRelativePath()
 	{
 		jawrConfig.setDebugModeOn(false);

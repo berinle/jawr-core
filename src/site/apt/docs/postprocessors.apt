@@ -22,9 +22,9 @@ Jawr Postprocessors
 	for instance: 
 
 +------------------------------------------+
-	jawr.js.bundle.factory.bundlepostprocessors=JSMin, license
+	jawr.js.bundle.factory.bundlepostprocessors=JSMin,license
 		
-	jawr.css.bundle.factory.bundlepostprocessors=cssminify, license
+	jawr.css.bundle.factory.bundlepostprocessors=cssminify,license
 	jawr.css.bundle.factory.filepostprocessors=csspathrewriter
 +------------------------------------------+
 	

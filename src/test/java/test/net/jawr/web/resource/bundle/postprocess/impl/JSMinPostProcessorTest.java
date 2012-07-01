@@ -19,7 +19,7 @@ public class JSMinPostProcessorTest extends TestCase {
     public void testPostProcessBundle() {
 		String script = "//comment\n        \talert('αιρν')";
 		Charset charset = Charset.forName("UTF-8");
-		JawrConfig config = new JawrConfig(new Properties());
+		JawrConfig config = new JawrConfig("js", new Properties());
 		config.setCharsetName("UTF-8");
 		JSMinPostProcessor processor = new JSMinPostProcessor();
 		StringBuffer sb = new StringBuffer();

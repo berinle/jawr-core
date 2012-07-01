@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -44,7 +44,7 @@ public class VariantUtils {
 	 * @return all variant keys
 	 */
 	public static List<Map<String, String>> getAllVariants(
-			Map<String, VariantSet> variantSets) {
+			Map<String, ? extends Collection<String>> variantSets) {
 
 		List<Map<String, String>> variants = new ArrayList<Map<String, String>>();
 		if (variantSets != null) {
@@ -170,7 +170,7 @@ public class VariantUtils {
 						variantValue = entry.getValue();
 					}
 
-					VariantSet newVariantSet = new VariantSet(variantSet.getType(), variantValue, Arrays.asList(new String[]{variantValue})); 
+					VariantSet newVariantSet = new VariantSet(variantSet.getType(), variantValue, Arrays.asList(variantValue)); 
 					tempVariants.put(variantSet.getType(), newVariantSet);
 				}
 			}

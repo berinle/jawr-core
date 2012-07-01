@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -47,7 +48,7 @@ public class ImageTagUtilsTest extends TestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	public void setUp(){
-		config = new JawrConfig(new Properties());
+		config = new JawrConfig("img", new Properties());
 		config.setImageHashAlgorithm("MD5");
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(JawrConstant.IMG_TYPE);
 		config.setGeneratorRegistry(generatorRegistry);
@@ -150,7 +151,7 @@ public class ImageTagUtilsTest extends TestCase {
 			return null;
 		}
 
-		public Set getResourceNames(String dirPath) {
+		public Set<String> getResourceNames(String dirPath) {
 			return null;
 		}
 
@@ -162,14 +163,16 @@ public class ImageTagUtilsTest extends TestCase {
 			return false;
 		}
 
-		public boolean isResourceGenerated(String path) {
-			return false;
-		}
-
 		public void setWorkingDirectory(String workingDir) {
 			
 		}
 
+		@Override
+		public Reader getResource(String resourceName,
+				boolean processingBundle, List<Class<?>> excludedReader)
+				throws ResourceNotFoundException {
+			return null;
+		}
 	}
 
 	private static class MockHttpServletRequest implements HttpServletRequest {
@@ -204,11 +207,11 @@ public class ImageTagUtilsTest extends TestCase {
 			return null;
 		}
 
-		public Enumeration getHeaderNames() {
+		public Enumeration<String> getHeaderNames() {
 			return null;
 		}
 
-		public Enumeration getHeaders(String name) {
+		public Enumeration<String> getHeaders(String name) {
 			return null;
 		}
 
@@ -294,7 +297,7 @@ public class ImageTagUtilsTest extends TestCase {
 			return null;
 		}
 
-		public Enumeration getAttributeNames() {
+		public Enumeration<String> getAttributeNames() {
 
 			return null;
 		}
@@ -324,7 +327,7 @@ public class ImageTagUtilsTest extends TestCase {
 			return null;
 		}
 
-		public Enumeration getLocales() {
+		public Enumeration<Locale> getLocales() {
 
 			return null;
 		}
@@ -334,12 +337,12 @@ public class ImageTagUtilsTest extends TestCase {
 			return null;
 		}
 
-		public Map getParameterMap() {
+		public Map<String, String> getParameterMap() {
 
 			return null;
 		}
 
-		public Enumeration getParameterNames() {
+		public Enumeration<String> getParameterNames() {
 
 			return null;
 		}

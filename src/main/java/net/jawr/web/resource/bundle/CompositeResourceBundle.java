@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2010 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
  * different posprocessing filters. 
  * 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class CompositeResourceBundle extends JoinableResourceBundleImpl {
@@ -55,16 +55,19 @@ public class CompositeResourceBundle extends JoinableResourceBundleImpl {
 		this.childBundles = childBundles;
 		
 		boolean debugModeOn = config.isDebugModeOn();
-		
 		for(Iterator<JoinableResourceBundle> it = this.childBundles.iterator();it.hasNext();) {
 			JoinableResourceBundle child = it.next();
 			
 			// Skip the child as needed
 			if( (debugModeOn && child.getInclusionPattern().isExcludeOnDebug()) || 
-				(!debugModeOn && child.getInclusionPattern().isIncludeOnDebug()) )
+				(!debugModeOn && child.getInclusionPattern().isIncludeOnlyOnDebug()) )
 				continue;
 			
 			this.itemPathList.addAll(child.getItemPathList());
+			if(child.getInclusionPattern().isIncludeOnDebug()){
+				this.itemDebugPathList.addAll(child.getItemDebugPathList());
+			}
+			
 			this.licensesPathList.addAll(child.getLicensesPathList());
 			
 			// If the child has no postprocessors, apply the composite's if any

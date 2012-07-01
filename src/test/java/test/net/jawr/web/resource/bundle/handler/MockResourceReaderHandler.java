@@ -15,6 +15,7 @@ package test.net.jawr.web.resource.bundle.handler;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.List;
 import java.util.Set;
 
 import net.jawr.web.exception.ResourceNotFoundException;
@@ -90,7 +91,7 @@ public class MockResourceReaderHandler implements ResourceReaderHandler {
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.handler.reader.ResourceBrowser#getResourceNames(java.lang.String)
 	 */
-	public Set getResourceNames(String path) {
+	public Set<String> getResourceNames(String path) {
 		return null;
 	}
 
@@ -99,6 +100,16 @@ public class MockResourceReaderHandler implements ResourceReaderHandler {
 	 */
 	public boolean isDirectory(String path) {
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.handler.reader.ResourceReaderHandler#getResource(java.lang.String, boolean, java.util.List)
+	 */
+	@Override
+	public Reader getResource(String resourceName, boolean processingBundle,
+			List<Class<?>> excludedReader) throws ResourceNotFoundException {
+		
+		return null;
 	}
 
 }

@@ -5,6 +5,7 @@ package test.net.jawr.web.resource.bundle.factory.mapper;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ import test.net.jawr.web.resource.bundle.handler.ResourceHandlerBasedTest;
 
 /**
  * @author jhernandez
- *
+ * @author ibrahim Chaehoi
  */
 public class OrphanResourceBundlesMapperTest extends  ResourceHandlerBasedTest {
 	private static final String ROOT_TESTDIR = "/orphanspathfactory/";
@@ -28,23 +29,19 @@ public class OrphanResourceBundlesMapperTest extends  ResourceHandlerBasedTest {
 		try {			
 			Charset charsetUtf = Charset.forName("UTF-8"); 
 			
-			ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
-			List bundles = new ArrayList();
+			ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,"js",charsetUtf);
+			List<JoinableResourceBundle> bundles = new ArrayList<JoinableResourceBundle>();
 			
-			List globalPaths = new ArrayList();
-			globalPaths.add("/js/global/global.js");
+			List<String> globalPaths = Arrays.asList("/js/global/global.js");
 			bundles.add(buildMockResourceBundle(globalPaths, Collections.singleton("/js/global/.license")));
 			
-			List libraryPaths = new ArrayList();
-			libraryPaths.add("/js/lib/lib.js");
+			List<String> libraryPaths = Arrays.asList("/js/lib/lib.js");
 			bundles.add(buildMockResourceBundle(libraryPaths,Collections.singleton("")));
 			
-			List debugPaths = new ArrayList();
-			debugPaths.add("/js/debug/off/debugOff.js");
-			debugPaths.add("/js/debug/on/debugOn.js");
+			List<String> debugPaths = Arrays.asList("/js/debug/off/debugOff.js", "/js/debug/on/debugOn.js");
 			bundles.add(buildMockResourceBundle(debugPaths,Collections.singleton("")));
 			
-			factory = new OrphanResourceBundlesMapper("", rsHandler, config.getGeneratorRegistry(), bundles,".js");
+			factory = new OrphanResourceBundlesMapper("", rsHandler, config.getGeneratorRegistry(), bundles, "js");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -56,19 +53,19 @@ public class OrphanResourceBundlesMapperTest extends  ResourceHandlerBasedTest {
 	 */
 	public void testGetOrphans() {
 		
-		List data = null;
+		List<String> data = null;
 		try {
 			data = factory.getOrphansList();
 		} catch (DuplicateBundlePathException e) {
 			fail("DuplicateBundlePathException for bundle path: " + e.getBundlePath());
 		}
-		// Test correct paths were added in proper order
 		
-		String path = (String) data.get(0);
+		// Test correct paths were added in proper order
+		String path = data.get(0);
 		assertEquals("Licenses file not added: /js/one/.license","/js/one/.license",path);
-		path = (String) data.get(1);
+		path = data.get(1);
 		assertEquals("Expected path not added at proper position: /js/one/one.js","/js/one/one.js",path);
-		path = (String) data.get(2);
+		path = data.get(2);
 		assertEquals("Expected path not added at proper position: /js/three/one.js","/js/three/one.js",path);
 		
 		
@@ -95,7 +92,7 @@ public class OrphanResourceBundlesMapperTest extends  ResourceHandlerBasedTest {
 		
 	}
 	
-	private JoinableResourceBundle buildMockResourceBundle(final List avoidedPaths, final Set licenses) {
+	private JoinableResourceBundle buildMockResourceBundle(final List<String> avoidedPaths, final Set<String> licenses) {
 		
 		return new MockJoinableResourceBundle() {
 
@@ -103,11 +100,11 @@ public class OrphanResourceBundlesMapperTest extends  ResourceHandlerBasedTest {
 				return avoidedPaths.contains(itemPath);
 			}
 
-			public List getItemPathList() {
+			public List<String> getItemPathList() {
 				return avoidedPaths;
 			}
 
-			public Set getLicensesPathList() {
+			public Set<String> getLicensesPathList() {
 				return licenses;
 			}
 

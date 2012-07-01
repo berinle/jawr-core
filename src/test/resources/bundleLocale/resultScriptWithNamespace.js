@@ -18,6 +18,6 @@ function p() {
 	return ret;
 }
 window.myMessages=(
-{"ui":{"msg":{"hello":{"world":p("Hello $ world!")},"salut":p("Mr.")}},"error":{"login":p("Login failed")},"warning":{"password":{"expired":p("Password expired")}}}
+{ui:{msg:{hello:{world:p("Hello $ world!")},salut:p("Mr.")}},error:{login:p("Login failed")},warning:{password:{expired:p("Password expired")}}}
 )
 })();

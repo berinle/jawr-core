@@ -17,6 +17,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+
+import org.mockito.Mockito;
+
 import junit.framework.TestCase;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundleDependencyException;
@@ -28,6 +32,7 @@ import net.jawr.web.resource.bundle.JoinableResourceBundleContent;
 import net.jawr.web.resource.bundle.factory.PropertiesBasedBundlesHandlerFactory;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
+import net.jawr.web.resource.bundle.variant.VariantSet;
 import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReader;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
@@ -40,7 +45,7 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 
 	public void testBundleWithInvalidBundleId1() throws IOException, DuplicateBundlePathException, BundleDependencyException{
 		try{
-			getBundles("/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId1.properties");
+			getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId1.properties");
 			fail("No bundle processing exception has been throwned");
 		}catch(BundlingProcessException e){
 			
@@ -50,7 +55,7 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	
 	public void testBundleWithInvalidBundleId2() throws IOException, DuplicateBundlePathException, BundleDependencyException{
 		try{
-			getBundles("/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId2.properties");
+			getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId2.properties");
 			fail("No bundle processing exception has been throwned");
 		}catch(BundlingProcessException e){
 			
@@ -59,7 +64,7 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	
 	public void testBundleWithInvalidBundleId3() throws IOException, DuplicateBundlePathException, BundleDependencyException{
 		try{
-			getBundles("/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId3.properties");
+			getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr-invalid-bundleId3.properties");
 			fail("No bundle processing exception has been throwned");
 		}catch(BundlingProcessException e){
 			
@@ -74,18 +79,17 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	 */
 	public void testDependencyResolution() throws DuplicateBundlePathException, BundleDependencyException, IOException{
 		
-		List bundles = getBundles("/bundle/factory/bundleshandlerfactory/jawr.properties");
+		List<JoinableResourceBundle> bundles = getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr.properties");
 		assertEquals(4, bundles.size());
 		
-		for (Iterator iterator = bundles.iterator(); iterator.hasNext();) {
+		for (Iterator<JoinableResourceBundle> iterator = bundles.iterator(); iterator.hasNext();) {
 			JoinableResourceBundle bundle = (JoinableResourceBundle) iterator.next();
 			if(bundle.getName().equals("component")){
-				String[] dependencies = new String[]{"component3", "component4", "component2"};
-				assertEquals(Arrays.asList(dependencies), getBundleNames(bundle.getDependencies()));
+				assertEquals(Arrays.asList("component3", "component4", "component2"), getBundleNames(bundle.getDependencies()));
 			
 			}else if(bundle.getName().equals("component2")){
-				String[] dependencies = new String[]{"component3", "component4"};
-				assertEquals(Arrays.asList(dependencies), getBundleNames(bundle.getDependencies()));
+				
+				assertEquals(Arrays.asList("component3", "component4"), getBundleNames(bundle.getDependencies()));
 			
 			}else if(bundle.getName().equals("component3")){
 				assertTrue(getBundleNames(bundle.getDependencies()).isEmpty());
@@ -104,7 +108,7 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	public void testDependencyResolutionWithCircularDependency() throws IOException, DuplicateBundlePathException{
 		
 		try {
-			getBundles("/bundle/factory/bundleshandlerfactory/jawr-circular-dependency.properties");
+			getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr-circular-dependency.properties");
 			fail("No circular dependency exception has been throwned");
 		} catch (BundleDependencyException e) {
 			
@@ -119,7 +123,7 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	public void testDependencyResolutionWithDependencyInAGlobalBundle() throws IOException, DuplicateBundlePathException{
 		
 		try {
-			getBundles("/bundle/factory/bundleshandlerfactory/jawr-dependency-in-global-bundle.properties");
+			getBundles("css", "/bundle/factory/bundleshandlerfactory/jawr-dependency-in-global-bundle.properties");
 			fail("No bundle dependency exception has been throwned");
 		} catch (BundleDependencyException e) {
 			
@@ -134,25 +138,29 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	 * @throws DuplicateBundlePathException
 	 * @throws BundleDependencyException
 	 */
-	private List getBundles(String configPath) throws IOException, DuplicateBundlePathException,
+	private List<JoinableResourceBundle> getBundles(String resourceType, String configPath) throws IOException, DuplicateBundlePathException,
 			BundleDependencyException {
 		
 		Properties props = new Properties();
 		props.load(BundlesHandlerFactoryTestCase.class.getResourceAsStream(configPath));
-		JawrConfig config = new JawrConfig(props);
+		JawrConfig config = new JawrConfig(resourceType, props);
+		ServletContext ctx = Mockito.mock(ServletContext.class);
+		config.setContext(ctx);
 		GeneratorRegistry generatorRegistry = new GeneratorRegistry(){
 			/* (non-Javadoc)
 			 * @see net.jawr.web.resource.bundle.generator.GeneratorRegistry#getAvailableVariantMap(java.util.Map, java.util.Map)
 			 */
-			public Map getAvailableVariantMap(Map variants, Map curVariants) {
-				return new HashMap();
+			@Override
+			public Map<String, String> getAvailableVariantMap(Map<String, VariantSet> variants, Map<String, String> curVariants){
+				return new HashMap<String, String>();
 			}
 
 			/* (non-Javadoc)
 			 * @see net.jawr.web.resource.bundle.generator.GeneratorRegistry#getAvailableVariants(java.lang.String)
 			 */
-			public Map getAvailableVariants(String bundle) {
-				return new HashMap();
+			@Override
+			public Map<String, VariantSet> getAvailableVariants(String bundle) {
+				return new HashMap<String, VariantSet>();
 			}
 
 			/* (non-Javadoc)
@@ -165,9 +173,10 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 		generatorRegistry.setConfig(config);
 		config.setGeneratorRegistry(generatorRegistry);
 		
-		PropertiesBasedBundlesHandlerFactory propsBundlesHandlerFactory = new PropertiesBasedBundlesHandlerFactory(props, "css", getResourceReaderHandler(), getResourceBundleHandler("css"), config);
+		PropertiesBasedBundlesHandlerFactory propsBundlesHandlerFactory = new PropertiesBasedBundlesHandlerFactory(props, resourceType, getResourceReaderHandler(), getResourceBundleHandler(resourceType), config);
 		ResourceBundlesHandler handler = propsBundlesHandlerFactory.buildResourceBundlesHandler();
-		List bundles = handler.getContextBundles();
+		
+		List<JoinableResourceBundle> bundles = handler.getContextBundles();
 		return bundles;
 	}
 	
@@ -176,11 +185,11 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 	 * @param bundles the bundles
 	 * @return the list of bundle names
 	 */
-	private static List getBundleNames(List bundles) {
+	private static List<String> getBundleNames(List<JoinableResourceBundle> bundles) {
 		
-		List bundleNames = new ArrayList();
+		List<String> bundleNames = new ArrayList<String>();
 		if(bundles != null){
-			for (Iterator iterator = bundles.iterator(); iterator
+			for (Iterator<JoinableResourceBundle> iterator = bundles.iterator(); iterator
 					.hasNext();) {
 				bundleNames.add(((JoinableResourceBundle) iterator.next()).getName());
 			}
@@ -204,8 +213,8 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 				return null;
 			}
 			
-			public Set getResourceNames(String dirPath) {
-				return new HashSet();
+			public Set<String> getResourceNames(String dirPath) {
+				return new HashSet<String>();
 			}
 			
 			public InputStream getResourceAsStream(String resourceName,
@@ -234,6 +243,13 @@ public class BundlesHandlerFactoryTestCase extends TestCase {
 			
 			public void addResourceReaderToEnd(ResourceReader rd) {
 				
+			}
+
+			@Override
+			public Reader getResource(String resourceName,
+					boolean processingBundle, List<Class<?>> excludedReader)
+					throws ResourceNotFoundException {
+				return null;
 			}
 		};
 	}

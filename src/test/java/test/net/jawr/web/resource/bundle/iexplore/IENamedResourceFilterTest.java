@@ -1,6 +1,7 @@
 package test.net.jawr.web.resource.bundle.iexplore;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public class IENamedResourceFilterTest extends TestCase {
 	}
 
 	public void testFilterPathSet() {
-		Set tst = new HashSet();
+		Set<String> tst = new HashSet<String>();
 		
 		tst.add("/js/some.js");
 		tst.add("/js/ot_ie_her.js");
@@ -24,7 +25,7 @@ public class IENamedResourceFilterTest extends TestCase {
 		tst.add("/js/some_lt_6_ie.js");
 		tst.add("/js/some_gte_6.00_ie.js");
 		
-		Map t = new IENamedResourceFilter().filterPathSet(tst);
+		Map<String, List<String>> t = new IENamedResourceFilter().filterPathSet(tst);
 		
 		assertEquals(3,t.keySet().size());
 		assertTrue(t.keySet().contains("[if IE]"));

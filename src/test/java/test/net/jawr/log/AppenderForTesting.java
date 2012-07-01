@@ -8,7 +8,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 public class AppenderForTesting extends AppenderSkeleton {
 
-	private static List LOGS = new ArrayList();
+	private static List<String> LOGS = new ArrayList<String>();
 
 	protected void append(LoggingEvent event) {
 		LOGS.add(event.getRenderedMessage());

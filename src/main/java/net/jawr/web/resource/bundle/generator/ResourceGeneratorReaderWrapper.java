@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -38,7 +38,7 @@ import net.jawr.web.util.StringUtils;
 public class ResourceGeneratorReaderWrapper implements TextResourceReader {
 
 	/** The resource generator wrapped */
-	private ResourceGenerator generator;
+	private TextResourceGenerator generator;
 	
 	/** The resource handler */
 	private ResourceReaderHandler rsHandler;
@@ -50,7 +50,7 @@ public class ResourceGeneratorReaderWrapper implements TextResourceReader {
 	 * Constructor
 	 * @param generator the generator
 	 */
-	public ResourceGeneratorReaderWrapper(ResourceGenerator generator, ResourceReaderHandler rsHandler, JawrConfig config) {
+	public ResourceGeneratorReaderWrapper(TextResourceGenerator generator, ResourceReaderHandler rsHandler, JawrConfig config) {
 		this.generator = generator;
 		this.config = config;
 		this.rsHandler = rsHandler;
@@ -70,9 +70,7 @@ public class ResourceGeneratorReaderWrapper implements TextResourceReader {
 	public Reader getResource(String resourceName, boolean processingBundle) {
 		
 		Locale locale = null;
-		String path = resourceName;
-		// Remove generator prefix
-		path = path.substring((generator.getMappingPrefix()+GeneratorRegistry.PREFIX_SEPARATOR).length());
+		String path = generator.getResolver().getResourcePath(resourceName);
 		
 		Map<String, String> contextVariants = new HashMap<String, String>();
 		Map<String, VariantSet> variantSets = new HashMap<String, VariantSet>();

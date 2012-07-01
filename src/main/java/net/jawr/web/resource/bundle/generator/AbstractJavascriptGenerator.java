@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2009 Jordi Hern·ndez SellÈs
+ * Copyright 2008-2012 Jordi Hern√°ndez Sell√©s
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -19,13 +19,13 @@ import net.jawr.web.JawrConstant;
  * Abstract implementation of ResourceGenerator with a default return value for the 
  * getMappingPrefix method. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
-public abstract class AbstractJavascriptGenerator implements SpecificCDNDebugPathResourceGenerator{
+public abstract class AbstractJavascriptGenerator implements TextResourceGenerator, SpecificCDNDebugPathResourceGenerator{
 
 	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getMappingPrefix()
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getDebugModeRequestPath()
 	 */
 	public String getDebugModeRequestPath() {		
 		return ResourceGenerator.JAVASCRIPT_DEBUGPATH;
@@ -36,6 +36,7 @@ public abstract class AbstractJavascriptGenerator implements SpecificCDNDebugPat
 	 */
 	public String getDebugModeBuildTimeGenerationPath(String path) {
 		
+		// TODO check this
 		return path.replaceFirst(GeneratorRegistry.PREFIX_SEPARATOR, JawrConstant.URL_SEPARATOR)+"."+JawrConstant.JS_TYPE;
 	}
 }

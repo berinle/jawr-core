@@ -18,6 +18,6 @@ function p() {
 	return ret;
 }
 window.messages=(
-{"ui":{"msg":{"hello":{"world":p("¡Hola $ Mundo!")},"salut":p("Mr.")}},"error":{"login":p("Login failed")}}
+{ui:{msg:{hello:{world:p("¡Hola $ Mundo!")},salut:p("Mr.")}},error:{login:p("Login failed")}}
 )
 })();

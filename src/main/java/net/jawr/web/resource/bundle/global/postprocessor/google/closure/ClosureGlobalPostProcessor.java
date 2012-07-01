@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Ibrahim Chaehoi
+ * Copyright 2011-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -54,7 +54,9 @@ import org.apache.log4j.Logger;
 
 import com.google.common.io.CharStreams;
 import com.google.javascript.jscomp.CommandLineRunner;
+import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.JSSourceFile;
+import com.google.javascript.jscomp.SourceFile;
 
 /**
  * This class defines the Closure global post processor. This post processor
@@ -71,7 +73,7 @@ public class ClosureGlobalPostProcessor extends
 			.getLogger(ClosureGlobalPostProcessor.class);
 
 	/** The list of unallowed compiler argument in the Jawr config */
-	private List<String> UNALLOWED_COMPILER_ARGS = Arrays.asList("js","modules");
+	private List<String> UNALLOWED_COMPILER_ARGS = Arrays.asList("js","module");
 	
 	/** The closure compiler argument name prefix */
 	private static final String CLOSURE_ARGUMENT_NAME_PREFIX = "--";
@@ -106,11 +108,20 @@ public class ClosureGlobalPostProcessor extends
 	/** The verbose warning level for the closure compiler */
 	private static final String VERBOSE_WARNING_LEVEL = "VERBOSE";
 
+	/** The property for the excluded bundles */
+	private static final String JAWR_JS_CLOSURE_BUNDLES_EXCLUDED = "jawr.js.closure.bundles.excluded";
+
+	/** The property for disable thread */
+	private static final String JAWR_JS_CLOSURE_DISABLE_THREAD = "jawr.js.closure.disableThread";
+
 	/**
 	 * The closure modules property, whose the value will be passed to the
 	 * closure compiler
 	 */
 	private static final String JAWR_JS_CLOSURE_MODULES = "jawr.js.closure.modules";
+
+	/** The list of the jawr js closure properties */
+	private static final List<String> JAWR_JS_CLOSURE_SPECIFIC_PROPERTIES = Arrays.asList(JAWR_JS_CLOSURE_BUNDLES_EXCLUDED, JAWR_JS_CLOSURE_DISABLE_THREAD, JAWR_JS_CLOSURE_MODULES);
 
 	/** The google closure temporary directory */
 	private static final String GOOGLE_CLOSURE_TEMP_DIR = "/googleClosure/temp/";
@@ -151,14 +162,8 @@ public class ClosureGlobalPostProcessor extends
 		this.tempDir = tempDir;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.jawr.web.resource.bundle.global.processor.GlobalProcessor#processBundles
-	 * (
-	 * net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext
-	 * , java.util.List)
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.global.processor.GlobalProcessor#processBundles(net.jawr.web.resource.bundle.global.processor.AbstractGlobalProcessingContext, java.util.List)
 	 */
 	public void processBundles(GlobalPostProcessingContext ctx,
 			List<JoinableResourceBundle> bundles) {
@@ -226,33 +231,22 @@ public class ClosureGlobalPostProcessor extends
 		// Handle All closure parameters defined in Jawr config
 		initCompilerClosureArgumentsFromConfig(args, config);
 
-		// Add default compilation level argument
-		if(!args.contains(COMPILATION_LEVEL_ARG)){
-			args.add(COMPILATION_LEVEL_ARG);
-			args.add(WHITESPACE_ONLY_COMPILATION_LEVEL);
-		}
+		String excludedBundlesProp = config.getProperty(JAWR_JS_CLOSURE_BUNDLES_EXCLUDED,"");
+		List<String> excludedBundles = Arrays.asList(excludedBundlesProp.replaceAll(" ", "").split(","));
 		
-		// Add default level warning argument if not defined
-		if(!args.contains(WARNING_LEVEL_ARG)){
-			args.add(WARNING_LEVEL_ARG);
-			args.add(VERBOSE_WARNING_LEVEL);
-		}
-		
-		// handle modules
+		// handle user specified modules
 		Map<String, JoinableResourceBundle> bundleMap = new HashMap<String, JoinableResourceBundle>();
 		for (JoinableResourceBundle bundle : bundles) {
-			bundleMap.put(bundle.getName(), bundle);
+			if(!excludedBundles.contains(bundle.getName())){
+				bundleMap.put(bundle.getName(), bundle);
+			}
 		}
 
 		String modules = config.getProperty(JAWR_JS_CLOSURE_MODULES);
 		List<String> depModulesArgs = new ArrayList<String>();
 
-		List<JoinableResourceBundle> globalBundles = getRsBundlesHandler(ctx)
-				.getGlobalBundles();
-		List<String> globalBundleDependencies = new ArrayList<String>();
-		for (JoinableResourceBundle globalBundle : globalBundles) {
-			globalBundleDependencies.add(globalBundle.getName());
-		}
+		List<String> globalBundleDependencies = getGlobalBundleDependencies(
+				ctx, excludedBundles);
 
 		// Initialize the modules arguments
 		initModulesArgs(resultBundlePathMapping, args, bundles, bundleMap,
@@ -280,6 +274,25 @@ public class ClosureGlobalPostProcessor extends
 	}
 
 	/**
+	 * Returns the global bundle dependencies
+	 * @param ctx the context
+	 * @param excludedBundles the excluded bundles
+	 * @return the global bundle dependencies
+	 */
+	private List<String> getGlobalBundleDependencies(
+			GlobalPostProcessingContext ctx, List<String> excludedBundles) {
+		List<JoinableResourceBundle> globalBundles = getRsBundlesHandler(ctx)
+				.getGlobalBundles();
+		List<String> globalBundleDependencies = new ArrayList<String>();
+		for (JoinableResourceBundle globalBundle : globalBundles) {
+			if(!excludedBundles.contains(globalBundle.getName())){
+				globalBundleDependencies.add(globalBundle.getName());
+			}
+		}
+		return globalBundleDependencies;
+	}
+
+	/**
 	 * Initialize the closure argument from the Jawr config
 	 * @param args the arguments
 	 * @param config the Jawr config
@@ -289,7 +302,7 @@ public class ClosureGlobalPostProcessor extends
 		Set<Entry<Object, Object>> entrySet = config.getConfigProperties().entrySet();
 		for(Entry<Object, Object> propEntry : entrySet){
 			String key = (String)propEntry.getKey();
-			if(key.startsWith(JAWR_JS_CLOSURE_PREFIX)){
+			if(key.startsWith(JAWR_JS_CLOSURE_PREFIX) && !JAWR_JS_CLOSURE_SPECIFIC_PROPERTIES.contains(key)){
 				
 				String compilerArgName = key.substring(JAWR_JS_CLOSURE_PREFIX.length());
 				checkCompilerArgumentName(compilerArgName);
@@ -298,6 +311,18 @@ public class ClosureGlobalPostProcessor extends
 				args.add(CLOSURE_ARGUMENT_NAME_PREFIX+compilerArgName);
 				args.add(propEntry.getValue().toString());
 			}
+		}
+		
+		// Add default compilation level argument
+		if(!args.contains(COMPILATION_LEVEL_ARG)){
+			args.add(COMPILATION_LEVEL_ARG);
+			args.add(WHITESPACE_ONLY_COMPILATION_LEVEL);
+		}
+		
+		// Add default level warning argument if not defined
+		if(!args.contains(WARNING_LEVEL_ARG)){
+			args.add(WARNING_LEVEL_ARG);
+			args.add(VERBOSE_WARNING_LEVEL);
 		}
 	}
 
@@ -561,10 +586,25 @@ public class ClosureGlobalPostProcessor extends
 				List<JoinableResourceBundle> bundles,
 				Map<String, String> resultBundleMapping) {
 			super(getClosureCompilerArgs(ctx, bundles, resultBundleMapping));
+			
 			this.ctx = ctx;
 			this.resultBundleMapping = resultBundleMapping;
 		}
 
+		/* (non-Javadoc)
+		 * @see com.google.javascript.jscomp.CommandLineRunner#createCompiler()
+		 */
+		@Override
+		protected Compiler createCompiler() {
+			Compiler compiler = new Compiler(getErrorPrintStream());
+			
+			// Disable thread if needed
+			if(Boolean.getBoolean(ctx.getJawrConfig().getProperty(JAWR_JS_CLOSURE_DISABLE_THREAD,"false"))){
+				compiler.disableThreads();
+			}
+			return compiler;
+		  }
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -589,10 +629,10 @@ public class ClosureGlobalPostProcessor extends
 		 * @throws
 		 */
 		@Override
-		protected List<JSSourceFile> createInputs(List<String> files,
+		protected List<SourceFile> createInputs(List<String> files,
 				boolean allowStdIn) throws IOException {
 
-			List<JSSourceFile> inputs = new ArrayList<JSSourceFile>(
+			List<SourceFile> inputs = new ArrayList<SourceFile>(
 					files.size());
 
 			for (String filename : files) {

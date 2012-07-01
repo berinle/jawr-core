@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hernández Sellés, Ibrahim Chaehoi, Matt Ruby
+ * Copyright 2007-2012 Jordi Hernández Sellés, Ibrahim Chaehoi, Matt Ruby
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,14 +15,15 @@ package net.jawr.web.config;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
-
-import org.apache.log4j.Logger;
 
 import net.jawr.web.JawrConstant;
 import net.jawr.web.context.ThreadLocalJawrContext;
@@ -41,12 +42,15 @@ import net.jawr.web.resource.bundle.renderer.CSSHTMLBundleLinkRenderer;
 import net.jawr.web.resource.bundle.variant.VariantResolver;
 import net.jawr.web.resource.bundle.variant.resolver.BrowserResolver;
 import net.jawr.web.resource.bundle.variant.resolver.ConnectionTypeResolver;
+import net.jawr.web.servlet.util.MIMETypesSupport;
 import net.jawr.web.util.StringUtils;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class holds configuration details for Jawr in a given ServletContext.
  * 
- * @author Jordi Hernández Sellés
+ * @author Jordi HernÃ¡ndez SellÃ©s
  * @author Ibrahim Chaehoi
  * @author Matt Ruby
  */
@@ -58,6 +62,9 @@ public class JawrConfig implements Serializable {
 	/** The logger */
 	private static final Logger LOGGER = Logger
 			.getLogger(JawrConfig.class);
+	
+	/** The unauthorized resource extensions */
+	private static final List<String> UNAUTHORIZED_RESOURCE_EXTENSIONS = Arrays.asList("xml","properties", "text");
 	
 	/**
 	 * The jawr property placeholder patten ex : ${my_property.id}
@@ -290,6 +297,16 @@ public class JawrConfig implements Serializable {
 	 */
 	private String servletMapping = "";
 
+	/** 
+	 * The type of resources handled by this config 
+	 */
+	private String resourceType;
+	
+	/**
+	 * The allowed resource extensions
+	 */
+	private List<String> allowedExtensions = new ArrayList<String>();
+	
 	/**
 	 * Override value to use instead of the context path of the application in generated urls. If null, contextPath is used. If blank, urls are
 	 * generated to be relative.
@@ -343,8 +360,8 @@ public class JawrConfig implements Serializable {
 	 * 
 	 * @param props the properties
 	 */
-	public JawrConfig(final Properties props) {
-		this(props, null);
+	public JawrConfig(final String resourceType, final Properties props) {
+		this(resourceType, props, null);
 	}
 	
 	/**
@@ -352,7 +369,9 @@ public class JawrConfig implements Serializable {
 	 * 
 	 * @param props the properties
 	 */
-	public JawrConfig(final Properties props, ConfigPropertyResolver resolver) {
+	public JawrConfig(final String resourceType, final Properties props, ConfigPropertyResolver resolver) {
+		this.resourceType = resourceType;
+		
 		this.configProperties = props;
 		if(resolver != null){
 			for(Entry<Object, Object> entry : this.configProperties.entrySet()){
@@ -398,6 +417,32 @@ public class JawrConfig implements Serializable {
 		if (null != props.getProperty(JAWR_STRICT_MODE)) {
 			this.strictMode = Boolean.valueOf(props.getProperty(JAWR_STRICT_MODE)).booleanValue();
 		}
+		
+		if(null != props.getProperty("jawr."+resourceType+".allowed.extensions")){
+			String[] strExtensions = props.getProperty("jawr."+resourceType+".allowed.extensions").split(",");
+			for (String extension : strExtensions) {
+				if(UNAUTHORIZED_RESOURCE_EXTENSIONS.contains(extension)){
+					LOGGER.warn("The extension '"+extension+"' is an unauthorized extension. It will not be added to the allowed extension." );
+				}else{
+					this.allowedExtensions.add(extension);
+				}
+			}
+		}
+		
+		if(resourceType.equals(JawrConstant.IMG_TYPE)){
+			for (Object key : MIMETypesSupport.getSupportedProperties(JawrConfig.class).keySet()) {
+				if(!this.allowedExtensions.contains((String) key)){
+					this.allowedExtensions.add((String) key);
+				}
+			}
+		}else{
+			
+			// Add the default resource extension : js or css
+			if(!this.allowedExtensions.contains(resourceType)){
+				this.allowedExtensions.add(resourceType);
+			}
+		}
+		
 		
 		if (null != props.getProperty(JAWR_USE_BUNDLE_MAPPING)) {
 			this.useBundleMapping = Boolean.valueOf(props.getProperty(JAWR_USE_BUNDLE_MAPPING)).booleanValue();
@@ -482,6 +527,23 @@ public class JawrConfig implements Serializable {
 		}
 		
 	}
+	
+	/**
+	 * Returns the resource type
+	 * @return the resource type
+	 */
+	public String getResourceType() {
+		return resourceType;
+	}
+
+	/**
+	 * Returns the allowed extensions
+	 * @return the allowed extensions
+	 */
+	public List<String> getAllowedExtensions() {
+		return allowedExtensions;
+	}
+
 	
 	/**
 	 * Returns the flag indicating if we are in strict mode or not

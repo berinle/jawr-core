@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.jawr.web.resource.bundle.DebugInclusion;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
@@ -29,22 +30,22 @@ public class JoinableResourceBundleImplTest extends  ResourceHandlerBasedTest  {
 	 * 
 	 */
 	public JoinableResourceBundleImplTest() {
-		InclusionPattern pattern = new InclusionPattern(true,0,true,false);
-		List fullMapping = Collections.singletonList("js/**");
+		InclusionPattern pattern = new InclusionPattern(true,0,DebugInclusion.ALWAYS);
+		List<String> fullMapping = Collections.singletonList("js/**");
 		
-		List partialMapping = new ArrayList();
+		List<String> partialMapping = new ArrayList<String>();
 		partialMapping.add("/js/subfolder/");
 		partialMapping.add("/outsider.js");
 		
 		ResourceReaderHandler rsHandler = null;
 		try {
-			rsHandler = createResourceReaderHandler(ROOT_TESTDIR, Charset.forName("UTF-8"));
+			rsHandler = createResourceReaderHandler(ROOT_TESTDIR, "js",Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			System.out.println("Error in test constructor");
 			e.printStackTrace();
 		}
-		fullCollection = new JoinableResourceBundleImpl("full.js","full",".js",pattern,fullMapping,rsHandler, config.getGeneratorRegistry());
-		partialCollection = new JoinableResourceBundleImpl("partial.js","partial",".js",pattern,partialMapping,rsHandler, config.getGeneratorRegistry());
+		fullCollection = new JoinableResourceBundleImpl("full.js","full", "js",pattern,fullMapping,rsHandler, config.getGeneratorRegistry());
+		partialCollection = new JoinableResourceBundleImpl("partial.js","partial", "js",pattern,partialMapping,rsHandler, config.getGeneratorRegistry());
 	}
  
 	/**
@@ -72,7 +73,7 @@ public class JoinableResourceBundleImplTest extends  ResourceHandlerBasedTest  {
 	 */
 	public void testGetItemPathList() {
 		// Full collection
-		List expectedInFullCol = new ArrayList();
+		List<String> expectedInFullCol = new ArrayList<String>();
 		expectedInFullCol.add("/js/script2.js");
 		expectedInFullCol.add("/js/subfolder/subfolderscript.js");
 		expectedInFullCol.add("/js/subfolder2/subfolderscript2.js");
@@ -80,7 +81,7 @@ public class JoinableResourceBundleImplTest extends  ResourceHandlerBasedTest  {
 		assertEquals("Order of inclusion does not match the expected. ",expectedInFullCol, fullCollection.getItemPathList());
 
 		// Partial collection
-		List expectedInPartCol = new ArrayList();
+		List<String> expectedInPartCol = new ArrayList<String>();
 		expectedInPartCol.add("/js/subfolder/subfolderscript.js");
 		expectedInPartCol.add("/outsider.js");
 		assertEquals("[partialMapping] Order of inclusion does not match the expected. ",expectedInPartCol, partialCollection.getItemPathList());

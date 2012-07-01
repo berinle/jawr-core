@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -29,6 +29,8 @@ import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.iterator.ConditionalCommentCallbackHandler;
 import net.jawr.web.resource.bundle.iterator.ListPathsIteratorImpl;
@@ -55,15 +57,27 @@ public class IECssBundleGenerator extends AbstractCSSGenerator {
 	private static final Logger LOGGER = Logger
 			.getLogger(IECssBundleGenerator.class);
 
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
+
+	/**
+	 * Constructor
+	 */
+	public IECssBundleGenerator() {
+		resolver = ResourceGeneratorResolverFactory
+				.createPrefixResolver(GeneratorRegistry.IE_CSS_GENERATOR_PREFIX);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seenet.jawr.web.resource.bundle.generator.PrefixedResourceGenerator#
-	 * getMappingPrefix()
+	 * @see
+	 * net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher
+	 * ()
 	 */
-	public String getMappingPrefix() {
+	public ResourceGeneratorResolver getResolver() {
 
-		return GeneratorRegistry.IE_CSS_GENERATOR_PREFIX;
+		return resolver;
 	}
 
 	/*
@@ -75,60 +89,74 @@ public class IECssBundleGenerator extends AbstractCSSGenerator {
 	 */
 	public Reader createResource(GeneratorContext context) {
 
-		
+		return generateResourceForBundle(context);
+	}
+
+	@Override
+	protected Reader generateResourceForBundle(GeneratorContext context) {
 
 		ResourceBundlesHandler bundlesHandler = (ResourceBundlesHandler) context
 				.getServletContext().getAttribute(
 						JawrConstant.CSS_CONTEXT_ATTRIBUTE);
-		
+
 		String contextPath = context.getPath();
 		String bundlePath = getBundlePath(contextPath);
-		
-		Map<String, String> variants = getVariantMap(bundlesHandler, contextPath, bundlePath);
-		
-		String result = generateContent(context, bundlesHandler, bundlePath, variants);
+
+		Map<String, String> variants = getVariantMap(bundlesHandler,
+				contextPath, bundlePath);
+
+		String result = generateContent(context, bundlesHandler, bundlePath,
+				variants);
 
 		return new StringReader(result.toString());
 	}
 
 	/**
 	 * Generates the Css content for the bundle path
-	 * @param context the generator context
-	 * @param bundlesHandler the bundles handler
-	 * @param bundlePath the bundle path
-	 * @param variants the variants
-	 * @return the generated CSS content 
+	 * 
+	 * @param context
+	 *            the generator context
+	 * @param bundlesHandler
+	 *            the bundles handler
+	 * @param bundlePath
+	 *            the bundle path
+	 * @param variants
+	 *            the variants
+	 * @return the generated CSS content
 	 */
 	private String generateContent(GeneratorContext context,
 			ResourceBundlesHandler bundlesHandler, String bundlePath,
 			Map<String, String> variants) {
-		
+
 		// Here we create a new context where the bundle name is the Jawr
 		// generator CSS path
 		String cssGeneratorBundlePath = PathNormalizer.concatWebPath(context
 				.getConfig().getServletMapping(),
 				ResourceGenerator.CSS_DEBUGPATH);
-		
-		JoinableResourceBundle tempBundle = new JoinableResourceBundleImpl(
-				cssGeneratorBundlePath, null, null, null, null, null);
 
-		BundleProcessingStatus tempStatus = new BundleProcessingStatus(BundleProcessingStatus.BUNDLE_PROCESSING_TYPE,
-				tempBundle, context.getResourceReaderHandler(), context
-						.getConfig());
+		JoinableResourceBundle tempBundle = new JoinableResourceBundleImpl(
+				cssGeneratorBundlePath, null, "css", null, null, context
+						.getConfig().getGeneratorRegistry());
+
+		BundleProcessingStatus tempStatus = new BundleProcessingStatus(
+				BundleProcessingStatus.BUNDLE_PROCESSING_TYPE, tempBundle,
+				context.getResourceReaderHandler(), context.getConfig());
 
 		CSSURLPathRewriterPostProcessor postProcessor = new CSSURLPathRewriterPostProcessor();
 
 		ResourceBundlePathsIterator it = null;
-		
+
 		StringWriter resultWriter = new StringWriter();
 		StringBuffer result = resultWriter.getBuffer();
-		ConditionalCommentCallbackHandler callbackHandler = new ConditionalCommentRenderer(resultWriter);
+		ConditionalCommentCallbackHandler callbackHandler = new ConditionalCommentRenderer(
+				resultWriter);
 		if (bundlesHandler.isGlobalResourceBundle(bundlePath)) {
 			it = new ListPathsIteratorImpl(bundlePath);
-			it = bundlesHandler.getGlobalResourceBundlePaths(bundlePath, callbackHandler,
-					variants);
+			it = bundlesHandler.getGlobalResourceBundlePaths(bundlePath,
+					callbackHandler, variants);
 		} else {
-			it = bundlesHandler.getBundlePaths(bundlePath, callbackHandler, variants);
+			it = bundlesHandler.getBundlePaths(bundlePath, callbackHandler,
+					variants);
 		}
 
 		while (it.hasNext()) {
@@ -158,36 +186,50 @@ public class IECssBundleGenerator extends AbstractCSSGenerator {
 				}
 			}
 		}
-		
+
 		return result.toString();
 	}
 
 	/**
 	 * Returns the variant map from the context path
-	 * @param bundlesHandler the bundles handler
-	 * @param contextPath the context path
-	 * @param bundlePath the bundle path
+	 * 
+	 * @param bundlesHandler
+	 *            the bundles handler
+	 * @param contextPath
+	 *            the context path
+	 * @param bundlePath
+	 *            the bundle path
 	 * @return the variant map for the current context
 	 */
-	private Map<String, String> getVariantMap(ResourceBundlesHandler bundlesHandler,
-			String contextPath, String bundlePath) {
-		
-		
-		JoinableResourceBundle bundle = bundlesHandler.resolveBundleForPath(bundlePath);
+	private Map<String, String> getVariantMap(
+			ResourceBundlesHandler bundlesHandler, String contextPath,
+			String bundlePath) {
+
+		JoinableResourceBundle bundle = bundlesHandler
+				.resolveBundleForPath(bundlePath);
 		Set<String> variantTypes = bundle.getVariants().keySet();
-		
+
 		String variantKey = getVariantKey(contextPath);
 		String[] variantValues = new String[0];
-		if(variantKey.trim().length() > 0){
-			variantValues = variantKey.split(String.valueOf(JawrConstant.VARIANT_SEPARATOR_CHAR)); 
+		if (variantKey.length() > 0) {
+			if (variantKey.length() == 1) {
+				variantValues = new String[] { "", "" };
+			} else {
+				variantValues = variantKey.split(String
+						.valueOf(JawrConstant.VARIANT_SEPARATOR_CHAR));
+			}
 		}
-		
+
 		Map<String, String> variants = new HashMap<String, String>();
-		if(variantTypes.size() != variantValues.length){
-			throw new BundlingProcessException("For the resource '"+contextPath+"', the number variant types for the bundle don't match the variant values.");
+		if (variantTypes.size() != variantValues.length) {
+			throw new BundlingProcessException(
+					"For the resource '"
+							+ contextPath
+							+ "', the number variant types for the bundle don't match the variant values.");
 		}
 		int i = 0;
-		for (Iterator<String> iterator = variantTypes.iterator(); iterator.hasNext();) {
+		for (Iterator<String> iterator = variantTypes.iterator(); iterator
+				.hasNext();) {
 			String variantType = iterator.next();
 			variants.put(variantType, variantValues[i++]);
 		}
@@ -196,19 +238,21 @@ public class IECssBundleGenerator extends AbstractCSSGenerator {
 
 	/**
 	 * Returns the IE Css bundle path from the context path
-	 * @param contextPath the context path
+	 * 
+	 * @param contextPath
+	 *            the context path
 	 * @return the IE Css bundle path
 	 */
 	private String getBundlePath(String contextPath) {
 		String bundlePath = contextPath;
 		int idx = -1;
-		if(bundlePath.startsWith(JawrConstant.URL_SEPARATOR)){
+		if (bundlePath.startsWith(JawrConstant.URL_SEPARATOR)) {
 			idx = bundlePath.indexOf(JawrConstant.URL_SEPARATOR, 1);
-		}else{
+		} else {
 			idx = bundlePath.indexOf(JawrConstant.URL_SEPARATOR, 1);
 		}
-		
-		if(idx != -1){
+
+		if (idx != -1) {
 			bundlePath = bundlePath.substring(idx);
 		}
 		return bundlePath;
@@ -217,23 +261,25 @@ public class IECssBundleGenerator extends AbstractCSSGenerator {
 	/**
 	 * Returns the variant key from the context path.
 	 * 
-	 * @param contextPath the path
+	 * @param contextPath
+	 *            the path
 	 * @return the variant key
 	 */
 	private String getVariantKey(String contextPath) {
-		
+
 		// Remove first slash
 		String resultPath = contextPath.substring(1);
 		String variantKey = "";
 		// eval the existence of a suffix
-		String prefix = resultPath.substring(0, resultPath.indexOf(JawrConstant.URL_SEPARATOR));
+		String prefix = resultPath.substring(0,
+				resultPath.indexOf(JawrConstant.URL_SEPARATOR));
 
 		// The prefix also contains variant information after a '.'
 		if (prefix.indexOf('.') != -1) {
 			variantKey = prefix.substring(prefix.indexOf('.') + 1);
-		} 
-		
-		return variantKey;
+		}
+
+		return variantKey.trim();
 	}
-	
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Ibrahim Chaehoi
+ * Copyright 2010-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -41,7 +41,7 @@ public class PostProcessorCssImageUrlRewriter extends CssImageUrlRewriter {
 	private static Logger LOGGER = Logger.getLogger(PostProcessorCssImageUrlRewriter.class);
 	
 	/** The bundle processing status */
-	private BundleProcessingStatus status;
+	protected BundleProcessingStatus status;
 	
 	/**
 	 * Constructor

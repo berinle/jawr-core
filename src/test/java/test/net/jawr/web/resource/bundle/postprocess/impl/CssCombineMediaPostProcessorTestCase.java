@@ -13,24 +13,18 @@
  */
 package test.net.jawr.web.resource.bundle.postprocess.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
 import junit.framework.TestCase;
 import net.jawr.web.config.JawrConfig;
-import net.jawr.web.exception.ResourceNotFoundException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
 import net.jawr.web.resource.bundle.postprocess.impl.CSSCombineMediaPostProcessor;
-import net.jawr.web.resource.bundle.postprocess.impl.css.base64.Base64ImageEncoderPostProcessor;
 import net.jawr.web.util.StringUtils;
 import test.net.jawr.web.resource.bundle.MockJoinableResourceBundle;
-import test.net.jawr.web.resource.bundle.handler.MockResourceReaderHandler;
 import test.net.jawr.web.servlet.mock.MockServletContext;
 
 /**
@@ -49,7 +43,7 @@ public class CssCombineMediaPostProcessorTestCase extends TestCase {
 
 		bundle = buildFakeBundle("/css/bundle.css", "myBundle");
 		Properties props = new Properties();
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -149,48 +143,4 @@ public class CssCombineMediaPostProcessorTestCase extends TestCase {
 
 	}
 
-	private static class FakeResourceReaderHandler extends
-			MockResourceReaderHandler {
-
-		public Reader getResource(String resourceName)
-				throws ResourceNotFoundException {
-
-			throw new ResourceNotFoundException(resourceName);
-		}
-
-		public Reader getResource(String resourceName, boolean processingBundle)
-				throws ResourceNotFoundException {
-
-			throw new ResourceNotFoundException(resourceName);
-
-		}
-
-		public InputStream getResourceAsStream(String resourceName,
-				boolean processingBundle) throws ResourceNotFoundException {
-			throw new ResourceNotFoundException(resourceName);
-		}
-
-		public InputStream getResourceAsStream(String resourceName)
-				throws ResourceNotFoundException {
-
-			InputStream is = null;
-			if (resourceName.startsWith("sprite:")) {
-				is = new ByteArrayInputStream("Fake value".getBytes());
-			}
-
-			if (resourceName.indexOf("bigImage") != -1) {
-
-				int length = 400000;
-				byte[] data = new byte[length];
-				for (int i = 0; i < length; i++) {
-					data[i] = (byte) ((int) i % 2);
-				}
-				is = new ByteArrayInputStream(data);
-			} else {
-				is = new ByteArrayInputStream("Fake value".getBytes());
-			}
-
-			return is;
-		}
-	}
 }

@@ -17,6 +17,9 @@ import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
 import net.jawr.web.resource.bundle.postprocess.impl.css.base64.Base64ImageEncoderPostProcessor;
+
+import org.apache.wicket.util.file.File;
+
 import test.net.jawr.web.FileUtils;
 import test.net.jawr.web.resource.bundle.MockJoinableResourceBundle;
 import test.net.jawr.web.resource.bundle.handler.MockResourceReaderHandler;
@@ -39,13 +42,13 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		final String urlPrefix = "/v00";
 		
 		bundle = buildFakeBundle(bundlePath, urlPrefix);
-		config = new JawrConfig( new Properties());
+		config = new JawrConfig("css", new Properties());
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
-		config.setServletMapping("/js");
+		config.setServletMapping("/css");
 		config.setCharsetName("UTF-8");		
 		status = new BundleProcessingStatus(BundleProcessingStatus.BUNDLE_PROCESSING_TYPE, bundle,null,config);
-		addGeneratorRegistryToConfig(config, "js");
+		addGeneratorRegistryToConfig(config, "css");
 		status.setLastPathAdded("/css/someCSS.css");
 		processor = new Base64ImageEncoderPostProcessor();
 	}
@@ -72,7 +75,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		// Set the properties
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -81,7 +84,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -114,7 +117,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.JAWR_CSS_URL_REWRITER_CONTEXT_PATH, "/myApp");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -123,7 +126,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -155,7 +158,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		// Set the properties
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -164,7 +167,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -197,7 +200,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -206,7 +209,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -239,7 +242,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "false");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -248,7 +251,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -281,7 +284,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -290,7 +293,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -323,7 +326,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "false");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -332,7 +335,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -365,7 +368,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -374,7 +377,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -407,7 +410,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "false");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -416,7 +419,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -449,7 +452,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -458,7 +461,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -491,7 +494,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
 		props.setProperty(JawrConstant.BASE64_ENCODE_BY_DEFAULT, "false");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -500,7 +503,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -539,7 +542,7 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 				return id;
 			}
 
-			public String getURLPrefix(Map variants) {
+			public String getURLPrefix(Map<String, String> variants) {
 				return urlPrefix;
 			}
 		};
@@ -547,6 +550,18 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 	
 	private static class FakeResourceReaderHandler extends MockResourceReaderHandler {
 
+		private String workingDirectory;
+		public FakeResourceReaderHandler() {
+			try {
+				workingDirectory = FileUtils.getClasspathRootDir()+"/base64Postprocessor/work";
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			
+			File workCssSpriteDir = new File(workingDirectory, "cssSprites/src");
+			FileUtils.clearDirectory(workCssSpriteDir.getAbsolutePath());
+		}
+		
 		public Reader getResource(String resourceName)
 				throws ResourceNotFoundException {
 			
@@ -558,6 +573,18 @@ public class CSSBase64ImageRewriterPostProcessorTest extends TestCase {
 			
 			throw new ResourceNotFoundException(resourceName);
 			
+		}
+
+		
+		@Override
+		public String getWorkingDirectory()  {
+			try {
+				
+				
+				return FileUtils.getClasspathRootDir()+"/base64Postprocessor/work";
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		public InputStream getResourceAsStream(String resourceName,

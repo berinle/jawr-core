@@ -57,7 +57,7 @@ Javascript i18n message generator
 +------------------------------------------+	
 	
 	As you can see, a mapping was added to 'messages:com.myapp.jsmessages'. All mappings to message bundles will start with 'messages:', followed 
-	by a comma separated list of the basenames for the ResourceBundles. In this case, the mapping refers to properties files located in the 
+	by a pipe character '|' separated list of the basenames for the ResourceBundles. In this case, the mapping refers to properties files located in the 
 	classpath under 'com/myap' with the name 'jsmessages.properties'. 
 	
 	The locale variants for this bundle will be found automatically by Jawr. 

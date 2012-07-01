@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -78,9 +78,9 @@ public class JoinableResourceBundlePropertySerializer {
 					.getInclusionOrder()));
 		}
 
-		if (inclusion.isIncludeOnDebug()) {
+		if (inclusion.isIncludeOnlyOnDebug()) {
 			props.put(prefix + PropertiesBundleConstant.BUNDLE_FACTORY_CUSTOM_DEBUGONLY, Boolean.toString(inclusion
-					.isIncludeOnDebug()));
+					.isIncludeOnlyOnDebug()));
 		}
 		if (inclusion.isExcludeOnDebug()) {
 			props.put(prefix + PropertiesBundleConstant.BUNDLE_FACTORY_CUSTOM_DEBUGNEVER, Boolean.toString(inclusion
@@ -132,7 +132,13 @@ public class JoinableResourceBundlePropertySerializer {
 		
 
 		// mapping
-		List<String> itemPathList = bundle.getItemPathList();
+		List<String> itemPathList = null; 
+		if(!bundle.getInclusionPattern().isIncludeOnDebug()){
+			itemPathList = bundle.getItemPathList();
+		}else if(!bundle.getInclusionPattern().isExcludeOnDebug()){
+			itemPathList = bundle.getItemDebugPathList();
+		}
+		
 		if (itemPathList != null && !itemPathList.isEmpty()) {
 			props
 					.put(prefix + PropertiesBundleConstant.BUNDLE_FACTORY_CUSTOM_MAPPINGS,

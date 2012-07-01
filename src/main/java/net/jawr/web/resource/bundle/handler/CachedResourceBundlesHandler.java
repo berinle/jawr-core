@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Map;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.cache.AbstractCacheManager;
 import net.jawr.web.cache.CacheManagerFactory;
 import net.jawr.web.config.JawrConfig;
@@ -41,12 +42,18 @@ import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
  * in subsequent calls. Every method call not related to retrieving data is
  * delegated to the wrapped implementation.
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  * 
  */
 public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 
+	/** The prefix for text element in cache */
+	private static String TEXT_CACHE_PREFIX = "TEXT.";
+	
+	/** The prefix for zipped element in cache */
+	private static String ZIP_CACHE_PREFIX = "ZIP.";
+	
 	/** The resource bundle handler */
 	private ResourceBundlesHandler rsHandler;
 
@@ -119,7 +126,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	 * net.jawr.web.resource.bundle.ResourceBundlesHandler#getBundlePaths(java
 	 * .lang.String)
 	 */
-	public ResourceBundlePathsIterator getBundlePaths(boolean debugMode,
+	public ResourceBundlePathsIterator getBundlePaths(DebugMode debugMode,
 			String bundleId,
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
@@ -168,7 +175,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 
 		try {
 			//byte[] gzip = gzipCache.get(bundlePath);
-			byte[] gzip = (byte[]) cacheMgr.get("ZIP."+bundlePath);
+			byte[] gzip = (byte[]) cacheMgr.get(ZIP_CACHE_PREFIX+bundlePath);
 			// If it's not cached yet
 			if (null == gzip) {
 				// Stream the stored data
@@ -181,7 +188,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 				gzip = baOs.toByteArray();
 
 				// Cache the byte array
-				cacheMgr.put("ZIP."+bundlePath, gzip);
+				cacheMgr.put(ZIP_CACHE_PREFIX+bundlePath, gzip);
 				//gzipCache.put(bundlePath, gzip);
 			}
 
@@ -206,7 +213,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	public void writeBundleTo(String bundlePath, Writer writer)
 			throws ResourceNotFoundException {
 		//String text = (String) textCache.get(bundlePath);
-		String text = (String) cacheMgr.get("TEXT."+bundlePath);
+		String text = (String) cacheMgr.get(TEXT_CACHE_PREFIX+bundlePath);
 		try {
 			// If it's not cached yet
 			if (null == text) {
@@ -217,7 +224,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 				Writer tempWriter = Channels.newWriter(wrChannel, charsetName);
 				rsHandler.writeBundleTo(bundlePath, tempWriter);
 				text = baOs.toString(charsetName);
-				cacheMgr.put("TEXT."+bundlePath, text);
+				cacheMgr.put(TEXT_CACHE_PREFIX+bundlePath, text);
 				//textCache.put(bundlePath, text);
 			}
 
@@ -268,7 +275,7 @@ public class CachedResourceBundlesHandler implements ResourceBundlesHandler {
 	 * java.util.Map)
 	 */
 	public ResourceBundlePathsIterator getGlobalResourceBundlePaths(
-			boolean debugMode,
+			DebugMode debugMode,
 			ConditionalCommentCallbackHandler commentCallbackHandler,
 			Map<String, String> variants) {
 

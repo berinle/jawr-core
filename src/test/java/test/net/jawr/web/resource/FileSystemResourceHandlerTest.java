@@ -37,7 +37,7 @@ public class FileSystemResourceHandlerTest extends ResourceHandlerBasedTest {
 			byte[] data = {-61,-95,-61,-87,	-61,-83,-61,-77,-61,-70,-30,-126,-84};
 			temp = new String(data,"UTF-8");
 			
-			rsReaderHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
+			rsReaderHandler = createResourceReaderHandler(ROOT_TESTDIR,"js",charsetUtf);
 			rsBundleHandler = createResourceBundleHandler(ROOT_TESTDIR,charsetUtf);
 		} catch (Exception e) {
 			fail("Error in test constructor " + e.getClass().getName() + ":"+ e.getMessage());
@@ -70,7 +70,7 @@ public class FileSystemResourceHandlerTest extends ResourceHandlerBasedTest {
 	public void testGetResourceNames() {
 		try {
 			// Get all files in root location. 
-			Set files = rsReaderHandler.getResourceNames("");
+			Set<String> files = rsReaderHandler.getResourceNames("");
 			assertNotNull("No resource names found ",files);
 			
 			// File found

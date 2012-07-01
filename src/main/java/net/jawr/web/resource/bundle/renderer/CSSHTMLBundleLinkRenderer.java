@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2010 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.jawr.web.DebugMode;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.exception.JawrLinkRenderingException;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
@@ -36,11 +37,14 @@ import org.apache.log4j.Logger;
 /**
  * Renderer that creates css link tags. 
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  */
 public class CSSHTMLBundleLinkRenderer extends AbstractBundleLinkRenderer implements BundleRenderer{
     
+	/** The serial version UID */
+	private static final long serialVersionUID = 8478334123266702133L;
+
 	/** The logger */
 	private static final Logger LOGGER = Logger
 			.getLogger(CSSHTMLBundleLinkRenderer.class);
@@ -164,7 +168,7 @@ public class CSSHTMLBundleLinkRenderer extends AbstractBundleLinkRenderer implem
 			Writer out, boolean debugOn) throws IOException {
 		
 		if(isForcedToRenderIeCssBundleInDebug(ctx, debugOn)){
-			ResourceBundlePathsIterator resourceBundleIterator = bundler.getGlobalResourceBundlePaths(false, new ConditionalCommentRenderer(out), ctx.getVariants());
+			ResourceBundlePathsIterator resourceBundleIterator = bundler.getGlobalResourceBundlePaths(DebugMode.FORCE_NON_DEBUG_IN_IE, new ConditionalCommentRenderer(out), ctx.getVariants());
 			while(resourceBundleIterator.hasNext()){
 				String globalBundlePath = resourceBundleIterator.nextPath();
 				renderIeCssBundleLink(ctx, out, globalBundlePath);
@@ -197,7 +201,7 @@ public class CSSHTMLBundleLinkRenderer extends AbstractBundleLinkRenderer implem
 		
 		if(isForcedToRenderIeCssBundleInDebug(ctx, debugOn)){
 			
-			ResourceBundlePathsIterator it = bundler.getBundlePaths(false, bundle.getId(), new ConditionalCommentRenderer(out), variant);
+			ResourceBundlePathsIterator it = bundler.getBundlePaths(DebugMode.FORCE_NON_DEBUG_IN_IE, bundle.getId(), new ConditionalCommentRenderer(out), variant);
 		    while(it.hasNext()){
 				String bundlePath = it.nextPath();
 				renderIeCssBundleLink(ctx, out, bundlePath);

@@ -13,7 +13,7 @@ public class SortFileParserTest extends TestCase {
 	public void testGetSortedResources() {
 		String sortFile = "global\nlib/\nsomeFile.js";
 		
-		Set res = new HashSet();
+		Set<String> res = new HashSet<String>();
 		res.add("/someFile.js");
 		res.add("/lib/");
 		res.add("/someOtherFile.js");
@@ -24,7 +24,7 @@ public class SortFileParserTest extends TestCase {
 		String baseDir = "/js";
 		
 		SortFileParser parser = new SortFileParser(rd,res,baseDir);
-		List data = parser.getSortedResources();
+		List<String> data = parser.getSortedResources();
 		
 		makeAssertions(res, data);
 
@@ -36,7 +36,7 @@ public class SortFileParserTest extends TestCase {
 				res.contains("/lib/"));
 		
 		// Test different format in available resources
-		res = new HashSet();
+		res = new HashSet<String>();
 		res.add("/someFile.js");
 		res.add("/lib");
 		res.add("/someOtherFile.js");
@@ -60,7 +60,7 @@ public class SortFileParserTest extends TestCase {
 		
 	}
 
-	private void makeAssertions(Set res, List data) {
+	private void makeAssertions(Set<String> res, List<String> data) {
 		assertTrue("Expected mapping /js/global not added at the expected order",
 					data.get(0).equals("/js/global"));
 		assertTrue("Expected mapping /js/lib not added at the expected order",

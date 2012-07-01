@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Jordi Hern·ndez SellÈs
+ * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -38,7 +38,8 @@ import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
 import net.jawr.web.resource.bundle.generator.AbstractJavascriptGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorContext;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
-import net.jawr.web.resource.bundle.generator.ResourceGenerator;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolver;
+import net.jawr.web.resource.bundle.generator.resolver.ResourceGeneratorResolverFactory;
 
 import org.apache.log4j.Logger;
 import org.directwebremoting.Container;
@@ -53,10 +54,10 @@ import org.directwebremoting.impl.DefaultCreatorManager;
 /**
  * Generator that creates resources from DWR beans. 
  * 
- * @author Jordi Hern·ndez SellÈs
- * 
+ * @author Jordi Hern√°ndez Sell√©s
+ * @author Ibrahim Chaehoi
  */
-public class DWRBeanGenerator extends AbstractJavascriptGenerator implements ResourceGenerator {
+public class DWRBeanGenerator extends AbstractJavascriptGenerator {
 	private static final Logger LOGGER = Logger.getLogger(DWRBeanGenerator.class.getName());
 
 	// Mapping keys
@@ -103,12 +104,20 @@ public class DWRBeanGenerator extends AbstractJavascriptGenerator implements Res
 		DWR_LIBRARIES.put(WEBWORK_KEY, WEBWORK_PATH);
 	}
 	
+	/** The resolver */
+	private ResourceGeneratorResolver resolver;
 	
 	public DWRBeanGenerator() {
-		super();
+		resolver = ResourceGeneratorResolverFactory.createPrefixResolver(GeneratorRegistry.DWR_BUNDLE_PREFIX);
 	}
 
-
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.generator.BaseResourceGenerator#getPathMatcher()
+	 */
+	public ResourceGeneratorResolver getResolver() {
+	
+		return resolver;
+	}
 
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#createResource(java.lang.String, java.nio.charset.Charset)
@@ -137,14 +146,6 @@ public class DWRBeanGenerator extends AbstractJavascriptGenerator implements Res
 		
 		return new StringReader(data.toString());
 	}
-	
-	/* (non-Javadoc)
-	 * @see net.jawr.web.resource.bundle.generator.ResourceGenerator#getMappingPrefix()
-	 */
-	public String getMappingPrefix() {
-		return GeneratorRegistry.DWR_BUNDLE_PREFIX;
-	}
-	
 	
 	/**
 	 * Performs replacement on the engine.js script from DWR. 
@@ -362,6 +363,5 @@ public class DWRBeanGenerator extends AbstractJavascriptGenerator implements Res
 		
 		return rets.toString();
 	}
-	
 
 }

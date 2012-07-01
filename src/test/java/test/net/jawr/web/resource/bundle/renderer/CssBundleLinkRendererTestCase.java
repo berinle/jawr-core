@@ -40,6 +40,7 @@ import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.BundleDependencyException;
 import net.jawr.web.exception.DuplicateBundlePathException;
+import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.renderer.BundleRenderer;
 import net.jawr.web.resource.bundle.renderer.BundleRendererContext;
@@ -48,6 +49,7 @@ import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import test.net.jawr.web.resource.bundle.PredefinedBundlesHandlerUtil;
 import test.net.jawr.web.resource.bundle.handler.ResourceHandlerBasedTest;
+import test.net.jawr.web.servlet.mock.MockServletContext;
 
 /**
  * Test cases for the CSS link bundle renderer
@@ -84,14 +86,19 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 		
 		Charset charsetUtf = Charset.forName("UTF-8"); 
 		
-	    ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,charsetUtf);
-	    ResourceBundleHandler rsBundleHandler = createResourceBundleHandler(ROOT_TESTDIR,charsetUtf);
-	    JawrConfig jawrConfig = new JawrConfig(props);
-	    
+		props.setProperty("jawr.css.skin.default.root.dirs", "/css/themes/default");
+		JawrConfig jawrConfig = new JawrConfig("css", props);
 	    jawrConfig.setCharsetName("UTF-8");
 	    jawrConfig.setServletMapping("/srvMapping");
 	    jawrConfig.setCssLinkFlavor(CSSHTMLBundleLinkRenderer.FLAVORS_XHTML);
 	    jawrConfig.setDebugModeOn(debugOn);
+	    jawrConfig.setContext(new MockServletContext());
+	    GeneratorRegistry generatorRegistry = new GeneratorRegistry("css");
+	    jawrConfig.setGeneratorRegistry(generatorRegistry);
+	    
+	    ResourceReaderHandler rsHandler = createResourceReaderHandler(ROOT_TESTDIR,"css",charsetUtf,jawrConfig);
+	    ResourceBundleHandler rsBundleHandler = createResourceBundleHandler(ROOT_TESTDIR,charsetUtf);
+	    
 	    ResourceBundlesHandler cssHandler = null;
 	    try {
 	    	cssHandler = PredefinedBundlesHandlerUtil.buildSimpleVariantBundles(rsHandler,rsBundleHandler,CSS_BASEDIR,"css", jawrConfig);
@@ -265,7 +272,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 	{
 		CSSHTMLBundleLinkRenderer renderer = getCssBundleLinkRenderer(false, false, null, true, false, "aTitle");
 		// Test regular link creation
-	    bundleRendererCtx = new BundleRendererContext(CSS_CTX_PATH, new HashMap(), false, false);
+	    bundleRendererCtx = new BundleRendererContext(CSS_CTX_PATH, new HashMap<String, String>(), false, false);
 	    String result = renderToString(renderer,"/css/lib/lib.css", bundleRendererCtx);
 	    
 	    assertNotSame("No css tag written ", "", result.trim());
@@ -296,7 +303,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 	{
 		CSSHTMLBundleLinkRenderer renderer = getCssBundleLinkRenderer(true, false, null, true, false, "aTitle");
 		// Test regular link creation
-	    bundleRendererCtx = new BundleRendererContext(CSS_CTX_PATH, new HashMap(), false, false);
+	    bundleRendererCtx = new BundleRendererContext(CSS_CTX_PATH, new HashMap<String, String>(), false, false);
 	    String result = renderToString(renderer,"/css/lib/lib.css", bundleRendererCtx);
 	    
 	    assertNotSame("No css tag written ", "", result.trim());
@@ -327,7 +334,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 	{
 		CSSHTMLBundleLinkRenderer renderer = getCssBundleLinkRenderer(false, false, null, false, true, null);
 		// Test regular link creation
-		Map variants = new HashMap();
+		Map<String, String> variants = new HashMap<String, String>();
 		variants.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR");
 		
@@ -374,7 +381,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 	{
 		CSSHTMLBundleLinkRenderer renderer = getCssBundleLinkRenderer(true, false, null, false, true, null);
 		// Test regular link creation
-		Map variants = new HashMap();
+		Map<String, String> variants = new HashMap<String, String>();
 		variants.put(JawrConstant.SKIN_VARIANT_TYPE, "winter");
 		variants.put(JawrConstant.LOCALE_VARIANT_TYPE, "fr_FR");
 		
@@ -603,11 +610,11 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 				return null;
 			}
 			
-			public Enumeration getParameterNames() {
+			public Enumeration<?> getParameterNames() {
 				return null;
 			}
 			
-			public Map getParameterMap() {
+			public Map<?,?> getParameterMap() {
 				return null;
 			}
 			
@@ -615,7 +622,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 				return null;
 			}
 			
-			public Enumeration getLocales() {
+			public Enumeration<?> getLocales() {
 				return null;
 			}
 			
@@ -639,7 +646,7 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 				return null;
 			}
 			
-			public Enumeration getAttributeNames() {
+			public Enumeration<?> getAttributeNames() {
 				return null;
 			}
 			
@@ -719,11 +726,11 @@ public class CssBundleLinkRendererTestCase extends ResourceHandlerBasedTest {
 				return 0;
 			}
 			
-			public Enumeration getHeaders(String name) {
+			public Enumeration<?> getHeaders(String name) {
 				return null;
 			}
 			
-			public Enumeration getHeaderNames() {
+			public Enumeration<?> getHeaderNames() {
 				return null;
 			}
 			

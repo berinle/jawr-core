@@ -15,16 +15,22 @@ public class FileUtils {
 
 	public static File createDir(String pathName) throws Exception {
 		File dir = new File(getClasspathRootDir() + pathName);
-		if (!dir.exists())
-			dir.mkdir();
+		if (!dir.exists()){
+			if(!dir.mkdirs()){
+				throw new RuntimeException("Impossible to create the directory : "+pathName);
+			}
+		}
 		return dir;
 	}
 
 	public static void clearDirectory(String path) {
 		deleteDirectory(path);
 		File dir = new File(path);
-		if (!dir.exists())
-			dir.mkdir();
+		if (!dir.exists()){
+			if(!dir.mkdirs()){
+				throw new RuntimeException("Impossible to create the directory : "+path);
+			}
+		}
 	}
 	
 	public static boolean deleteDirectory(String path) {

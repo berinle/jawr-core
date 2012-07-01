@@ -1,5 +1,5 @@
 /**
- * Copyright 2009-2010 Ibrahim Chaehoi
+ * Copyright 2009-2012 Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import net.jawr.web.resource.bundle.DebugInclusion;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
@@ -303,7 +304,7 @@ public class FullMappingPropertiesBasedBundlesHandlerFactory {
 										PropertiesBundleConstant.BUNDLE_FACTORY_CUSTOM_DEBUGNEVER,
 										"false")).booleanValue();
 
-		return new InclusionPattern(isGlobal, order, isDebugOnly, isDebugNever);
+		return new InclusionPattern(isGlobal, order, DebugInclusion.get(isDebugOnly, isDebugNever));
 	}
 
 }

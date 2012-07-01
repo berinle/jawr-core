@@ -38,7 +38,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		final String urlPrefix = "/v00";
 		
 		bundle = buildFakeBundle(bundlePath, urlPrefix);
-		config = new JawrConfig( new Properties());
+		config = new JawrConfig("css", new Properties());
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/js");
@@ -293,7 +293,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		// Set the properties
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -302,7 +302,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
@@ -338,7 +338,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		// Set the properties
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -347,7 +347,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		GeneratorRegistry generatorRegistry = addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		FakeResourceReaderHandler rsHandler = new FakeResourceReaderHandler();
 		generatorRegistry.setResourceReaderHandler(rsHandler);
@@ -380,7 +380,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		// Set the properties
 		Properties props = new Properties();
 		props.setProperty(JawrConfig.JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, "true");
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -388,7 +388,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		imgServletJawrConfig.setServletMapping("/cssImg/");
 		ImageResourcesHandler imgRsHandler = new ImageResourcesHandler(imgServletJawrConfig, null, null);
 		servletContext.setAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE, imgRsHandler);
@@ -417,7 +417,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		
 		// Set the properties
 		Properties props = new Properties();
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -427,7 +427,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		ImageResourcesHandler imgRsHandler = new ImageResourcesHandler(imgServletJawrConfig, null, null);
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		servletContext.setAttribute(JawrConstant.IMG_CONTEXT_ATTRIBUTE, imgRsHandler);
@@ -451,7 +451,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 		
 		// Set the properties
 		Properties props = new Properties();
-		config = new JawrConfig(props);
+		config = new JawrConfig("css", props);
 		ServletContext servletContext = new MockServletContext();
 		config.setContext(servletContext);
 		config.setServletMapping("/css");
@@ -462,7 +462,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 
 		// Set up the Image servlet Jawr config
 		props = new Properties();
-		JawrConfig imgServletJawrConfig = new JawrConfig(props);
+		JawrConfig imgServletJawrConfig = new JawrConfig("img", props);
 		addGeneratorRegistryToConfig(imgServletJawrConfig, "img");
 		
 		ImageResourcesHandler imgRsHandler = new ImageResourcesHandler(imgServletJawrConfig, rsHandler, null);
@@ -547,7 +547,7 @@ public class CSSURLRewriterPostProcessorTest extends TestCase {
 				return id;
 			}
 
-			public String getURLPrefix(Map variants) {
+			public String getURLPrefix(Map<String, String> variants) {
 				return urlPrefix;
 			}
 		};

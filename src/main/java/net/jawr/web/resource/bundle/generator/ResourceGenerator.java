@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -18,9 +18,9 @@ import java.io.Reader;
 /**
  * A ResourceGenerator is acomponent that generates script or CSS dynamically, instead of reading 
  * it from the contents of a WAR file. It is used for creating resources programatically or to 
- * retrieve them from sources outsied the scope of a WAR file. 
+ * retrieve them from sources outside the scope of a WAR file. 
  * 
- * @author  Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
+ * @author  Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
  *
  */
 public interface ResourceGenerator extends PrefixedResourceGenerator{
@@ -30,6 +30,9 @@ public interface ResourceGenerator extends PrefixedResourceGenerator{
 	
 	/** The css debug path */
 	public static final String CSS_DEBUGPATH = "/jawr_generator.css";
+	
+	/** The javascript debug path */
+	public static final String IMG_DEBUGPATH = "/jawr_generator.jpg";
 	
 	/**
 	 * Create a reader on a generated resource (any script not read from the war file 
