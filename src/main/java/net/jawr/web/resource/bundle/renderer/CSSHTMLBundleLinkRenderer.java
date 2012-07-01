@@ -300,7 +300,7 @@ public class CSSHTMLBundleLinkRenderer extends AbstractBundleLinkRenderer implem
 		if (random < 0)
 			random *= -1;
 		String path = GeneratorRegistry.IE_CSS_GENERATOR_PREFIX+GeneratorRegistry.PREFIX_SEPARATOR+bundlePath;
-		path = PathNormalizer.createGenerationPath(path, bundler.getConfig().getGeneratorRegistry())+"&d="+random;
-		out.write(createBundleLink(path, ctx.getContextPath(), ctx.isSslRequest()));
+		path = PathNormalizer.createGenerationPath(path, bundler.getConfig().getGeneratorRegistry(), "d="+random);
+		out.write(createBundleLink(path, null, ctx.getContextPath(), ctx.isSslRequest()));
 	}
 }

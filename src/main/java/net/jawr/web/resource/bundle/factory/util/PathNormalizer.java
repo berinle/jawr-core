@@ -289,13 +289,18 @@ public final class PathNormalizer {
 	 * @param path
 	 * @return
 	 */
-	public static String createGenerationPath(String path, GeneratorRegistry registry){
+	public static String createGenerationPath(String path, GeneratorRegistry registry, String randomParam){
 		
-		String rquestPath = null; 
+		String requestPath = null; 
 		try {
-			rquestPath = registry.getDebugModeGenerationPath(path) 
-				+ "?" 
-				+ JawrRequestHandler.GENERATION_PARAM 
+			
+			requestPath = registry.getDebugModeGenerationPath(path);
+			if(randomParam != null){
+				requestPath += "?"+randomParam+"&"; 
+			}else{
+				requestPath += "?";
+			}
+			requestPath += JawrRequestHandler.GENERATION_PARAM 
 				+ "=" 
 				+ URLEncoder.encode(path, "UTF-8");
 		} catch (UnsupportedEncodingException neverHappens) {
@@ -303,7 +308,7 @@ public final class PathNormalizer {
 			throw new JawrLinkRenderingException("Something went unexpectedly wrong while encoding a URL for a generator. ",
 										neverHappens);
 		}
-		return rquestPath;
+		return requestPath;
 	}
 
 	/**

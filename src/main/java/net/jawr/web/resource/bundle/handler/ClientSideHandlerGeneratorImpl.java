@@ -251,7 +251,7 @@ public class ClientSideHandlerGeneratorImpl implements
 			for(Iterator<String> it = bundle.getItemPathList(variants).iterator();it.hasNext();){
 				path = it.next();
 				if(this.config.getGeneratorRegistry().isPathGenerated(path)) {
-					path = PathNormalizer.createGenerationPath(path,this.config.getGeneratorRegistry());
+					path = PathNormalizer.createGenerationPath(path,this.config.getGeneratorRegistry(), null);
 				}
 				if("".equals(this.config.getContextPathOverride()) && path.startsWith("/"))
 					path = path.substring(1);
