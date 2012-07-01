@@ -373,7 +373,7 @@ public class JawrConfig implements Serializable {
 		this.resourceType = resourceType;
 		
 		this.configProperties = props;
-		String property = null;
+		
 		if(resolver != null){
 			for(Entry<Object, Object> entry : this.configProperties.entrySet()){
 				String value = (String) entry.getValue();
@@ -401,28 +401,20 @@ public class JawrConfig implements Serializable {
 				}
 			}
 		}
-		if (null != props.getProperty(JAWR_DEBUG_ON)) {
-			this.debugModeOn = Boolean.valueOf(props.getProperty(JAWR_DEBUG_ON)).booleanValue();
-		}
+
+		this.debugModeOn = getBooleanProperty(JAWR_DEBUG_ON, false);
+		
 		// If system flag is available, override debug mode from properties
 		if (null != System.getProperty(DEBUG_MODE_SYSTEM_FLAG)) {
 			this.debugModeOn = Boolean.valueOf(System.getProperty(DEBUG_MODE_SYSTEM_FLAG)).booleanValue();
 		}
-		property = getProperty(props, JAWR_DEBUG_OVERRIDE_KEY);
-		if (null != property) {
-			this.debugOverrideKey = property;
-		}
 		
-		property = getProperty(props, JAWR_USE_RANDOM_PARAM);
-		if (null != property) {
-			this.debugUseRandomParam = Boolean.valueOf(property).booleanValue();
-		}
+		this.debugOverrideKey = getProperty(JAWR_DEBUG_OVERRIDE_KEY, "");
+				
+		this.debugUseRandomParam = getBooleanProperty(JAWR_USE_RANDOM_PARAM, true);
 		
-		property = getProperty(props, JAWR_STRICT_MODE);
-		if (null != property) {
-			this.strictMode = Boolean.valueOf(property).booleanValue();
-		}
-		
+		this.strictMode = getBooleanProperty(JAWR_STRICT_MODE, false);
+				
 		if(null != props.getProperty("jawr."+resourceType+".allowed.extensions")){
 			String[] strExtensions = props.getProperty("jawr."+resourceType+".allowed.extensions").split(",");
 			for (String extension : strExtensions) {
@@ -448,60 +440,30 @@ public class JawrConfig implements Serializable {
 			}
 		}
 		
+		this.useBundleMapping = getBooleanProperty(JAWR_USE_BUNDLE_MAPPING, false);
+				
+		this.jawrWorkingDirectory = getProperty(JAWR_WORKING_DIRECTORY);
 		
-		property = getProperty(props, JAWR_USE_BUNDLE_MAPPING);
-		if (null != property) {
-			this.useBundleMapping = Boolean.valueOf(property).booleanValue();
-		}
+		this.gzipResourcesModeOn = getBooleanProperty(JAWR_GZIP_ON, true);
 		
-		property = getProperty(props, JAWR_WORKING_DIRECTORY);
-		if (null != property) {
-			this.jawrWorkingDirectory = property;
-		}
+		setCharsetName(getProperty(JAWR_CHARSET_NAME, "UTF-8"));
 		
-		property = getProperty(props, JAWR_GZIP_ON);
-		if (null != property) {
-			this.gzipResourcesModeOn = Boolean.valueOf(property).booleanValue();
-		}
-		property = getProperty(props, JAWR_CHARSET_NAME);
-		if (null != property) {
-			setCharsetName(property);
-		}
-		property = getProperty(props, JAWR_GZIP_IE6_ON);
-		if (null != property) {
-			this.gzipResourcesForIESixOn = Boolean.valueOf(property).booleanValue();
-		}
-		property = getProperty(props, JAWR_DEBUG_IE_FORCE_CSS_BUNDLE);
-		if (null != property) {
-			this.forceCssBundleInDebugForIEOn = Boolean.valueOf(property).booleanValue();
-		}
-		property = getProperty(props, JAWR_URL_CONTEXTPATH_OVERRIDE);
-		if (null != property) {
-			this.contextPathOverride = property;
-		}
-		property = getProperty(props, JAWR_URL_CONTEXTPATH_SSL_OVERRIDE);
-		if (null != property) {
-			this.contextPathSslOverride = property;
-		}
+		this.gzipResourcesForIESixOn = getBooleanProperty(JAWR_GZIP_IE6_ON, true);
 		
-		property = getProperty(props, JAWR_USE_URL_CONTEXTPATH_OVERRIDE_IN_DEBUG_MODE);
-		if (null != property) {
-			this.useContextPathOverrideInDebugMode = Boolean.valueOf(property).booleanValue();
-		}
+		this.forceCssBundleInDebugForIEOn = getBooleanProperty(JAWR_DEBUG_IE_FORCE_CSS_BUNDLE, false);
+
+		this.contextPathOverride = getProperty(JAWR_URL_CONTEXTPATH_OVERRIDE);
 		
-		property = getProperty(props, JAWR_CONFIG_RELOAD_REFRESH_KEY);
-		if (null != property) {
-			this.refreshKey = property;
-		}
+		this.contextPathSslOverride = getProperty(JAWR_URL_CONTEXTPATH_SSL_OVERRIDE);
+				
+		this.useContextPathOverrideInDebugMode = getBooleanProperty(JAWR_USE_URL_CONTEXTPATH_OVERRIDE_IN_DEBUG_MODE, false);
+			
+		this.refreshKey = getProperty(JAWR_CONFIG_RELOAD_REFRESH_KEY,"");
+				
+		this.dwrMapping = getProperty(JAWR_DWR_MAPPING);
 		
-		this.dwrMapping = getProperty(props, JAWR_DWR_MAPPING);
-		
-		property = getProperty(props, JAWR_LOCALE_RESOLVER);
-		if (property == null) {
-			localeResolver = new DefaultLocaleResolver();
-		} else{
-			localeResolver = (LocaleResolver) ClassLoaderResourceUtils.buildObjectInstance(property);
-		}
+		String localResolverClassName = getProperty(JAWR_LOCALE_RESOLVER, DefaultLocaleResolver.class.getName());
+		localeResolver = (LocaleResolver) ClassLoaderResourceUtils.buildObjectInstance(localResolverClassName);
 		
 		String bundleHashCodeGenerator = props.getProperty(JAWR_BUNDLE_HASHCODE_GENERATOR, "").trim();
 		if(bundleHashCodeGenerator.length() == 0 || JawrConstant.DEFAULT.equalsIgnoreCase(bundleHashCodeGenerator)){
@@ -512,11 +474,12 @@ public class JawrConfig implements Serializable {
 			bundleHashcodeGenerator = (BundleHashcodeGenerator) ClassLoaderResourceUtils.buildObjectInstance(bundleHashCodeGenerator);
 		}
 		
-		skinCookieName = getProperty(props, JAWR_CSS_SKIN_COOKIE);
 		
-		property = getProperty(props, JAWR_CSSLINKS_FLAVOR);
-		if (null != property) {
-			setCssLinkFlavor(property);
+		skinCookieName = getProperty(JAWR_CSS_SKIN_COOKIE, JawrConstant.JAWR_SKIN);
+		
+		String cssLinkFlavor = getProperty(JAWR_CSSLINKS_FLAVOR);
+		if (null != cssLinkFlavor) {
+			setCssLinkFlavor(cssLinkFlavor);
 		}
 
 		if (null != props.getProperty(JAWR_CSS_IMG_USE_CLASSPATH_SERVLET)
@@ -525,41 +488,16 @@ public class JawrConfig implements Serializable {
 					"The property '"+JAWR_CSS_IMG_USE_CLASSPATH_SERVLET+"' is deprecated. Please use only the property '"+JAWR_CSS_CLASSPATH_HANDLE_IMAGE+"'");
 		}
 		
-		property = getProperty(props, JAWR_CSS_IMG_USE_CLASSPATH_SERVLET);
-		if (null != property) {
-			this.classpathCssHandleImage = Boolean.valueOf(property).booleanValue();
-		}
-		property = getProperty(props, JAWR_CSS_CLASSPATH_HANDLE_IMAGE);
-		if (null != property) {
-			this.classpathCssHandleImage = Boolean.valueOf(property).booleanValue();
-		}
+		this.classpathCssHandleImage = getBooleanProperty(JAWR_CSS_IMG_USE_CLASSPATH_SERVLET, false);
 		
-		property = getProperty(props, JAWR_IMAGE_HASH_ALGORITHM);
-		if (null != property) {
-			this.imageHashAlgorithm = property;
-		}
+		this.classpathCssHandleImage = getBooleanProperty(JAWR_CSS_CLASSPATH_HANDLE_IMAGE, false);
 		
-		property = getProperty(props, JAWR_IMAGE_RESOURCES);
-		if (null != property) {
-			this.imageResourcesDefinition = property;
-		}
-		
+		this.imageHashAlgorithm = getProperty(JAWR_IMAGE_HASH_ALGORITHM, "CRC32");
+				
+		this.imageResourcesDefinition = getProperty(JAWR_IMAGE_RESOURCES);
+				
 	}
 
-	/**
-	 * Returns the property value and trim it if possible
-	 * @param props the properties
-	 * @param propertyName the property name
-	 * @return the property value and trim it if possible
-	 */
-	protected String getProperty(final Properties props, String propertyName) {
-		String prop = props.getProperty(propertyName);
-		if(prop != null){
-			prop = prop.trim();
-		}
-		return prop;
-	}
-	
 	/**
 	 * Returns the resource type
 	 * @return the resource type
@@ -1043,12 +981,24 @@ public class JawrConfig implements Serializable {
 	}
 
 	/**
+	 * Returns the boolean property value
+	 * @param propertyName the property name
+	 * @param defaultValue the default value
+	 * @return the boolean property value
+	 */
+	public boolean getBooleanProperty(String propertyName, boolean defaultValue){
+	
+		return Boolean.valueOf(getProperty(propertyName, Boolean.toString(defaultValue)));
+	}
+	
+	/**
 	 * Returns the value of the property associated to the key passed in parameter
 	 * @param key the key of the property
 	 * @return the value of the property
 	 */
 	public String getProperty(String key){
-		return configProperties.getProperty(key);
+		
+		return getProperty(key, null);
 	}
 	
 	/**
@@ -1058,7 +1008,12 @@ public class JawrConfig implements Serializable {
 	 * @return the value of the property
 	 */
 	public String getProperty(String key, String defaultValue){
-		return configProperties.getProperty(key, defaultValue);
+		
+		String property = configProperties.getProperty(key, defaultValue);
+		if(property != null){
+			property = property.trim();
+		}
+		return property;
 	}
 	
 	/**
