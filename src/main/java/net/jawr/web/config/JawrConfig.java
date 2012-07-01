@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
 /**
  * This class holds configuration details for Jawr in a given ServletContext.
  * 
- * @author Jordi Hern·ndez SellÈs
+ * @author Jordi Hern√°ndez Sell√©s
  * @author Ibrahim Chaehoi
  * @author Matt Ruby
  */
@@ -373,6 +373,7 @@ public class JawrConfig implements Serializable {
 		this.resourceType = resourceType;
 		
 		this.configProperties = props;
+		String property = null;
 		if(resolver != null){
 			for(Entry<Object, Object> entry : this.configProperties.entrySet()){
 				String value = (String) entry.getValue();
@@ -407,15 +408,19 @@ public class JawrConfig implements Serializable {
 		if (null != System.getProperty(DEBUG_MODE_SYSTEM_FLAG)) {
 			this.debugModeOn = Boolean.valueOf(System.getProperty(DEBUG_MODE_SYSTEM_FLAG)).booleanValue();
 		}
-		if (null != props.getProperty(JAWR_DEBUG_OVERRIDE_KEY)) {
-			this.debugOverrideKey = props.getProperty(JAWR_DEBUG_OVERRIDE_KEY);
-		}
-		if (null != props.getProperty(JAWR_USE_RANDOM_PARAM)) {
-			this.debugUseRandomParam = Boolean.valueOf(props.getProperty(JAWR_USE_RANDOM_PARAM)).booleanValue();
+		property = getProperty(props, JAWR_DEBUG_OVERRIDE_KEY);
+		if (null != property) {
+			this.debugOverrideKey = property;
 		}
 		
-		if (null != props.getProperty(JAWR_STRICT_MODE)) {
-			this.strictMode = Boolean.valueOf(props.getProperty(JAWR_STRICT_MODE)).booleanValue();
+		property = getProperty(props, JAWR_USE_RANDOM_PARAM);
+		if (null != property) {
+			this.debugUseRandomParam = Boolean.valueOf(property).booleanValue();
+		}
+		
+		property = getProperty(props, JAWR_STRICT_MODE);
+		if (null != property) {
+			this.strictMode = Boolean.valueOf(property).booleanValue();
 		}
 		
 		if(null != props.getProperty("jawr."+resourceType+".allowed.extensions")){
@@ -444,49 +449,58 @@ public class JawrConfig implements Serializable {
 		}
 		
 		
-		if (null != props.getProperty(JAWR_USE_BUNDLE_MAPPING)) {
-			this.useBundleMapping = Boolean.valueOf(props.getProperty(JAWR_USE_BUNDLE_MAPPING)).booleanValue();
+		property = getProperty(props, JAWR_USE_BUNDLE_MAPPING);
+		if (null != property) {
+			this.useBundleMapping = Boolean.valueOf(property).booleanValue();
 		}
 		
-		if (null != props.getProperty(JAWR_WORKING_DIRECTORY)) {
-			this.jawrWorkingDirectory = props.getProperty(JAWR_WORKING_DIRECTORY);
+		property = getProperty(props, JAWR_WORKING_DIRECTORY);
+		if (null != property) {
+			this.jawrWorkingDirectory = property;
 		}
 		
-		if (null != props.getProperty(JAWR_GZIP_ON)) {
-			this.gzipResourcesModeOn = Boolean.valueOf(props.getProperty(JAWR_GZIP_ON)).booleanValue();
+		property = getProperty(props, JAWR_GZIP_ON);
+		if (null != property) {
+			this.gzipResourcesModeOn = Boolean.valueOf(property).booleanValue();
 		}
-		if (null != props.getProperty(JAWR_CHARSET_NAME)) {
-			setCharsetName(props.getProperty(JAWR_CHARSET_NAME));
+		property = getProperty(props, JAWR_CHARSET_NAME);
+		if (null != property) {
+			setCharsetName(property);
 		}
-		if (null != props.getProperty(JAWR_GZIP_IE6_ON)) {
-			this.gzipResourcesForIESixOn = Boolean.valueOf(props.getProperty(JAWR_GZIP_IE6_ON)).booleanValue();
+		property = getProperty(props, JAWR_GZIP_IE6_ON);
+		if (null != property) {
+			this.gzipResourcesForIESixOn = Boolean.valueOf(property).booleanValue();
 		}
-		if (null != props.getProperty(JAWR_DEBUG_IE_FORCE_CSS_BUNDLE)) {
-			this.forceCssBundleInDebugForIEOn = Boolean.valueOf(props.getProperty(JAWR_DEBUG_IE_FORCE_CSS_BUNDLE)).booleanValue();
+		property = getProperty(props, JAWR_DEBUG_IE_FORCE_CSS_BUNDLE);
+		if (null != property) {
+			this.forceCssBundleInDebugForIEOn = Boolean.valueOf(property).booleanValue();
 		}
-		if (null != props.getProperty(JAWR_URL_CONTEXTPATH_OVERRIDE)) {
-			this.contextPathOverride = props.getProperty(JAWR_URL_CONTEXTPATH_OVERRIDE);
+		property = getProperty(props, JAWR_URL_CONTEXTPATH_OVERRIDE);
+		if (null != property) {
+			this.contextPathOverride = property;
 		}
-		if (null != props.getProperty(JAWR_URL_CONTEXTPATH_SSL_OVERRIDE)) {
-			this.contextPathSslOverride = props.getProperty(JAWR_URL_CONTEXTPATH_SSL_OVERRIDE);
-		}
-		
-		if (null != props.getProperty(JAWR_USE_URL_CONTEXTPATH_OVERRIDE_IN_DEBUG_MODE)) {
-			this.useContextPathOverrideInDebugMode = Boolean.valueOf(props.getProperty(JAWR_USE_URL_CONTEXTPATH_OVERRIDE_IN_DEBUG_MODE)).booleanValue();
-		}
-		
-		if (null != props.getProperty(JAWR_CONFIG_RELOAD_REFRESH_KEY)) {
-			this.refreshKey = props.getProperty(JAWR_CONFIG_RELOAD_REFRESH_KEY);
+		property = getProperty(props, JAWR_URL_CONTEXTPATH_SSL_OVERRIDE);
+		if (null != property) {
+			this.contextPathSslOverride = property;
 		}
 		
-		if (null != props.getProperty(JAWR_DWR_MAPPING)) {
-			this.dwrMapping = props.getProperty(JAWR_DWR_MAPPING);
+		property = getProperty(props, JAWR_USE_URL_CONTEXTPATH_OVERRIDE_IN_DEBUG_MODE);
+		if (null != property) {
+			this.useContextPathOverrideInDebugMode = Boolean.valueOf(property).booleanValue();
 		}
-
-		if (props.getProperty(JAWR_LOCALE_RESOLVER) == null) {
+		
+		property = getProperty(props, JAWR_CONFIG_RELOAD_REFRESH_KEY);
+		if (null != property) {
+			this.refreshKey = property;
+		}
+		
+		this.dwrMapping = getProperty(props, JAWR_DWR_MAPPING);
+		
+		property = getProperty(props, JAWR_LOCALE_RESOLVER);
+		if (property == null) {
 			localeResolver = new DefaultLocaleResolver();
 		} else{
-			localeResolver = (LocaleResolver) ClassLoaderResourceUtils.buildObjectInstance(props.getProperty(JAWR_LOCALE_RESOLVER));
+			localeResolver = (LocaleResolver) ClassLoaderResourceUtils.buildObjectInstance(property);
 		}
 		
 		String bundleHashCodeGenerator = props.getProperty(JAWR_BUNDLE_HASHCODE_GENERATOR, "").trim();
@@ -498,12 +512,11 @@ public class JawrConfig implements Serializable {
 			bundleHashcodeGenerator = (BundleHashcodeGenerator) ClassLoaderResourceUtils.buildObjectInstance(bundleHashCodeGenerator);
 		}
 		
-		if (null != props.getProperty(JAWR_CSS_SKIN_COOKIE)) {
-			skinCookieName = props.getProperty(JAWR_CSS_SKIN_COOKIE).trim();
-		}
+		skinCookieName = getProperty(props, JAWR_CSS_SKIN_COOKIE);
 		
-		if (null != props.getProperty(JAWR_CSSLINKS_FLAVOR)) {
-			setCssLinkFlavor(props.getProperty(JAWR_CSSLINKS_FLAVOR).trim());
+		property = getProperty(props, JAWR_CSSLINKS_FLAVOR);
+		if (null != property) {
+			setCssLinkFlavor(property);
 		}
 
 		if (null != props.getProperty(JAWR_CSS_IMG_USE_CLASSPATH_SERVLET)
@@ -511,21 +524,40 @@ public class JawrConfig implements Serializable {
 			throw new IllegalStateException("You are using in the same configuration file '"+JAWR_CSS_IMG_USE_CLASSPATH_SERVLET+"' and '"+JAWR_CSS_CLASSPATH_HANDLE_IMAGE+"'. " +
 					"The property '"+JAWR_CSS_IMG_USE_CLASSPATH_SERVLET+"' is deprecated. Please use only the property '"+JAWR_CSS_CLASSPATH_HANDLE_IMAGE+"'");
 		}
-		if (null != props.getProperty(JAWR_CSS_IMG_USE_CLASSPATH_SERVLET)) {
-			this.classpathCssHandleImage = Boolean.valueOf(props.getProperty(JAWR_CSS_IMG_USE_CLASSPATH_SERVLET)).booleanValue();
+		
+		property = getProperty(props, JAWR_CSS_IMG_USE_CLASSPATH_SERVLET);
+		if (null != property) {
+			this.classpathCssHandleImage = Boolean.valueOf(property).booleanValue();
 		}
-		if (null != props.getProperty(JAWR_CSS_CLASSPATH_HANDLE_IMAGE)) {
-			this.classpathCssHandleImage = Boolean.valueOf(props.getProperty(JAWR_CSS_CLASSPATH_HANDLE_IMAGE)).booleanValue();
+		property = getProperty(props, JAWR_CSS_CLASSPATH_HANDLE_IMAGE);
+		if (null != property) {
+			this.classpathCssHandleImage = Boolean.valueOf(property).booleanValue();
 		}
 		
-		if (null != props.getProperty(JAWR_IMAGE_HASH_ALGORITHM)) {
-			this.imageHashAlgorithm = props.getProperty(JAWR_IMAGE_HASH_ALGORITHM).trim();
+		property = getProperty(props, JAWR_IMAGE_HASH_ALGORITHM);
+		if (null != property) {
+			this.imageHashAlgorithm = property;
 		}
 		
-		if (null != props.getProperty(JAWR_IMAGE_RESOURCES)) {
-			this.imageResourcesDefinition = props.getProperty(JAWR_IMAGE_RESOURCES).trim();
+		property = getProperty(props, JAWR_IMAGE_RESOURCES);
+		if (null != property) {
+			this.imageResourcesDefinition = property;
 		}
 		
+	}
+
+	/**
+	 * Returns the property value and trim it if possible
+	 * @param props the properties
+	 * @param propertyName the property name
+	 * @return the property value and trim it if possible
+	 */
+	protected String getProperty(final Properties props, String propertyName) {
+		String prop = props.getProperty(propertyName);
+		if(prop != null){
+			prop = prop.trim();
+		}
+		return prop;
 	}
 	
 	/**
