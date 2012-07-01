@@ -54,7 +54,6 @@ public class ServletContextUtils {
 		String contextPath = null;
 		
 		// Get the context path
-		
 		if(servletContext != null){
 			// If the servlet API version is greater or equals to 2.5, use the getContextPath method
 			if(servletContext.getMajorVersion() > 2 || servletContext.getMajorVersion() == 2 && servletContext.getMinorVersion() >= 5){
@@ -65,7 +64,7 @@ public class ServletContextUtils {
 				contextPath = servletContext.getInitParameter(CONTEXT_PATH_PARAM_NAME);
 			}
 			
-			if(StringUtils.isEmpty(contextPath)){
+			if(contextPath == null){
 				LOGGER.warn("No context path defined for this web application. You will face issues, if you are deploying mutiple web app, without defining the context.\n" +
 						"If you are using a server with Servlet API less than 2.5, please use the context parameter 'contextPath' in your web.xml to define the context path of the application.\n" +
 						"The context path of your application will be set to '/default'");
