@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s
+ * Copyright 2008-2011 Jordi Hern·ndez SellÈs
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -54,7 +54,7 @@ import org.directwebremoting.impl.DefaultCreatorManager;
 /**
  * Generator that creates resources from DWR beans. 
  * 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  */
 public class DWRBeanGenerator extends AbstractJavascriptGenerator {

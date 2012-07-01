@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2012 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import net.jawr.web.resource.bundle.renderer.CSSHTMLBundleLinkRenderer;
 /**
  * JSP taglib which uses a CSSHTMLBundleLinkRenderer to render links for CSS bundles. 
  * 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  */
 public class CSSBundleTag  extends AbstractResourceBundleTag {

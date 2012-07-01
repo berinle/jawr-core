@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 Jordi Hern√°ndez Sell√©s
+ * Copyright 2007 Jordi Hern·ndez SellÈs
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package net.jawr.web.exception;
 /**
  * Exception to throw during configuration process, if the mappings result in a duplicate mapping for a given path.
  *  
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  */
 public class DuplicateBundlePathException extends Exception {
 	private static final long serialVersionUID = 1848915729978060353L;

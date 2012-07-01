@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2010 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
+ * Copyright 2008-2010 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Provides methods to generate a javascript equivalent of a resourcehandler, used to 
  * generate links in a non dynamic page where taglibs cannot be used. 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  */
 public interface ClientSideHandlerGenerator {

@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
 /**
  * This class holds configuration details for Jawr in a given ServletContext.
  * 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  * @author Matt Ruby
  */

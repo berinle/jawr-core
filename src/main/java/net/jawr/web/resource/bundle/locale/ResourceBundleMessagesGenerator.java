@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
+ * Copyright 2008-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
  * A generator that creates a script from message bundles.
  * The generated script can be used to reference the message literals easily from javascript.  
  * 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  *
  */

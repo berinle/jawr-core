@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2011 Jordi Hern√°ndez Sell√©s, Ibrahim Chaehoi
+ * Copyright 2008-2011 Jordi Hern·ndez SellÈs, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -34,7 +34,7 @@ import org.directwebremoting.servlet.HttpConstants;
 /**
  * Handles requests for the client side script used in non dynamic html pages. 
  * 
- * @author Jordi Hern√°ndez Sell√©s
+ * @author Jordi Hern·ndez SellÈs
  * @author Ibrahim Chaehoi
  */
 public class ClientSideHandlerScriptRequestHandler {
@@ -55,7 +55,7 @@ public class ClientSideHandlerScriptRequestHandler {
 	 * Placeholder for a script stringbuffer and its hashcode, meant to 
 	 * avoid constant recalculation of the hash value. 
 	 * 
-	 * @author Jordi Hern√°ndez Sell√©s
+	 * @author Jordi Hern·ndez SellÈs
 	 */
 	private static class Handler {
 		String hash;
