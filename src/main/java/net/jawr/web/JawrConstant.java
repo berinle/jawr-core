@@ -269,5 +269,8 @@ public class JawrConstant {
 	
 	/** The default resource extensions */
 	public static final List<String> DEFAULT_RESOURCE_EXTENSIONS = Arrays.asList("sorting","license");
+
+	/** The Jawr property name for MBean prefix */
+	public static final String JAWR_JMX_MBEAN_PREFIX = "jawr.jmx.mbean.prefix";
 	
 }

@@ -55,8 +55,9 @@ public final class JmxUtils {
 	 * @param appConfigMgr The application config manager
 	 * @param servletContext the servlet context
 	 * @param resourceType the resource type
+	 * @param mBeanPrefix 
 	 */
-	public static void initJMXBean(JawrApplicationConfigManager appConfigMgr, ServletContext servletContext, String resourceType) {
+	public static void initJMXBean(JawrApplicationConfigManager appConfigMgr, ServletContext servletContext, String resourceType, String mBeanPrefix) {
 		
 		try {
 
@@ -64,10 +65,10 @@ public final class JmxUtils {
 			
 			if(mbs != null){
 				
-				ObjectName jawrConfigMgrObjName = JmxUtils.getMBeanObjectName(servletContext, resourceType);
+				ObjectName jawrConfigMgrObjName = JmxUtils.getMBeanObjectName(servletContext, resourceType, mBeanPrefix);
 				
 				// register the jawrApplicationConfigManager if it's not already done
-				ObjectName appJawrMgrObjectName = JmxUtils.getAppJawrConfigMBeanObjectName(servletContext);
+				ObjectName appJawrMgrObjectName = JmxUtils.getAppJawrConfigMBeanObjectName(servletContext, mBeanPrefix);
 				if(!mbs.isRegistered(appJawrMgrObjectName)){
 					mbs.registerMBean(appConfigMgr, appJawrMgrObjectName);
 				}
@@ -100,23 +101,26 @@ public final class JmxUtils {
 	 * Returns the object name for the Jawr configuration Manager MBean
 	 * @param servletContext the servelt context
 	 * @param resourceType the resource type
+	 * @param mBeanPrefix 
 	 * @return the object name for the Jawr configuration Manager MBean
 	 * @throws Exception if an exception occurs
 	 */
-	public static ObjectName getMBeanObjectName(final ServletContext servletContext, final String resourceType) {
+	public static ObjectName getMBeanObjectName(final ServletContext servletContext, final String resourceType, final String mBeanPrefix) {
 		
 		String contextPath = getContextPath(servletContext);
-		return getMBeanObjectName(contextPath, resourceType);
+		return getMBeanObjectName(contextPath, resourceType, mBeanPrefix);
 	}
 
 	/**
 	 * Returns the object name for the Jawr configuration Manager MBean
 	 * @param contextPath the context path
 	 * @param resourceType  the resource type
+	 * @param mBeanPrefix the MBean prefix
+	 * 
 	 * @return the object name for the Jawr configuration Manager MBean
 	 * @throws Exception if an exception occurs
 	 */
-	public static ObjectName getMBeanObjectName(final String contextPath, final String resourceType) {
+	public static ObjectName getMBeanObjectName(final String contextPath, final String resourceType, final String mBeanPrefix) {
 		
 		String curCtxPath = contextPath;
 		if(StringUtils.isEmpty(curCtxPath)){
@@ -127,7 +131,11 @@ public final class JmxUtils {
 		if(curCtxPath.charAt(0) == ('/')){
 			curCtxPath = curCtxPath.substring(1);
 		}
-		String objectNameStr = "net.jawr.web.jmx:type=JawrConfigManager,webappContext="+curCtxPath+",name="+resourceType+"MBean";
+		String prefix = mBeanPrefix;
+		if(prefix == null){
+			prefix = "";
+		}
+		String objectNameStr = "net.jawr.web.jmx:type=JawrConfigManager,prefix="+prefix+",webappContext="+curCtxPath+",name="+resourceType+"MBean";
 		
 		return getObjectName(objectNameStr);
 	}
@@ -135,16 +143,21 @@ public final class JmxUtils {
 	/**
 	 * Returns the object name for the Jawr Application configuration Manager MBean
 	 * @param servletContext the servelt context
+	 * @param mBeanPrefix the MBean prefix
 	 * @return the object name for the Jawr configuration Manager MBean
 	 * @throws Exception if an exception occurs
 	 */
-	public static ObjectName getAppJawrConfigMBeanObjectName(ServletContext servletContext) {
+	public static ObjectName getAppJawrConfigMBeanObjectName(ServletContext servletContext, String mBeanPrefix) {
 		
 		String contextPath = getContextPath(servletContext);
 		if(contextPath.charAt(0) == ('/')){
 			contextPath = contextPath.substring(1);
 		}
-		String objectNameStr = "net.jawr.web.jmx:type=JawrAppConfigManager,webappContext="+contextPath;
+		String prefix = mBeanPrefix;
+		if(prefix == null){
+			prefix = "";
+		}
+		String objectNameStr = "net.jawr.web.jmx:type=JawrAppConfigManager,prefix="+prefix+",webappContext="+contextPath;
 		
 		return getObjectName(objectNameStr);
 	}
