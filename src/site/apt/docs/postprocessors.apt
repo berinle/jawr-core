@@ -283,7 +283,9 @@ jawr.css.bundle.myCompositeBundle.bundlepostprocessors=none
 	
 	This processor encodes the CSS images in base64 except for the images which has as annotation<< /** jawr:base64-skip */ >> statement.
 	This postprocessor should not be used with the <<csspathrewriter>>, because they are doing the same job rewriting the image URL.
-	<<WARNING :>> You should not use this postprocessor as a <<filepostprocessor>> but only as <<bundlepostprocessor>>.
+	<<WARNING :>> It is also important to set the base64ImageEncoder not only as a <<bundle post processor>> but as a <<file post processor>> AND a <<bundle post processor>>, because this post processor
+	needs to prepend the MHTML part to the bundle and also to rewrite the URL for each file. \
+	So <<never>> use this post processor only as a bundle post processor or only as a file post processor.
 
 *	User submitted postprocessors
 
