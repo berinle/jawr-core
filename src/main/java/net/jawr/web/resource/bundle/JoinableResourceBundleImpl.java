@@ -134,7 +134,7 @@ public class JoinableResourceBundleImpl implements JoinableResourceBundle {
 		this.itemPathList = new CopyOnWriteArrayList<String>();
 		this.itemDebugPathList = new CopyOnWriteArrayList<String>();
 		this.licensesPathList = new HashSet<String>();
-		if(fileExtension.charAt(0) != '.'){
+		if(fileExtension != null && fileExtension.length() > 0 && fileExtension.charAt(0) != '.'){
 			this.fileExtension = "."+fileExtension;
 		}else{
 			this.fileExtension = fileExtension;
