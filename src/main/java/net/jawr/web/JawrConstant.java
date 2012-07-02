@@ -126,6 +126,12 @@ public class JawrConstant {
 	/** The WEB-INF directory prefix */
 	public static final String WEB_INF_DIR_PREFIX = "/WEB-INF/";
 
+	/** The WEB-INF directory  */
+	public static final String WEB_INF_DIR = "/WEB-INF";
+	
+	/** The META-INF directory  */
+	public static final String META_INF_DIR = "/META-INF";
+	
 	/** The directory for CSS created by generators */
 	public static final String SPRITE_GENERATED_CSS_DIR = "/generatedCss/";
 
@@ -272,5 +278,7 @@ public class JawrConstant {
 
 	/** The Jawr property name for MBean prefix */
 	public static final String JAWR_JMX_MBEAN_PREFIX = "jawr.jmx.mbean.prefix";
+
+	
 	
 }

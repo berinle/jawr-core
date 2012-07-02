@@ -24,6 +24,7 @@ import net.jawr.web.exception.DuplicateBundlePathException;
 import net.jawr.web.resource.bundle.InclusionPattern;
 import net.jawr.web.resource.bundle.JoinableResourceBundle;
 import net.jawr.web.resource.bundle.JoinableResourceBundleImpl;
+import net.jawr.web.resource.bundle.JoinableResourceOrphanBundleImpl;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
@@ -100,7 +101,7 @@ public class OrphanResourceBundlesMapper {
 	public List<String> getOrphansList() throws DuplicateBundlePathException {
 		
 		// Create a mapping for every resource available
-		JoinableResourceBundleImpl tempBundle = new JoinableResourceBundleImpl("orphansTemp", "orphansTemp",
+		JoinableResourceBundleImpl tempBundle = new JoinableResourceOrphanBundleImpl("orphansTemp", "orphansTemp",
 																				this.resourceExtension,
 																				new InclusionPattern(),
 																				Collections.singletonList(this.baseDir),
@@ -132,9 +133,10 @@ public class OrphanResourceBundlesMapper {
 		for(Iterator<JoinableResourceBundle> it = currentBundles.iterator();it.hasNext(); ) {
 			JoinableResourceBundle bundle = it.next();			
 			List<String> items = bundle.getItemPathList();
+			List<String> itemsDebug = bundle.getItemDebugPathList();
 			Set<String> licenses = bundle.getLicensesPathList();
 			
-			if(items.contains(filePath))
+			if(items.contains(filePath)|| itemsDebug.contains(filePath))
 				return;
 			else if (licenses.contains(filePath))
 				return;

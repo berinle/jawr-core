@@ -225,7 +225,7 @@ public class JoinableResourceBundleImpl implements JoinableResourceBundle {
 	 * @param dirName
 	 * @param addSubDirs boolean If subfolders will be included. In such case, every folder below the path is included.
 	 */
-	private void addItemsFromDir(String dirName, boolean addSubDirs) {
+	protected void addItemsFromDir(String dirName, boolean addSubDirs) {
 		Set<String> resources = resourceReaderHandler.getResourceNames(dirName);
 		boolean isGeneratedPath = generatorRegistry.isPathGenerated(dirName);
 		if (LOGGER.isDebugEnabled()) {
