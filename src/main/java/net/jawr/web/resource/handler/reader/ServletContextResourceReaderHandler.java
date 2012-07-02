@@ -174,7 +174,7 @@ public class ServletContextResourceReaderHandler implements ResourceReaderHandle
 		}
 		
 		if(obj instanceof ResourceBrowser){
-			resourceInfoProviders.add((ResourceBrowser)obj);
+			resourceInfoProviders.add(0, (ResourceBrowser)obj);
 		}
 	}
 	
