@@ -14,8 +14,10 @@
 package net.jawr.web.resource.bundle.factory.postprocessor;
 
 import net.jawr.web.resource.bundle.postprocess.AbstractChainedResourceBundlePostProcessor;
+import net.jawr.web.resource.bundle.postprocess.ChainedResourceBundlePostProcessor;
 import net.jawr.web.resource.bundle.postprocess.PostProcessFactoryConstant;
 import net.jawr.web.resource.bundle.postprocess.ResourceBundlePostProcessor;
+import net.jawr.web.resource.bundle.postprocess.impl.CustomJsPostProcessorChainWrapper;
 import net.jawr.web.resource.bundle.postprocess.impl.JSMinPostProcessor;
 import net.jawr.web.resource.bundle.postprocess.impl.yui.YUIJSCompressor;
 
@@ -28,6 +30,16 @@ import net.jawr.web.resource.bundle.postprocess.impl.yui.YUIJSCompressor;
  */
 public class JSPostProcessorChainFactory extends AbstractPostProcessorChainFactory implements PostProcessorChainFactory {
 	
+	/* (non-Javadoc)
+	 * @see net.jawr.web.resource.bundle.factory.postprocessor.AbstractPostProcessorChainFactory#getCustomProcessorWrapper(net.jawr.web.resource.bundle.postprocess.ResourceBundlePostProcessor, java.lang.String)
+	 */
+	@Override
+	protected ChainedResourceBundlePostProcessor getCustomProcessorWrapper(
+			ResourceBundlePostProcessor customProcessor, String key) {
+		
+		return new CustomJsPostProcessorChainWrapper(customProcessor, key);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.jawr.web.resource.bundle.factory.processor.PostProcessorChainFactory#buildDefaultProcessor()
 	 */

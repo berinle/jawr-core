@@ -18,9 +18,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import net.jawr.web.resource.bundle.postprocess.AbstractChainedResourceBundlePostProcessor;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
 import net.jawr.web.resource.bundle.postprocess.PostProcessFactoryConstant;
+import net.jawr.web.resource.bundle.postprocess.impl.AbstractJsChainedResourceBundlePostProcessor;
 
 import org.apache.log4j.Logger;
 
@@ -33,7 +33,7 @@ import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
  * @author Jordi Hernández Sellés
  * @author Ibrahim Chaehoi
  */
-public class YUIJSCompressor extends AbstractChainedResourceBundlePostProcessor {
+public class YUIJSCompressor extends AbstractJsChainedResourceBundlePostProcessor {
 	
 	/** The logger */
 	private static final Logger LOGGER = Logger.getLogger(YUIJSCompressor.class);

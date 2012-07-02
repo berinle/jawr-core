@@ -32,7 +32,26 @@ public class JSMinPostProcessorTest extends TestCase {
 		StringBuffer ret = processor.postProcessBundle(status, new StringBuffer(script));
 		
 		// Not really testing JSMin, that is supposed to work. 
-		assertEquals("\nalert('αιρν')", ret.toString());
+		assertEquals("\nalert('αιρν');", ret.toString());
+	}
+    
+    public void testPostProcessAnonymousFunc() {
+		String script = "!function() { console.log(1) }()";
+		Charset charset = Charset.forName("UTF-8");
+		JawrConfig config = new JawrConfig("js", new Properties());
+		config.setCharsetName("UTF-8");
+		JSMinPostProcessor processor = new JSMinPostProcessor();
+		StringBuffer sb = new StringBuffer();
+		try {
+			sb.append(script.getBytes(charset.name()));
+		} catch (UnsupportedEncodingException ignore) {
+			fail("UnsupportedEncodingException that will never be thrown");
+		}
+	    BundleProcessingStatus status = new BundleProcessingStatus(BundleProcessingStatus.BUNDLE_PROCESSING_TYPE, getBundle("/myBundle.js"),null,config);
+		StringBuffer ret = processor.postProcessBundle(status, new StringBuffer(script));
+		
+		// Not really testing JSMin, that is supposed to work. 
+		assertEquals("!function(){console.log(1)}();", ret.toString());
 	}
     
     public JoinableResourceBundle getBundle(final String id){

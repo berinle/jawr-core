@@ -26,7 +26,6 @@ import net.jawr.web.exception.BundlingProcessException;
 import net.jawr.web.minification.JSMin;
 import net.jawr.web.minification.JSMin.JSMinException;
 import net.jawr.web.resource.bundle.IOUtils;
-import net.jawr.web.resource.bundle.postprocess.AbstractChainedResourceBundlePostProcessor;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
 import net.jawr.web.resource.bundle.postprocess.PostProcessFactoryConstant;
 
@@ -38,7 +37,7 @@ import net.jawr.web.resource.bundle.postprocess.PostProcessFactoryConstant;
  * @author Ibrahim Chaehoi
  */
 public class JSMinPostProcessor extends
-		AbstractChainedResourceBundlePostProcessor {
+		AbstractJsChainedResourceBundlePostProcessor {
 	
 	/** The line feed string */
 	private static final String LF = "\n";

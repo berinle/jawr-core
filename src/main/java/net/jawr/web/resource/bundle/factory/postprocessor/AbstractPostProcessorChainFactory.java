@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2009 Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2012 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -137,9 +137,20 @@ public abstract class AbstractPostProcessorChainFactory implements	PostProcessor
 				(ResourceBundlePostProcessor) ClassLoaderResourceUtils.buildObjectInstance((String) entry.getValue());
 			
 			String key = (String) entry.getKey();			
-			customPostProcessors.put(key, new CustomPostProcessorChainWrapper(key, customProcessor));
+			customPostProcessors.put(key, getCustomProcessorWrapper(customProcessor, key));
 			
 		}		
+	}
+
+	/**
+	 * Returns the custom processor wrapper
+	 * @param customProcessor the custom processor
+	 * @param key the id of the custom processor
+	 * @return the custom processor wrapper
+	 */
+	protected ChainedResourceBundlePostProcessor getCustomProcessorWrapper(
+			ResourceBundlePostProcessor customProcessor, String key) {
+		return new CustomPostProcessorChainWrapper(key, customProcessor);
 	}
 
 }

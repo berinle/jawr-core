@@ -34,7 +34,7 @@ public abstract class AbstractChainedResourceBundlePostProcessor implements
 	private static final Logger LOGGER = Logger.getLogger(AbstractChainedResourceBundlePostProcessor.class);
 	
 	/** The next post processor */
-	private ChainedResourceBundlePostProcessor nextProcessor;
+	protected ChainedResourceBundlePostProcessor nextProcessor;
 	
 	/** The ID of the chained bundle post processor */
 	private String id;
