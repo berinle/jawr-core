@@ -28,6 +28,7 @@ import net.jawr.web.resource.bundle.generator.dwr.DWRParamWriter;
 import net.jawr.web.resource.bundle.handler.ResourceBundlesHandler;
 import net.jawr.web.resource.bundle.iterator.ResourceBundlePathsIterator;
 import net.jawr.web.servlet.RendererRequestUtils;
+import net.jawr.web.util.StringUtils;
 
 /**
  * Abstract base class for implementations of a link renderer.
@@ -319,8 +320,14 @@ public abstract class AbstractBundleLinkRenderer implements BundleRenderer {
 		// When debug mode is on and the resource is generated the path must include a parameter
 		String path = bundleId;
 		
-		if (bundler.getConfig().isDebugModeOn() && bundler.getConfig().getGeneratorRegistry().isPathGenerated(bundleId)) {
-			path = PathNormalizer.createGenerationPath(bundleId, bundler.getConfig().getGeneratorRegistry(), randomParam);
+		if (bundler.getConfig().isDebugModeOn()){
+			if(bundler.getConfig().getGeneratorRegistry().isPathGenerated(bundleId)) {
+				path = PathNormalizer.createGenerationPath(bundleId, bundler.getConfig().getGeneratorRegistry(), randomParam);
+			}else{
+				if(StringUtils.isNotEmpty(randomParam)){
+					path = bundleId + "?"+randomParam;
+				}
+			}
 		}
 		String fullPath = PathNormalizer.joinPaths(bundler.getConfig().getServletMapping(), path);
 
