@@ -22,7 +22,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
-import net.jawr.web.JawrConstant;
 import net.jawr.web.exception.JmxConfigException;
 import net.jawr.web.util.ServletContextUtils;
 import net.jawr.web.util.StringUtils;
@@ -39,8 +38,8 @@ public final class JmxUtils {
 	/** The logger */
 	private static final Logger LOGGER = Logger.getLogger(JmxUtils.class);
 
-	/** The property which enables the use of JMX */
-	public static final String JMX_ENABLE_FLAG_SYSTEM_PROPERTY = "com.sun.management.jmxremote";
+	/** The default prefix value */
+	private static final String DEFAULT_PREFIX = "default";
 	
 	/**
 	 * Constructor 
@@ -133,7 +132,7 @@ public final class JmxUtils {
 		}
 		String prefix = mBeanPrefix;
 		if(prefix == null){
-			prefix = "";
+			prefix = DEFAULT_PREFIX;
 		}
 		String objectNameStr = "net.jawr.web.jmx:type=JawrConfigManager,prefix="+prefix+",webappContext="+curCtxPath+",name="+resourceType+"MBean";
 		
@@ -180,12 +179,5 @@ public final class JmxUtils {
 		
 		return mBeanName;
 	}
-
-	/**
-	 * Returns true if JMX is enabled for the application
-	 * @return true if JMX is enabled for the application
-	 */
-	public static boolean isJmxEnabled() {
-		return System.getProperty(JawrConstant.JMX_ENABLE_FLAG_SYSTEL_PROPERTY) != null;
-	}
+	
 }

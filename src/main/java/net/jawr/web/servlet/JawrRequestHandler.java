@@ -281,9 +281,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		// initialize the Application config manager
 		JawrApplicationConfigManager appConfigMgr = initApplicationConfigManager();
 		
-		if(JmxUtils.isJmxEnabled()){
-				JmxUtils.initJMXBean(appConfigMgr, servletContext, resourceType, props.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX));
-		}
+		JmxUtils.initJMXBean(appConfigMgr, servletContext, resourceType, props.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX));
 	}
 
 	/**
@@ -572,10 +570,8 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 
 		try{
 			// Initialize the Thread local for the Jawr context
-			if(JmxUtils.isJmxEnabled()){
-				ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(request.getContextPath(), resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
-			}
-			
+			ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(request.getContextPath(), resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
+						
 			ThreadLocalJawrContext.setRequest(request.getRequestURL().toString());
 			
 			RendererRequestUtils.setRequestDebuggable(request, jawrConfig);
@@ -917,9 +913,8 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			LOGGER.debug("Reloading Jawr configuration");
 		try {
 			// Initialize the Thread local for the Jawr context
-			if(JmxUtils.isJmxEnabled()){
-				ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(servletContext, resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
-			}
+			ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(servletContext, resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
+			
 			Properties props = propertiesSource.getConfigProperties();
 			// override the properties if needed
 			if(this.overrideProperties != null){
