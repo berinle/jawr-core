@@ -41,6 +41,13 @@ public final class JmxUtils {
 	/** The default prefix value */
 	private static final String DEFAULT_PREFIX = "default";
 	
+	/** The Jawr App Config Manager type */
+	private static final String JAWR_APP_CONFIG_MANAGER_TYPE = "JawrAppConfigManager";
+
+	/** The Jawr Config Manager type */
+	private static final String JAWR_CONFIG_MANAGER_TYPE = "JawrConfigManager";
+
+	
 	/**
 	 * Constructor 
 	 */
@@ -107,7 +114,7 @@ public final class JmxUtils {
 	public static ObjectName getMBeanObjectName(final ServletContext servletContext, final String resourceType, final String mBeanPrefix) {
 		
 		String contextPath = getContextPath(servletContext);
-		return getMBeanObjectName(contextPath, resourceType, mBeanPrefix);
+		return getJawrConfigMBeanObjectName(contextPath, resourceType, mBeanPrefix);
 	}
 
 	/**
@@ -119,7 +126,33 @@ public final class JmxUtils {
 	 * @return the object name for the Jawr configuration Manager MBean
 	 * @throws Exception if an exception occurs
 	 */
-	public static ObjectName getMBeanObjectName(final String contextPath, final String resourceType, final String mBeanPrefix) {
+	public static ObjectName getJawrConfigMBeanObjectName(final String contextPath, final String resourceType, final String mBeanPrefix) {
+		
+		return getMBeanObjectName(contextPath, JAWR_CONFIG_MANAGER_TYPE, mBeanPrefix, resourceType);
+	}
+	
+	/**
+	 * Returns the object name for the Jawr Application configuration Manager MBean
+	 * @param servletContext the servelt context
+	 * @param mBeanPrefix the MBean prefix
+	 * @return the object name for the Jawr configuration Manager MBean
+	 * @throws Exception if an exception occurs
+	 */
+	public static ObjectName getAppJawrConfigMBeanObjectName(ServletContext servletContext, String mBeanPrefix) {
+		
+		return getMBeanObjectName(getContextPath(servletContext), JAWR_APP_CONFIG_MANAGER_TYPE, mBeanPrefix, null);
+	}
+	
+	/**
+	 * Returns the object name for the Jawr MBean
+	 * @param contextPath the context path
+	 * @param objectType the type of the MBean object
+	 * @param mBeanPrefix the MBean prefix
+	 * @param resourceType  the resource type
+	 * @return the object name for the Jawr MBean
+	 * @throws Exception if an exception occurs
+	 */
+	private static ObjectName getMBeanObjectName(final String contextPath, final String objectType, final String mBeanPrefix, final String resourceType) {
 		
 		String curCtxPath = contextPath;
 		if(StringUtils.isEmpty(curCtxPath)){
@@ -134,31 +167,12 @@ public final class JmxUtils {
 		if(prefix == null){
 			prefix = DEFAULT_PREFIX;
 		}
-		String objectNameStr = "net.jawr.web.jmx:type=JawrConfigManager,prefix="+prefix+",webappContext="+curCtxPath+",name="+resourceType+"MBean";
-		
-		return getObjectName(objectNameStr);
-	}
-	
-	/**
-	 * Returns the object name for the Jawr Application configuration Manager MBean
-	 * @param servletContext the servelt context
-	 * @param mBeanPrefix the MBean prefix
-	 * @return the object name for the Jawr configuration Manager MBean
-	 * @throws Exception if an exception occurs
-	 */
-	public static ObjectName getAppJawrConfigMBeanObjectName(ServletContext servletContext, String mBeanPrefix) {
-		
-		String contextPath = getContextPath(servletContext);
-		if(contextPath.charAt(0) == ('/')){
-			contextPath = contextPath.substring(1);
+		StringBuilder objectNameStr = new StringBuilder("net.jawr.web.jmx:type="+objectType+",prefix="+prefix+",webappContext="+curCtxPath);
+		if(resourceType != null){
+			objectNameStr.append(",name="+resourceType+"MBean");
 		}
-		String prefix = mBeanPrefix;
-		if(prefix == null){
-			prefix = "";
-		}
-		String objectNameStr = "net.jawr.web.jmx:type=JawrAppConfigManager,prefix="+prefix+",webappContext="+contextPath;
 		
-		return getObjectName(objectNameStr);
+		return getObjectName(objectNameStr.toString());
 	}
 	
 	/**

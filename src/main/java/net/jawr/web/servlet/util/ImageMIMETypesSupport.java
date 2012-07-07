@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Jordi Hernández Sellés
+ * Copyright 2008-2012 Jordi Hernández Sellés, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -30,7 +30,7 @@ import net.jawr.web.resource.bundle.factory.util.ClassLoaderResourceUtils;
  * @author Jordi Hernández Sellés
  *
  */
-public class MIMETypesSupport {
+public class ImageMIMETypesSupport {
 	
 	private static Properties supportedMIMETypes;
 	private static final String MIME_PROPS_LOCATION = "/net/jawr/web/resource/image/mimetypes.properties";
@@ -44,7 +44,7 @@ public class MIMETypesSupport {
 	public static Map<Object, Object> getSupportedProperties(Object ref) {
 		
 		if(null == supportedMIMETypes) {
-			synchronized (MIMETypesSupport.class) {
+			synchronized (ImageMIMETypesSupport.class) {
 				if(null == supportedMIMETypes) {
 					// Load the supported MIME types out of a properties file
 					InputStream is = null;

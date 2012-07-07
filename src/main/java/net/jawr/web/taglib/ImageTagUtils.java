@@ -32,7 +32,7 @@ import net.jawr.web.resource.bundle.CheckSumUtils;
 import net.jawr.web.resource.bundle.IOUtils;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.servlet.RendererRequestUtils;
-import net.jawr.web.servlet.util.MIMETypesSupport;
+import net.jawr.web.servlet.util.ImageMIMETypesSupport;
 import net.jawr.web.util.Base64Encoder;
 
 import org.apache.log4j.Logger;
@@ -194,7 +194,7 @@ public final class ImageTagUtils {
 		if(encodedResult == null){
 			try{
 				String fileExtension = FileNameUtils.getExtension(imgSrc);
-				String fileMimeType = (String) MIMETypesSupport
+				String fileMimeType = (String) ImageMIMETypesSupport
 						.getSupportedProperties(ImageTagUtils.class).get(fileExtension);
 				
 				InputStream is = imgRsHandler.getRsReaderHandler()

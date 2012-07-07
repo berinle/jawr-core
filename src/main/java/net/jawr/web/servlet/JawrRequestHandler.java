@@ -65,7 +65,7 @@ import net.jawr.web.resource.handler.bundle.ResourceBundleHandler;
 import net.jawr.web.resource.handler.bundle.ServletContextResourceBundleHandler;
 import net.jawr.web.resource.handler.reader.ResourceReaderHandler;
 import net.jawr.web.resource.handler.reader.ServletContextResourceReaderHandler;
-import net.jawr.web.servlet.util.MIMETypesSupport;
+import net.jawr.web.servlet.util.ImageMIMETypesSupport;
 import net.jawr.web.util.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -203,7 +203,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 	 */
 	public JawrRequestHandler(ServletContext context, Map<Object, Object> initParams, Properties configProps) throws ServletException {
 
-		this.imgMimeMap = MIMETypesSupport.getSupportedProperties(this);
+		this.imgMimeMap = ImageMIMETypesSupport.getSupportedProperties(this);
 		this.initParameters = initParams;
 		initRequestHandler(context, configProps);
 	}
@@ -220,7 +220,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Initializing jawr config for request handler named " + getInitParameter("handlerName"));
 
-		this.imgMimeMap = MIMETypesSupport.getSupportedProperties(this);
+		this.imgMimeMap = ImageMIMETypesSupport.getSupportedProperties(this);
 		this.servletContext = context;
 		this.overrideProperties = configProps;
 		resourceType = getInitParameter("type");
@@ -570,7 +570,7 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 
 		try{
 			// Initialize the Thread local for the Jawr context
-			ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getMBeanObjectName(request.getContextPath(), resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
+			ThreadLocalJawrContext.setJawrConfigMgrObjectName(JmxUtils.getJawrConfigMBeanObjectName(request.getContextPath(), resourceType, jawrConfig.getProperty(JawrConstant.JAWR_JMX_MBEAN_PREFIX)));
 						
 			ThreadLocalJawrContext.setRequest(request.getRequestURL().toString());
 			
@@ -624,8 +624,9 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 			// CSS images would be requested through this handler in case servletMapping is used
 			// if( this.jawrConfig.isDebugModeOn() && !("".equals(this.jawrConfig.getServletMapping())) && null == request.getParameter(GENERATION_PARAM)) {
 			if (JawrConstant.CSS_TYPE.equals(resourceType) && 
-					!JawrConstant.CSS_TYPE.equals(getExtension(requestedPath)) &&
-					this.imgMimeMap.containsKey(getExtension(requestedPath))) {
+					!JawrConstant.CSS_TYPE.equals(getExtension(requestedPath))
+					//&& this.imgMimeMap.containsKey(getExtension(requestedPath))
+					) {
 
 				if (null == bundlesHandler.resolveBundleForPath(requestedPath)) {
 					if (LOGGER.isDebugEnabled())

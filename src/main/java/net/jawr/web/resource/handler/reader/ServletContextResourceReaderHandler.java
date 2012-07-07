@@ -32,7 +32,7 @@ import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.bundle.generator.BaseResourceGenerator;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.handler.reader.grails.GrailsServletContextResourceReader;
-import net.jawr.web.servlet.util.MIMETypesSupport;
+import net.jawr.web.servlet.util.ImageMIMETypesSupport;
 import net.jawr.web.util.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -94,7 +94,7 @@ public class ServletContextResourceReaderHandler implements ResourceReaderHandle
 		allowedExtensions.addAll(JawrConstant.DEFAULT_RESOURCE_EXTENSIONS);
 		
 		if(JawrConstant.IMG_TYPE.equals(jawrConfig.getResourceType())){
-			for (Object key : MIMETypesSupport.getSupportedProperties(JawrConfig.class).keySet()) {
+			for (Object key : ImageMIMETypesSupport.getSupportedProperties(JawrConfig.class).keySet()) {
 				if(!this.allowedExtensions.contains((String) key)){
 					this.allowedExtensions.add((String) key);
 				}

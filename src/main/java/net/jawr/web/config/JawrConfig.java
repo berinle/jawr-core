@@ -42,7 +42,7 @@ import net.jawr.web.resource.bundle.renderer.CSSHTMLBundleLinkRenderer;
 import net.jawr.web.resource.bundle.variant.VariantResolver;
 import net.jawr.web.resource.bundle.variant.resolver.BrowserResolver;
 import net.jawr.web.resource.bundle.variant.resolver.ConnectionTypeResolver;
-import net.jawr.web.servlet.util.MIMETypesSupport;
+import net.jawr.web.servlet.util.ImageMIMETypesSupport;
 import net.jawr.web.util.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -427,7 +427,7 @@ public class JawrConfig implements Serializable {
 		}
 		
 		if(resourceType.equals(JawrConstant.IMG_TYPE)){
-			for (Object key : MIMETypesSupport.getSupportedProperties(JawrConfig.class).keySet()) {
+			for (Object key : ImageMIMETypesSupport.getSupportedProperties(JawrConfig.class).keySet()) {
 				if(!this.allowedExtensions.contains((String) key)){
 					this.allowedExtensions.add((String) key);
 				}

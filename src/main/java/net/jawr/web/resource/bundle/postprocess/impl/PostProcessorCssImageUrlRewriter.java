@@ -20,12 +20,14 @@ import java.util.Map;
 import net.jawr.web.JawrConstant;
 import net.jawr.web.config.JawrConfig;
 import net.jawr.web.exception.ResourceNotFoundException;
+import net.jawr.web.resource.FileNameUtils;
 import net.jawr.web.resource.ImageResourcesHandler;
 import net.jawr.web.resource.bundle.CheckSumUtils;
 import net.jawr.web.resource.bundle.css.CssImageUrlRewriter;
 import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.resource.bundle.generator.GeneratorRegistry;
 import net.jawr.web.resource.bundle.postprocess.BundleProcessingStatus;
+import net.jawr.web.servlet.util.ImageMIMETypesSupport;
 import net.jawr.web.util.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -137,16 +139,32 @@ public class PostProcessorCssImageUrlRewriter extends CssImageUrlRewriter {
 	 */
 	protected String rewriteURL(BundleProcessingStatus status, String url, String imgServletPath, String newCssPath, ImageResourcesHandler imgRsHandler) throws IOException {
 		
-		String imgUrl = addCacheBuster(status, url, imgRsHandler);
-		
-		// Add image servlet path in the URL, if it's defined
-		if(StringUtils.isNotEmpty(imgServletPath)){
-			imgUrl = imgServletPath+JawrConstant.URL_SEPARATOR+imgUrl;
+		String imgUrl = url; 
+		if(isImageResource(imgUrl)){
+			imgUrl = addCacheBuster(status, url, imgRsHandler);
+			// Add image servlet path in the URL, if it's defined
+			if(StringUtils.isNotEmpty(imgServletPath)){
+				imgUrl = imgServletPath+JawrConstant.URL_SEPARATOR+imgUrl;
+			}
 		}
 		
 		imgUrl = PathNormalizer.asPath(imgUrl);
 		return PathNormalizer.getRelativeWebPath(PathNormalizer
 				.getParentPath(newCssPath), imgUrl);
+	}
+
+
+	/**
+	 * Checks if the resource is an image resource
+	 * @param resourcePath the resourcePath
+	 * @return true if the resource is an image resource
+	 */
+	protected boolean isImageResource(String resourcePath) {
+		String extension = FileNameUtils.getExtension(resourcePath);
+		if(extension != null){
+			extension = extension.toLowerCase();
+		}
+		return ImageMIMETypesSupport.getSupportedProperties(this).containsKey(extension);
 	}
 	
 	/**
