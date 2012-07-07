@@ -274,11 +274,9 @@ public class JawrConstant {
 	public static final String JAWR_LOCALE_GENERATOR_FALLBACK_TO_SYSTEM_LOCALE = "jawr.locale.generator.fallbackToSystemLocale";
 	
 	/** The default resource extensions */
-	public static final List<String> DEFAULT_RESOURCE_EXTENSIONS = Arrays.asList("sorting","license");
+	public static final List<String> DEFAULT_RESOURCE_EXTENSIONS = Arrays.asList("sorting","license","eot","svg","ttf","woff");
 
 	/** The Jawr property name for MBean prefix */
 	public static final String JAWR_JMX_MBEAN_PREFIX = "jawr.jmx.mbean.prefix";
-
-	
 	
 }
