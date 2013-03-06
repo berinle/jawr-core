@@ -32,16 +32,6 @@ public final class ThreadLocalJawrContext {
 	 * debugOverride will allow us to override production mode on a request by request basis.
 	 * ThreadLocal is used to hold the overridden status throughout a given request.
 	 */
-/*	private static ThreadLocal<WeakReference<JawrContext>> jawrContext = new ThreadLocal<WeakReference<JawrContext>>(){
-
-		*//* (non-Javadoc)
-		 * @see java.lang.ThreadLocal#initialValue()
-		 *//*
-		protected WeakReference<JawrContext> initialValue() {
-			return new WeakReference<JawrContext>(new JawrContext());
-		}
-	    
-	};*/
 
     private static ConcurrentLinkedQueue<JawrContext> jawrContext = new ConcurrentLinkedQueue<JawrContext>();
 	
