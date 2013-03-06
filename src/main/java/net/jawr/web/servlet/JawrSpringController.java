@@ -1,5 +1,5 @@
 /**
- * Copyright 2008-2012 Jordi Hernández Sellés, Ibrahim Chaehoi 
+ * Copyright 2008-2012 Jordi Hernï¿½ndez Sellï¿½s, Ibrahim Chaehoi 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -27,6 +27,7 @@ import net.jawr.web.resource.bundle.factory.util.PathNormalizer;
 import net.jawr.web.util.StringUtils;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
@@ -37,10 +38,10 @@ import org.springframework.web.util.UrlPathHelper;
  * A Spring Controller implementation which uses a JawrRequestHandler instance to provide 
  * with Jawr functionality within a Spring DispatcherServlet instance. 
  * 
- * @author Jordi Hernández Sellés
+ * @author Jordi Hernï¿½ndez Sellï¿½s
  * @author Ibrahim Chaehoi
  */
-public class JawrSpringController implements Controller, ServletContextAware, InitializingBean {
+public class JawrSpringController implements Controller, ServletContextAware, InitializingBean, DisposableBean {
 	
 	/** The logger */
 	private static final Logger LOGGER = Logger.getLogger(JawrSpringController.class);
@@ -202,4 +203,12 @@ public class JawrSpringController implements Controller, ServletContextAware, In
 			requestHandler = new JawrRequestHandler(context,initParams, configuration);
 		}
 	}
+
+    @Override
+    public void destroy() throws Exception {
+        boolean info = LOGGER.isInfoEnabled();
+        requestHandler.destroy();
+        if(info)
+            LOGGER.info("JawrSpringController.destroy DONE!");
+    }
 }

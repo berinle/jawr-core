@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2012  Jordi Hernández Sellés, Ibrahim Chaehoi
+ * Copyright 2007-2012  Jordi Hernï¿½ndez Sellï¿½s, Ibrahim Chaehoi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -73,7 +73,7 @@ import org.apache.log4j.Logger;
 /**
  * Request handling class. Any jawr enabled servlet delegates to this class to handle requests.
  * 
- * @author Jordi Hernández Sellés
+ * @author Jordi Hernï¿½ndez Sellï¿½s
  * @author Ibrahim Chaehoi
  */
 public class JawrRequestHandler implements ConfigChangeListener, Serializable {
@@ -901,7 +901,8 @@ public class JawrRequestHandler implements ConfigChangeListener, Serializable {
 		if (null != this.configChangeListenerThread){
 			configChangeListenerThread.stopPolling();
 		}
-		ThreadLocalJawrContext.reset();
+		//ThreadLocalJawrContext.reset();
+        ThreadLocalJawrContext.shutdown();
 	}
 
 	/*
