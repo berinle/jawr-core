@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.management.ObjectName;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * This class defines the context for Jawr, it holds the context in a ThreadLocal object.
@@ -32,16 +33,18 @@ public final class ThreadLocalJawrContext {
 	 * debugOverride will allow us to override production mode on a request by request basis.
 	 * ThreadLocal is used to hold the overridden status throughout a given request.
 	 */
-	private static ThreadLocal<WeakReference<JawrContext>> jawrContext = new ThreadLocal<WeakReference<JawrContext>>(){
+/*	private static ThreadLocal<WeakReference<JawrContext>> jawrContext = new ThreadLocal<WeakReference<JawrContext>>(){
 
-		/* (non-Javadoc)
+		*//* (non-Javadoc)
 		 * @see java.lang.ThreadLocal#initialValue()
-		 */
+		 *//*
 		protected WeakReference<JawrContext> initialValue() {
 			return new WeakReference<JawrContext>(new JawrContext());
 		}
 	    
-	};
+	};*/
+
+    private static ConcurrentLinkedQueue<WeakReference<JawrContext>> jawrContext = new ConcurrentLinkedQueue<WeakReference<JawrContext>>();
 	
 	/**
 	 * The debugOverride will be automatially set to false
@@ -51,13 +54,13 @@ public final class ThreadLocalJawrContext {
 	}
 
     public static JawrContext getJawrContext(){
-        JawrContext context = jawrContext.get().get();
+        JawrContext context = jawrContext.poll().get();
         if(context == null){
             log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
-            jawrContext.get().clear();
+            jawrContext.poll().clear();
             jawrContext.remove();
             WeakReference<JawrContext> weakReference = new WeakReference<JawrContext>(new JawrContext());
-            jawrContext.set(weakReference);
+            jawrContext.add(weakReference);
             context = weakReference.get();
         }
 
@@ -149,7 +152,7 @@ public final class ThreadLocalJawrContext {
         if(info)
             log.info("start: ThreadLocalJawrContext.shutdown");
         if(null != jawrContext){
-            WeakReference<JawrContext> weakReference = jawrContext.get();
+            WeakReference<JawrContext> weakReference = jawrContext.poll();
             if(weakReference != null){
                 JawrContext context = weakReference.get();
                 if(context != null){
@@ -159,7 +162,7 @@ public final class ThreadLocalJawrContext {
             }
 
             jawrContext.remove();
-            jawrContext.set(null);
+            jawrContext.add(null);
             jawrContext = null;
 
             log.info(">>>> Done with jawrContext cleanup! <<<<");
