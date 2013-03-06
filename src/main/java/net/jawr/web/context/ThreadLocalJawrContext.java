@@ -17,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.management.ObjectName;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -44,7 +43,7 @@ public final class ThreadLocalJawrContext {
 	    
 	};*/
 
-    private static ConcurrentLinkedQueue<WeakReference<JawrContext>> jawrContext = new ConcurrentLinkedQueue<WeakReference<JawrContext>>();
+    private static ConcurrentLinkedQueue<JawrContext> jawrContext = new ConcurrentLinkedQueue<JawrContext>();
 	
 	/**
 	 * The debugOverride will be automatially set to false
@@ -54,20 +53,14 @@ public final class ThreadLocalJawrContext {
 	}
 
     public static JawrContext getJawrContext(){
-        WeakReference<JawrContext> weakReference = jawrContext.poll();
-        if(weakReference == null){
+        JawrContext context = jawrContext.poll();
+        if(context == null){
             log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of WeakReference<JawrContext>");
-            weakReference = new WeakReference<JawrContext>(new JawrContext());
-            jawrContext.add(weakReference);
-            return weakReference.get();
-        } else {
-            JawrContext context = weakReference.get();
-            if(context == null){
-                log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
-                context = new JawrContext();
-            }
+            context = new JawrContext();
+            jawrContext.add(context);
             return context;
         }
+        return context;
     }
 	
 	/**
@@ -155,17 +148,15 @@ public final class ThreadLocalJawrContext {
         if(info)
             log.info("start: ThreadLocalJawrContext.shutdown");
         if(null != jawrContext){
-            WeakReference<JawrContext> weakReference = jawrContext.poll();
-            if(weakReference != null){
-                JawrContext context = weakReference.get();
+            JawrContext context;
+            while(!jawrContext.isEmpty()){
+                context = jawrContext.poll();
                 if(context != null){
                     context.reset();
-                    weakReference.clear();
                 }
             }
 
-            jawrContext.remove();
-            jawrContext.add(null);
+            jawrContext.clear();
             jawrContext = null;
 
             log.info(">>>> Done with jawrContext cleanup! <<<<");
