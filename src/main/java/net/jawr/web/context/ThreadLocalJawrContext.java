@@ -13,6 +13,9 @@
  */
 package net.jawr.web.context;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.management.ObjectName;
 
 /**
@@ -22,6 +25,7 @@ import javax.management.ObjectName;
  * @author Ibrahim Chaehoi
  */
 public final class ThreadLocalJawrContext {
+    private static Log log = LogFactory.getLog(ThreadLocalJawrContext.class);
 
 	/**
 	 * debugOverride will allow us to override production mode on a request by request basis.
@@ -121,5 +125,25 @@ public final class ThreadLocalJawrContext {
 
 		jawrContext.remove();
 	}
+
+    /**
+     * Utility method to enforce resource clean up
+     */
+    public static void shutdown(){
+        boolean info = log.isInfoEnabled();
+        if(info)
+            log.info("start: ThreadLocalJawrContext.shutdown");
+        if(null != jawrContext){
+            jawrContext.get().reset();
+            jawrContext.remove();
+            jawrContext = null;
+
+            log.info(">>>> Done with jawrContext cleanup! <<<<");
+        }
+
+        if(info)
+            log.info("end: ThreadLocalJawrContext.shutdown");
+
+    }
 	
 }
