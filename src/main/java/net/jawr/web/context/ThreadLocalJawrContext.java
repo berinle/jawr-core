@@ -56,8 +56,9 @@ public final class ThreadLocalJawrContext {
             log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
             jawrContext.get().clear();
             jawrContext.remove();
-            context = new JawrContext();
-            jawrContext.set(new WeakReference<JawrContext>(context));
+            WeakReference<JawrContext> weakReference = new WeakReference<JawrContext>(new JawrContext());
+            jawrContext.set(weakReference);
+            context = weakReference.get();
         }
 
         return context;
@@ -150,6 +151,8 @@ public final class ThreadLocalJawrContext {
         if(null != jawrContext){
             getJawrContext().reset();
             jawrContext.remove();
+            jawrContext.get().clear();
+            jawrContext.set(null);
             jawrContext = null;
 
             log.info(">>>> Done with jawrContext cleanup! <<<<");
