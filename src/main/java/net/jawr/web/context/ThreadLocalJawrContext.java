@@ -54,17 +54,20 @@ public final class ThreadLocalJawrContext {
 	}
 
     public static JawrContext getJawrContext(){
-        JawrContext context = jawrContext.poll().get();
-        if(context == null){
-            log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
-            jawrContext.poll().clear();
-            jawrContext.remove();
-            WeakReference<JawrContext> weakReference = new WeakReference<JawrContext>(new JawrContext());
+        WeakReference<JawrContext> weakReference = jawrContext.poll();
+        if(weakReference == null){
+            log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of WeakReference<JawrContext>");
+            weakReference = new WeakReference<JawrContext>(new JawrContext());
             jawrContext.add(weakReference);
-            context = weakReference.get();
+            return weakReference.get();
+        } else {
+            JawrContext context = weakReference.get();
+            if(context == null){
+                log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
+                context = new JawrContext();
+            }
+            return context;
         }
-
-        return context;
     }
 	
 	/**
