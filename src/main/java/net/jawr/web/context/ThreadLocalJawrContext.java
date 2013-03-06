@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.management.ObjectName;
+import java.lang.ref.WeakReference;
 
 /**
  * This class defines the context for Jawr, it holds the context in a ThreadLocal object.
@@ -31,13 +32,13 @@ public final class ThreadLocalJawrContext {
 	 * debugOverride will allow us to override production mode on a request by request basis.
 	 * ThreadLocal is used to hold the overridden status throughout a given request.
 	 */
-	private static ThreadLocal<JawrContext> jawrContext = new ThreadLocal<JawrContext>(){
+	private static ThreadLocal<WeakReference<JawrContext>> jawrContext = new ThreadLocal<WeakReference<JawrContext>>(){
 
 		/* (non-Javadoc)
 		 * @see java.lang.ThreadLocal#initialValue()
 		 */
-		protected JawrContext initialValue() {
-			return new JawrContext();
+		protected WeakReference<JawrContext> initialValue() {
+			return new WeakReference<JawrContext>(new JawrContext());
 		}
 	    
 	};
@@ -48,6 +49,17 @@ public final class ThreadLocalJawrContext {
 	private ThreadLocalJawrContext() {
 		
 	}
+
+    public static JawrContext getJawrContext(){
+        JawrContext context = jawrContext.get().get();
+        if(context == null){
+            log.info("ThreadLocalJawrContext.getJawrContext: Creating a new instance of JawrContext");
+            context = new JawrContext();
+            jawrContext.set(new WeakReference<JawrContext>(context));
+        }
+
+        return context;
+    }
 	
 	/**
 	 * Returns the mbean object name of the Jawr config manager
@@ -55,7 +67,7 @@ public final class ThreadLocalJawrContext {
 	 */
 	public static ObjectName getJawrConfigMgrObjectName() {
 		
-		return jawrContext.get().getJawrConfigMgrObjectName();
+		return getJawrContext().getJawrConfigMgrObjectName();
 	}
 
 	/**
@@ -64,7 +76,7 @@ public final class ThreadLocalJawrContext {
 	 */
 	public static void setJawrConfigMgrObjectName(ObjectName mbeanObjectName) {
 
-		jawrContext.get().setJawrConfigMgrObjectName(mbeanObjectName);
+        getJawrContext().setJawrConfigMgrObjectName(mbeanObjectName);
 	}
 	
 	/**
@@ -73,7 +85,7 @@ public final class ThreadLocalJawrContext {
 	 */
 	public static boolean isDebugOverriden() {
 		
-		return jawrContext.get().isDebugOverriden();
+		return getJawrContext().isDebugOverriden();
 	}
 
 	/**
@@ -82,7 +94,7 @@ public final class ThreadLocalJawrContext {
 	 */
 	public static void setDebugOverriden(boolean override) {
 
-		jawrContext.get().setDebugOverriden(override);
+        getJawrContext().setDebugOverriden(override);
 	}
 	
 	/**
@@ -90,7 +102,7 @@ public final class ThreadLocalJawrContext {
 	 * @return the flag indicating that we are using making a bundle processing at build time
 	 */
 	public static boolean isBundleProcessingAtBuildTime() {
-		return jawrContext.get().isBundleProcessingAtBuildTime();
+		return getJawrContext().isBundleProcessingAtBuildTime();
 	}
 
 	/**
@@ -98,7 +110,7 @@ public final class ThreadLocalJawrContext {
 	 * @param bundleProcessingAtBuildTime the flag to set
 	 */
 	public static void setBundleProcessingAtBuildTime(boolean bundleProcessingAtBuildTime) {
-		jawrContext.get().setBundleProcessingAtBuildTime(bundleProcessingAtBuildTime);
+        getJawrContext().setBundleProcessingAtBuildTime(bundleProcessingAtBuildTime);
 	}
 	
 	/**
@@ -106,7 +118,7 @@ public final class ThreadLocalJawrContext {
 	 * @return the request
 	 */
 	public static String getRequestURL() {
-		return jawrContext.get().getRequestURL();
+		return getJawrContext().getRequestURL();
 	}
 
 	/**
@@ -114,7 +126,7 @@ public final class ThreadLocalJawrContext {
 	 * @param request the request to set
 	 */
 	public static void setRequest(String requestURL) {
-		jawrContext.get().setRequestURL(requestURL);
+        getJawrContext().setRequestURL(requestURL);
 	}
 	
 	/**
@@ -134,7 +146,7 @@ public final class ThreadLocalJawrContext {
         if(info)
             log.info("start: ThreadLocalJawrContext.shutdown");
         if(null != jawrContext){
-            jawrContext.get().reset();
+            getJawrContext().reset();
             jawrContext.remove();
             jawrContext = null;
 
