@@ -149,9 +149,16 @@ public final class ThreadLocalJawrContext {
         if(info)
             log.info("start: ThreadLocalJawrContext.shutdown");
         if(null != jawrContext){
-            getJawrContext().reset();
+            WeakReference<JawrContext> weakReference = jawrContext.get();
+            if(weakReference != null){
+                JawrContext context = weakReference.get();
+                if(context != null){
+                    context.reset();
+                    weakReference.clear();
+                }
+            }
+
             jawrContext.remove();
-            jawrContext.get().clear();
             jawrContext.set(null);
             jawrContext = null;
 
